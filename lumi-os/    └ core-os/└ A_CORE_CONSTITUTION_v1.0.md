@@ -254,7 +254,15 @@ LUMI の収益：
 ＝ 「使うな」と説教するサービスではなく、
 　「見える＋減速＋ SAFE_NULL」をかませてから
 　“使いたい
+---
 
+## Linked Protocols
+This OS follows the automation and governance rules defined in:
+
+- **AUTO_APPEND_PROTOCOL v1.0**  
+  (`/protocols/AUTO_APPEND_PROTOCOL_v1.0.md`)
+
+These protocols govern how A:HQ promotes drafts → canonical OS documents in lumi-os.
 
 　
 
