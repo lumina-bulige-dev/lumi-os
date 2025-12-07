@@ -1,3 +1,91 @@
+正式版を追加。
+lumi-os — Canonical OS / Rules / META / Algorithms Repository for LUMINA BULIGE
+
+This repository (lumi-os) is the canonical source of truth for all core operating-system components of LUMINA BULIGE.
+
+It stores:
+	•	Core OS definitions
+	•	META rules (decision rules, behavioral constraints, safety logic)
+	•	System rules (financial floors, SAFE_NULL, statict2x, etc.)
+	•	Algorithms
+	•	state_t / action_t / reaction → state_t+1
+	•	MONEY_FLOW_STABILIZER
+	•	BAD_LOOP / GOOD_LOOP models
+	•	Specifications officially adopted by A:HQ
+	•	Prohibited zones & boundary rules
+	•	Versioned canonical documents for internal classes (A/B/C/D/E)
+
+⸻
+
+Canonical Governance Model
+
+1. What is “Canonical” in LUMI?
+
+Only items that satisfy both conditions become official OS:
+	1.	Adopted by A：HQ
+	2.	Saved here in lumi-os
+
+Everything else—E 深海ログ、ドラフト、試作文、議論途中の案—は draft とする。
+
+“If it is not in lumi-os, it is not official.”
+
+⸻
+
+2. HQ-Only Autocheck Rule
+
+A：HQ is the only class allowed to:
+	•	perform automatic consistency checks
+	•	cross-verify OS rules
+	•	detect conflicts across versions
+	•	reconcile META rules
+	•	update canonical definitions
+
+B／C／D／E は：
+	•	lumi-os を参照する義務のみ
+	•	自動補正は禁止（越境防止）
+
+“HQ is the only layer allowed to modify or validate the OS.”
+
+⸻
+
+3. Boundary Constitution (“憲法の一行目”)
+
+“Not crossing specialized domains is the only way to keep LUMI from breaking.”
+
+This rule is absolute.
+Every class (A/B/C/D/E) works in strict, isolated domains, and only HQ integrates them.
+
+⸻
+
+4. Repository Purpose
+
+lumi-os ensures:
+	•	Single Source of Truth
+	•	Consistent OS evolution
+	•	Future collaboration with engineers
+	•	Permanent memory of design decisions
+	•	Regulatory-safe, reproducible system logic
+
+⸻
+
+5. Directory Structure (recommended)
+/core-os
+/rules
+/meta
+/algorithms
+/specifications
+/boundaries
+/changelogs
+6. Contribution Workflow (internal)
+
+Only A：HQ may push canonical updates.
+
+Flow:
+E (Deep Source) → AI_E structuring → A:HQ adoption → lumi-os (canonical)
+All classes must read from main branch of this repo.
+
+下に古い説明文を残す。
+
 # lumi-os
 Core OS / Rules / Algorithms / Specifications for LUMINA BULIGE
 ────────────────────────────
