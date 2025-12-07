@@ -171,15 +171,17 @@
 
       <div class="label-row">
         <span class="label">残高</span>
-        <span class="value">¥320,000</span>
+        <!-- ★ balance_total に id を付ける -->
+        <span class="value" id="balance_total">¥320,000</span>
       </div>
       <div class="label-row">
         <span class="label">床</span>
-        <span class="value">¥300,000</span>
+        <!-- ★ paket_bigzoon に id を付ける -->
+        <span class="value" id="paket_bigzoon">¥300,000</span>
       </div>
 
-      <!-- ここはとりあえず SAFE 固定 -->
-      <div class="status-badge status-safe">
+      <!-- ★ floor_status 自体に id -->
+      <div class="status-badge status-safe" id="floor_status">
         SAFE：床との余裕は十分あります。
       </div>
 
@@ -192,11 +194,12 @@
     <div class="card">
       <div class="section-title-row">
         <h2>30日「床を割らない」チャレンジ</h2>
-        <span class="day-label">7日目</span>
+        <!-- ★ day_in_challenge に id -->
+        <span class="day-label" id="day_in_challenge">7日目</span>
       </div>
 
-      <!-- パターンA：is_safe_null_today === true の想定 -->
-      <div class="main-text">
+      <!-- ★ メッセージ部分も差し替えたくなるので id 付けておくと楽 -->
+      <div class="main-text" id="challenge_message">
         今日は「何もしない」だけで合格です。<br />
         大きな支出を休んで、床との距離をキープする日です。
       </div>
@@ -206,10 +209,10 @@
     <div class="card">
       <h2>今のあなたのコンディション</h2>
 
-      <!-- ここは NORMAL 固定 -->
-      <div class="pill">NORMAL</div>
+      <!-- ★ risk_mode に id -->
+      <div class="pill" id="risk_mode">NORMAL</div>
 
-      <div class="main-text">
+      <div class="main-text" id="risk_message">
         いつもどおりの判断ができる状態です。<br />
         必要な支出の見直しや、小さな調整には向いています。
       </div>
