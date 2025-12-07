@@ -2,624 +2,132 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <title>LUMINA BULIGE – LUMI OS / MONEY FLOW STABILIZER</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="LUMI OS は、お金の“床”を守るための MONEY FLOW STABILIZER。見えない損と危険なループを止めるための新しい金融OSです。" />
+  <title>LUMINA BULIGE – LUMI OS MVP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
-    :root {
-      --bg: #050816;
-      --bg-soft: #0b1020;
-      --accent: #ffd266;
-      --accent-soft: #f7e3a0;
-      --text-main: #f7f7fb;
-      --text-sub: #a9afc7;
-      --border-soft: rgba(255,255,255,0.08);
-      --danger: #ff4b5c;
-      --warning: #ffbf3c;
-      --safe: #34c38f;
-      --radius-lg: 18px;
-      --radius-md: 12px;
-      --shadow-soft: 0 18px 45px rgba(0,0,0,0.55);
-      --max-width: 1040px;
-      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-        "Segoe UI", sans-serif;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
     body {
-      font-family: var(--font-main);
-      background: radial-gradient(circle at top, #11172f 0, var(--bg) 48%, #000 100%);
-      color: var(--text-main);
-      min-height: 100vh;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    .page {
-      max-width: var(--max-width);
-      margin: 0 auto;
-      padding: 20px 18px 64px;
+      margin: 0;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      background: #ffffff;
+      color: #0c1a2b;
+      line-height: 1.7;
     }
 
     header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 10px 4px 24px;
+      background: linear-gradient(135deg, #0b1a33, #113b7a);
+      padding: 40px 20px;
+      text-align: center;
+      color: #fff;
+      border-bottom: 4px solid #d4af37; /* gold line */
     }
 
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    header h1 {
+      font-size: 34px;
+      margin: 0;
+      font-weight: 600;
+      letter-spacing: 1px;
     }
 
-    .logo-mark {
-      width: 32px;
-      height: 32px;
-      border-radius: 999px;
-      background: radial-gradient(circle at 30% 20%, #fff 0, #ffe9a8 35%, #f4c45f 75%, #8b6b2d 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.65);
-      font-size: 16px;
-      color: #231709;
-      font-weight: 800;
-    }
-
-    .logo-text-main {
+    header p {
+      margin-top: 10px;
+      opacity: 0.9;
       font-size: 15px;
-      font-weight: 600;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
     }
 
-    .logo-text-sub {
-      font-size: 11px;
-      color: var(--text-sub);
+    .section {
+      max-width: 900px;
+      margin: 60px auto;
+      padding: 0 20px;
     }
 
-    .tag-beta {
-      font-size: 11px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.18);
-      background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01));
-      color: var(--accent-soft);
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      white-space: nowrap;
-    }
-
-    /* hero */
-
-    .hero {
-      display: grid;
-      grid-template-columns: minmax(0, 3fr) minmax(0, 2.1fr);
-      gap: 22px;
-      margin-bottom: 26px;
-    }
-
-    @media (max-width: 780px) {
-      .hero {
-        grid-template-columns: minmax(0, 1fr);
-      }
-    }
-
-    .hero-main {
-      background: radial-gradient(circle at top left, #1e2846 0, var(--bg-soft) 45%, var(--bg) 100%);
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border-soft);
-      padding: 20px 20px 22px;
-      box-shadow: var(--shadow-soft);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero-pill {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--accent-soft);
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.18);
-      padding: 3px 9px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 10px;
-      background: rgba(0,0,0,0.4);
-      backdrop-filter: blur(12px);
-    }
-
-    .hero-pill-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 999px;
-      background: var(--accent);
-      box-shadow: 0 0 12px rgba(255,210,102,0.8);
-    }
-
-    .hero-title {
-      font-size: clamp(24px, 4.4vw, 34px);
-      line-height: 1.28;
-      margin-bottom: 10px;
-    }
-
-    .hero-title span {
-      color: var(--accent);
-    }
-
-    .hero-sub {
-      font-size: 13px;
-      line-height: 1.7;
-      color: var(--text-sub);
-      margin-bottom: 18px;
-    }
-
-    .hero-sub strong {
-      color: var(--accent-soft);
-      font-weight: 600;
-    }
-
-    .hero-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-
-    .btn-primary,
-    .btn-ghost {
-      border-radius: 999px;
-      font-size: 13px;
-      padding: 9px 16px;
-      border: 1px solid transparent;
-      cursor: default;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      white-space: nowrap;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #ffd266, #f2a93c);
-      color: #1e1300;
-      font-weight: 600;
-      box-shadow: 0 14px 30px rgba(0,0,0,0.55);
-    }
-
-    .btn-primary span.icon-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: #1e1300;
-    }
-
-    .btn-ghost {
-      border-color: rgba(255,255,255,0.22);
-      color: var(--text-sub);
-      background: rgba(0,0,0,0.4);
-    }
-
-    .hero-note {
-      font-size: 11px;
-      color: var(--text-sub);
-      line-height: 1.7;
-      border-top: 1px solid rgba(255,255,255,0.06);
-      padding-top: 10px;
-      margin-top: 6px;
-    }
-
-    .hero-note strong {
-      color: var(--accent-soft);
-      font-weight: 600;
-    }
-
-    .hero-panel {
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border-soft);
-      padding: 16px 14px 14px;
-      background: radial-gradient(circle at top, #222b47 0, #070b15 55%, #020308 100%);
-      box-shadow: var(--shadow-soft);
-      display: grid;
-      gap: 10px;
-      align-content: start;
-    }
-
-    .panel-title {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--text-sub);
-      margin-bottom: -4px;
-    }
-
-    .floor-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 8px;
-    }
-
-    .floor-label {
-      font-size: 11px;
-      color: var(--text-sub);
-    }
-
-    .floor-value {
-      font-size: 20px;
-      font-weight: 600;
-    }
-
-    .status-badges {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    .badge {
-      font-size: 10px;
-      padding: 4px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.16);
-      background: rgba(0,0,0,0.35);
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .badge-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-    }
-
-    .badge.safe .badge-dot { background: var(--safe); }
-    .badge.warning .badge-dot { background: var(--warning); }
-    .badge.danger .badge-dot { background: var(--danger); }
-
-    .aurora-card {
-      border-radius: var(--radius-md);
-      border: 1px solid rgba(255,255,255,0.12);
-      padding: 10px 10px 9px;
-      background: radial-gradient(circle at top left, rgba(255,210,102,0.16), rgba(8,10,18,0.9));
-    }
-
-    .aurora-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 11px;
-      margin-bottom: 6px;
-    }
-
-    .aurora-head span:last-child {
-      color: var(--accent-soft);
-      font-weight: 600;
-    }
-
-    .aurora-body {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 8px;
-      font-size: 11px;
-      color: var(--text-sub);
-    }
-
-    .aurora-body strong {
-      color: var(--accent);
-      font-size: 13px;
-    }
-
-    .challenge-bar {
-      border-radius: var(--radius-md);
-      border: 1px dashed rgba(255,255,255,0.24);
-      padding: 7px 9px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 11px;
-      color: var(--text-sub);
-      margin-top: 4px;
-    }
-
-    .challenge-bar strong {
-      color: var(--accent-soft);
-      font-weight: 600;
-    }
-
-    /* sections */
-
-    section {
-      margin-top: 30px;
-    }
-
-    .section-title {
-      font-size: 14px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--text-sub);
-      margin-bottom: 12px;
-    }
-
-    .section-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 14px;
+    h2 {
+      font-size: 26px;
+      border-left: 5px solid #0b3a85;
+      padding-left: 12px;
+      color: #0b1a33;
     }
 
     .card {
-      border-radius: var(--radius-md);
-      border: 1px solid var(--border-soft);
-      background: rgba(6,9,20,0.9);
-      padding: 14px 14px 13px;
+      background: #f6f8fc;
+      padding: 22px 25px;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      margin-top: 20px;
+      border-left: 5px solid #0b3a85;
     }
 
-    .card h3 {
-      font-size: 14px;
-      margin-bottom: 4px;
+    .button-primary {
+      display: inline-block;
+      background: #0b3a85;
+      color: #fff;
+      padding: 14px 28px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 16px;
+      margin-top: 10px;
     }
 
-    .card p {
-      font-size: 12px;
-      color: var(--text-sub);
-      line-height: 1.7;
+    .button-primary:hover {
+      background: #092d66;
     }
-
-    .card ul {
-      margin-top: 6px;
-      padding-left: 1.1em;
-      font-size: 12px;
-      color: var(--text-sub);
-      line-height: 1.7;
-    }
-
-    .card ul li {
-      margin-bottom: 2px;
-    }
-
-    .badge-small {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 10px;
-      padding: 2px 7px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.20);
-      color: var(--accent-soft);
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-    }
-
-    /* footer */
 
     footer {
-      margin-top: 40px;
-      padding-top: 16px;
-      border-top: 1px solid rgba(255,255,255,0.08);
-      font-size: 11px;
-      color: var(--text-sub);
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
-    footer a {
-      text-decoration: underline;
-      text-decoration-thickness: 0.08em;
-      text-underline-offset: 0.18em;
+      margin-top: 80px;
+      padding: 25px;
+      text-align: center;
+      background: #0b1a33;
+      color: #fff;
+      font-size: 14px;
+      border-top: 4px solid #d4af37;
     }
   </style>
 </head>
+
 <body>
-  <div class="page">
-    <header>
-      <div class="logo">
-        <div class="logo-mark">L</div>
-        <div>
-          <div class="logo-text-main">LUMINA BULIGE</div>
-          <div class="logo-text-sub">LUMI OS – MONEY FLOW STABILIZER</div>
-        </div>
-      </div>
-      <div class="tag-beta">Private MVP / Stealth</div>
-    </header>
 
-    <main>
-      <!-- Hero -->
-      <div class="hero">
-        <div class="hero-main">
-          <div class="hero-pill">
-            <span class="hero-pill-dot"></span>
-            <span>Money Flow Stabilizer OS</span>
-          </div>
-          <h1 class="hero-title">
-            <span>LUMI OS</span> は<br>
-            お金の「床」を守る<br>ミニマム金融 OS です。
-          </h1>
-          <p class="hero-sub">
-            家賃と生活費が払えなくなる“<strong>床割れ</strong>”だけは避けたい。<br>
-            それでも、為替・手数料・サブスクは静かに残高を削っていく。<br>
-            LUMI OS は、<strong>床からの距離</strong>と<strong>見えない損</strong>を常に計算し、
-            危険な一手の前でブレーキをかけるための OS です。
-          </p>
-          <div class="hero-actions">
-            <div class="btn-primary">
-              <span class="icon-dot"></span>
-              <span>30日「床を割らない」チャレンジ（準備中）</span>
-            </div>
-            <div class="btn-ghost">
-              Aurora ルーペで Wise 手数料だけ「見る」
-            </div>
-          </div>
-          <p class="hero-note">
-            本サービスは現在、<strong>クローズド MVP</strong> として検証中です。<br>
-            一般公開前にご案内を希望される方は、招待フォーム（近日公開）よりご登録ください。
-          </p>
-        </div>
+<header>
+  <h1>LUMINA BULIGE</h1>
+  <p>LUMI OS MVP — Financial Floor OS / SAFE_NULL / Aurora Loupe</p>
+</header>
 
-        <!-- Right side: live-style OS panel -->
-        <aside class="hero-panel">
-          <div class="panel-title">Today’s Floor View</div>
-
-          <div class="floor-row">
-            <div>
-              <div class="floor-label">現在残高</div>
-              <div class="floor-value">¥ 320,000</div>
-            </div>
-            <div>
-              <div class="floor-label">守るべき床（paket_bigzoon）</div>
-              <div class="floor-value" style="font-size:16px;">¥ 300,000</div>
-            </div>
-          </div>
-
-          <div class="status-badges">
-            <div class="badge safe">
-              <span class="badge-dot"></span>
-              SAFE ZONE
-            </div>
-            <div class="badge">
-              <span class="badge-dot" style="background:var(--accent);"></span>
-              Floor gap +¥20,000
-            </div>
-          </div>
-
-          <div class="aurora-card">
-            <div class="aurora-head">
-              <span>Aurora fee loupe</span>
-              <span>「今のルート、本当にお得？」</span>
-            </div>
-            <div class="aurora-body">
-              <div>
-                <div>国際送金 ¥50,000</div>
-                <div>銀行ルート：<s>¥950</s></div>
-              </div>
-              <div style="text-align:right;">
-                <div>Wise ルート</div>
-                <strong>¥730 / 回</strong>
-                <div>見えない差額：<span style="color:var(--accent-soft);">▲¥220</span></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="challenge-bar">
-            <span>30日チャレンジ：7日目</span>
-            <span><strong>今日は SAFE_NULL day</strong>（何もしなくて合格）</span>
-          </div>
-        </aside>
-      </div>
-
-      <!-- Sections -->
-      <section>
-        <h2 class="section-title">What LUMI OS provides</h2>
-        <div class="section-grid">
-          <article class="card">
-            <div class="badge-small">Core OS</div>
-            <h3>「今より悪くならない」ための床 OS</h3>
-            <p>
-              毎月の固定費・最低生活費・安全バッファから、
-              あなた専用の床 <strong>paket_bigzoon</strong> を計算。
-              アプリを使うほど、「床を割りにくい体質」に近づくことだけを約束します。
-            </p>
-          </article>
-
-          <article class="card">
-            <div class="badge-small">Aurora loupe</div>
-            <h3>手数料を“増やす”のではなく、“見える化”する</h3>
-            <p>
-              LUMI は銀行や Wise と競争しません。<br>
-              既存サービスの上に、<strong>「どれだけ損しているかを映すルーペ」</strong>として乗るだけです。
-            </p>
-            <ul>
-              <li>レバレッジ・約束利回り・借金スパイラルは提供しない</li>
-              <li>紹介料が発生しても、ユーザーの手数料を上乗せしない</li>
-            </ul>
-          </article>
-
-          <article class="card">
-            <div class="badge-small">Behavior brake</div>
-            <h3>心のコンディションも OS に載せる</h3>
-            <p>
-              疲れている日・感情が揺れている日は、お金の判断もブレやすい。
-              LUMI OS は、簡単な質問から <strong>NORMAL / TIRED / RED</strong> を判定し、
-              RED なら大きな決断を一旦止めるように設計します。
-            </p>
-          </article>
-        </div>
-      </section>
-
-      <section>
-        <h2 class="section-title">For whom</h2>
-        <div class="section-grid">
-          <article class="card">
-            <h3>・フリーランス / 個人事業主</h3>
-            <p>
-              売上が月ごとに変動し、「いつもなんとなく不安」。
-              床を固定し、そこからの距離だけを見ることで、
-              「今月どこまで動かしていいか」が一目でわかります。
-            </p>
-          </article>
-          <article class="card">
-            <h3>・海外送金 / 多通貨を使う人</h3>
-            <p>
-              為替レート・中継銀行・サービス手数料…。
-              Aurora ルーペは、それらをまとめて <strong>「実質いくら損しているか」</strong>で見せます。
-            </p>
-          </article>
-          <article class="card">
-            <h3>・「投資よりまず生活の安定」が大事な人</h3>
-            <p>
-              LUMI OS は、レバレッジや高リスク商品の販売を行いません。
-              まずは「床を割らない」ことだけに集中したい方のための OS です。
-            </p>
-          </article>
-        </div>
-      </section>
-
-      <section>
-        <h2 class="section-title">Contact & roadmap</h2>
-        <div class="section-grid">
-          <article class="card">
-            <h3>開発ステータス</h3>
-            <p>
-              現在は、<strong>日本在住の少人数クローズドテスト</strong>で
-              アルゴリズムと UI を検証中です。<br>
-              2025–2026 年にかけて、順次機能を公開予定です。
-            </p>
-          </article>
-          <article class="card">
-            <h3>パートナー / 出資・協業のご相談</h3>
-            <p>
-              金融機関 / Fintech 事業者 / 研究者の方との対話を歓迎します。<br>
-              ご興味ある方は、件名に
-              「LUMI OS パートナー相談」と記載のうえ、下記メールまでご連絡ください。
-            </p>
-            <p style="margin-top:6px;">
-              Mail：<a href="mailto:info@luminabulige.com">info@luminabulige.com</a>
-            </p>
-          </article>
-        </div>
-      </section>
-    </main>
-
-    <footer>
-      <div>© LUMINA BULIGE. All rights reserved.</div>
-      <div>このサイトは MVP 検証中のため、内容は予告なく変更される場合があります。</div>
-    </footer>
+<div class="section">
+  <h2>About LUMI OS</h2>
+  <div class="card">
+    <p>
+      LUMI OS は「床（financial floor）」と「見えない損（hidden cost）」を扱う  
+      世界初のスタビライザー型 OS です。
+      使うほど「今より悪くならない」構造だけを提供します。
+    </p>
   </div>
+</div>
+
+<div class="section">
+  <h2>MVP Features</h2>
+  <div class="card">
+    <ul>
+      <li>✓ paket_bigzoon（床）の可視化</li>
+      <li>✓ SAFE_NULL：無行動で合格できる日</li>
+      <li>✓ heart_mode：NORMAL / TIRED / RED</li>
+      <li>✓ Aurora：手数料ルーペ（見えない損を可視化）</li>
+      <li>✓ state → reaction（LUMI_ALGO 心臓部）</li>
+    </ul>
+  </div>
+</div>
+
+<div class="section">
+  <h2>Aurora Loupe</h2>
+  <div class="card">
+    <p>国際送金や FX の「見えない手数料差」を自動で比較するルーペ。</p>
+    <p>ユーザーが損しないときだけ提案し、損するときは黙ります。</p>
+    <a class="button-primary" href="#">手数料を見る（Aurora）</a><br>
+    <small>※ 実際の送金操作はできません。Wise の画面が開きます。</small>
+  </div>
+</div>
+
+<footer>
+  © 2025 LUMINA BULIGE — All Rights Reserved.
+</footer>
+
 </body>
 </html>
