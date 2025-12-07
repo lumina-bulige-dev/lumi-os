@@ -263,6 +263,171 @@ This OS follows the automation and governance rules defined in:
   (`/protocols/AUTO_APPEND_PROTOCOL_v1.0.md`)
 
 These protocols govern how A:HQ promotes drafts → canonical OS documents in lumi-os.
+🔔A-CORE / GIT_PUSH_READY
 
-　
+A_CORE_CONSTITUTION_v1.0 — 正式全文（GitHub 追記用）
+
+以下は そのまま GitHub の既存 A_CORE_CONSTITUTION_v1.0.md の続きに貼れるよう
+構造・見出し・Markdown 整形済みで作成しています。
+（重複を避けるため、あなたがもう書いた部分は除外して“残り全部”だけを生成しています。）
+
+⸻
+
+6. POWER_GAP_MODEL（金融インフラとの位置関係）
+
+LUMI は 銀行・カード・巨大Fintech（資源モンスター） と
+同じ土俵（プロダクト量産・手数料争い）では戦わない。
+
+原則：
+	1.	インフラは素材として利用する
+	•	Wise／銀行／カードネットワーク／既存API を自前で再発明しない。
+	2.	ユーザー側の判断 OS を握る
+	•	どのサービスを、どういう条件で使えば即死を避けられるか。
+	•	Hidden Cost（見えない損）を計算し、見せる側に回る。
+	3.	“山を作る側” ではなく “山の登り方” を提供する
+	•	プロダクトを増やす側ではなく、評価・判定・フィルタ（Loupe）を作る側。
+
+⸻
+
+7. LOUPE_MODEL（可視化 OS）
+
+LUMI の役割は、
+「見えない損・見えない床・見えない未来の悪化」を 可視化する唯一のレイヤー。
+
+定義：
+	•	LUMI はユーザーのお金を 運用しない。
+	•	LUMI はユーザーのお金を 預からない。
+	•	LUMI はユーザーの行動を 止める権限を持たない。
+	•	できることは
+“見える化” と “signal（注意喚起）” と “減速（SAFE_NULL）” のみ。
+
+⸻
+
+8. FINTECH_BOUNDARY（禁止領域）
+
+LUMI OS は以下を永久に禁止する：
+	1.	レバレッジの提供（FX/CFD/仮想通貨証拠金）
+	2.	預かり金・カストディ
+	3.	貸付・BNPL・与信判断・スコア販売
+	4.	約束利回り・投資助言・運用指示
+	5.	ユーザーが損するほど LUMI が儲かる構造
+	6.	暗黙の自動実行（ユーザー承認なしの操作）
+
+これらは OS の “憲法違反” とし、B／C／D のいかなる提案も A が拒否する。
+
+⸻
+
+9. RISK ZONING（Aurora / Twilight / Dark）
+
+ユーザー状態（state_t.risk_score）を三分割する：
+Zone
+risk_score
+意味
+Aurora
+0–49
+通常〜軽度注意
+Twilight
+50–79
+リスク増大、減速推奨
+Dark
+80–100
+即死率高、提案停止域
+Dark では：
+	•	AUTO_AURORA_ROUTER を 強制停止
+	•	LUMI_fee = 0
+	•	signal のみ許可
+	•	新規決済・送金への積極提案は行わない
+
+⸻
+
+10. MONEY_FLOW_STABILIZER（生活 OS）
+
+目的：
+ユーザーの生活フロア（paket_bigzoon）と信用フロアを守る OS。
+
+主要コンポーネント：
+	•	paket_bigzoon = fixed_must + living_min + buffer
+	•	tekikaku_day_line = paket_bigzoon残 / days_left
+	•	nosmoall_top10（効いているTOP10をそのまま見る）
+	•	pulscost/spectal 系の手数料高騰検知
+	•	RED (#F00000) ＝「床割れ（floor breach）」判定
+	•	YELLOW ＝「今日の必要ライン割れ」
+	•	GREEN ＝「安全圏」
+
+RED では必ず：
+	•	LUMI_STOPBUY 寄り
+	•	AO_ROUTER 停止
+	•	fee = 0
+	•	signal のみ
+	•	新たな勝負をさせない（OS ブレーキ）
+
+⸻
+
+11. AUTO_AURORA_ROUTER（正式定義）
+
+唯一許可される「最適化エンジン」。
+
+条件
+	1.	saving > 0 のときだけ実行
+	2.	user_gain ≥ 0 を必須
+	3.	RED では提案中止
+	4.	毎回ユーザー承認（自動実行禁止）
+	5.	改ざん不能ログ必須
+	6.	α（LUMI取り分）は 0.10〜0.75 のレンジで OS 管理
+
+ユーザーが得した差額（saving）から
+最大 75% までを LUMI_fee にできるが、
+ユーザーの実効コストが before を上回ることは禁止。
+
+⸻
+
+12. CLASS BOUNDARY（越境禁止の絶対ルール）
+
+A：HQ
+	•	ルール・OS・META の制定
+	•	canonical 更新（唯一）
+	•	自動整合性チェック（唯一）
+
+B：INFRA
+	•	実装のみ。
+	•	ルール作成禁止。
+	•	金融禁止領域（貸付・預かり等）に踏み込むコード生成禁止。
+
+C：PRODUCT
+	•	UI／UX の落とし込みのみ。
+	•	OS／META を変更することは禁止。
+
+D：GTM
+	•	市場メッセージ・LP 作成。
+	•	誇大・誤認・利回り表現は禁止。
+
+E：DEEP
+	•	源泉。
+	•	正本ではない。
+	•	すべて A を経由しない限り公式にならない。
+
+⸻
+
+13. CANONICAL RULE（憲法の一行）
+
+「LUMI の OS・仕様の正本は GitHub（lumi-os）に置く。
+迷ったら lumi-os を見る。他のすべてはドラフトである。」
+
+⸻
+
+14. AUTOCHECK RULE（HQ 限定）
+
+自動整合性チェックを持つのは A：HQ のみ。
+
+B／C／D／E は：
+	•	lumi-os を参照する義務
+	•	自動補正は不可
+	•	正本の更新権限なし
+
+⸻
+
+15. VERSIONING POLICY
+	•	canonical 文書は A が採択したときに v1.0 → v1.1 → v1.2 と上げる
+	•	過去バージョンは削除しない
+	•	全部残して進化履歴を管理する
 
