@@ -2,132 +2,124 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <title>LUMINA BULIGE – LUMI OS MVP</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LUMINA BULIGE – MONEY FLOW STABILIZER OS</title>
 
   <style>
     body {
       margin: 0;
-      font-family: "Helvetica Neue", Arial, sans-serif;
-      background: #ffffff;
-      color: #0c1a2b;
-      line-height: 1.7;
+      padding: 0;
+      background: #0b0f17;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", sans-serif;
+      color: #ffffff;
+      line-height: 1.6;
     }
 
-    header {
-      background: linear-gradient(135deg, #0b1a33, #113b7a);
-      padding: 40px 20px;
+    .hero {
+      padding: 60px 20px 40px;
       text-align: center;
-      color: #fff;
-      border-bottom: 4px solid #d4af37; /* gold line */
+      background: linear-gradient(180deg, #0b0f17 0%, #09121d 100%);
     }
 
-    header h1 {
-      font-size: 34px;
-      margin: 0;
-      font-weight: 600;
-      letter-spacing: 1px;
+    .logo {
+      max-width: 180px;
+      margin: 0 auto 20px;
+      opacity: 0.95;
     }
 
-    header p {
-      margin-top: 10px;
-      opacity: 0.9;
-      font-size: 15px;
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      font-size: 16px;
+      opacity: 0.85;
     }
 
     .section {
-      max-width: 900px;
-      margin: 60px auto;
+      max-width: 820px;
+      margin: 40px auto;
       padding: 0 20px;
     }
 
     h2 {
-      font-size: 26px;
-      border-left: 5px solid #0b3a85;
-      padding-left: 12px;
-      color: #0b1a33;
+      font-size: 22px;
+      margin-bottom: 10px;
+      border-left: 4px solid #d7b45a;
+      padding-left: 8px;
     }
 
-    .card {
-      background: #f6f8fc;
-      padding: 22px 25px;
-      border-radius: 14px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-      margin-top: 20px;
-      border-left: 5px solid #0b3a85;
-    }
-
-    .button-primary {
+    .btn {
       display: inline-block;
-      background: #0b3a85;
-      color: #fff;
-      padding: 14px 28px;
+      background: #d7b45a;
+      color: #000;
+      font-weight: 600;
+      padding: 14px 22px;
       border-radius: 8px;
+      margin-top: 20px;
       text-decoration: none;
       font-size: 16px;
-      margin-top: 10px;
-    }
-
-    .button-primary:hover {
-      background: #092d66;
     }
 
     footer {
       margin-top: 80px;
-      padding: 25px;
+      padding: 20px;
+      font-size: 13px;
+      color: #aaa;
       text-align: center;
-      background: #0b1a33;
-      color: #fff;
-      font-size: 14px;
-      border-top: 4px solid #d4af37;
+      opacity: 0.7;
     }
   </style>
 </head>
 
 <body>
 
-<header>
-  <h1>LUMINA BULIGE</h1>
-  <p>LUMI OS MVP — Financial Floor OS / SAFE_NULL / Aurora Loupe</p>
-</header>
+  <div class="hero">
+    <!-- ロゴ画像（あなたが GitHub に置いたパスへ変更）-->
+    <img src="logo.png" class="logo" alt="LUMINA BULIGE LOGO">
 
-<div class="section">
-  <h2>About LUMI OS</h2>
-  <div class="card">
+    <h1>LUMI OS – MONEY FLOW STABILIZER</h1>
+    <div class="subtitle">Your Money. Protected by a New Generation of Financial OS.</div>
+  </div>
+
+  <div class="section">
+    <h2>LUMI OS とは？</h2>
     <p>
-      LUMI OS は「床（financial floor）」と「見えない損（hidden cost）」を扱う  
-      世界初のスタビライザー型 OS です。
-      使うほど「今より悪くならない」構造だけを提供します。
+      LUMI OS は、お金の「床」を守るミニマム金融 OS です。
+      家賃・生活費・光熱費など、絶対に割ってはいけないライン（Floor）を
+      常に可視化し、安全な支出判断を助けます。
+    </p>
+
+    <p>
+      騙しの手数料・静かに減る残高・サブスクの見落とし——  
+      それらを OS が自動で検知し、危険な一歩手前でブレーキをかけます。
     </p>
   </div>
-</div>
 
-<div class="section">
-  <h2>MVP Features</h2>
-  <div class="card">
-    <ul>
-      <li>✓ paket_bigzoon（床）の可視化</li>
-      <li>✓ SAFE_NULL：無行動で合格できる日</li>
-      <li>✓ heart_mode：NORMAL / TIRED / RED</li>
-      <li>✓ Aurora：手数料ルーペ（見えない損を可視化）</li>
-      <li>✓ state → reaction（LUMI_ALGO 心臓部）</li>
-    </ul>
+  <div class="section">
+    <h2>30日「床を割らない」チャレンジ</h2>
+    <p>
+      あなたの支出ペースに合わせて、毎日 OS が「今日の安全度」を計算し、  
+      SAFE / WARNING / DANGER の3段階でガイドします。
+    </p>
+    <a href="#" class="btn">アプリ版（準備中）を見る</a>
   </div>
-</div>
 
-<div class="section">
-  <h2>Aurora Loupe</h2>
-  <div class="card">
-    <p>国際送金や FX の「見えない手数料差」を自動で比較するルーペ。</p>
-    <p>ユーザーが損しないときだけ提案し、損するときは黙ります。</p>
-    <a class="button-primary" href="#">手数料を見る（Aurora）</a><br>
-    <small>※ 実際の送金操作はできません。Wise の画面が開きます。</small>
+  <div class="section">
+    <h2>Aurora（手数料ルーペ）</h2>
+    <p>
+      国際送金・為替の「見えない手数料」を可視化するルーペ機能。  
+      現行ルートと Aurora ルートを比較し、“失っていたはずのお金” を示します。
+    </p>
+
+    <a href="#" class="btn">Wise 手数料を見る</a>
   </div>
-</div>
 
-<footer>
-  © 2025 LUMINA BULIGE — All Rights Reserved.
-</footer>
+  <footer>
+    © 2025 LUMINA BULIGE LLC — MONEY FLOW STABILIZER OS  
+  </footer>
 
 </body>
 </html>
