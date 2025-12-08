@@ -1,3 +1,14 @@
+🔔A-CORE / NOTICE  
+LUMI Canonical Header Policy v1.2
+
+※本ファイルは A：HQ（Founder＋LUMI_A）のみ編集可。  
+B／C／D／E は参照のみとし、文言の引用・改変は禁止とする。
+
+本ファイルは LUMI OS 正本（lumi-os/）の一部であり、  
+内容の改変・加筆・派生仕様の生成・PR 提案は A：HQ 以外のクラスには認められない。
+
+If it is not in lumi-os, it is not official.
+
 🔔A-CORE / AUTO_CANONICAL_FLOW_PROTOCOL_v1.1
 
 Canonical Auto-Flow Specification（整理＋運用版）
