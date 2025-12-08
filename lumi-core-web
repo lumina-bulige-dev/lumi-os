@@ -1,0 +1,20 @@
+lumi-core-web/
+  mock/
+    home_state/
+      home_state.safe.json
+      home_state.warning.json
+      home_state.danger.json
+    README.md
+README.md はあなたの案のまま：
+# MOCK_CORE_HOME_STATE_v1.0
+
+This directory stores canonical mock JSON payloads for:
+
+GET /api/v1/core/home_state
+
+- home_state.safe.json
+- home_state.warning.json
+- home_state.danger.json
+
+B-INFRA / Cloudflare Workers and C-PRODUCT / HOME_CONNECT_v1.0
+must keep their mock payloads consistent with these files.
