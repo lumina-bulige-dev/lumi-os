@@ -1,0 +1,139 @@
+🔔A-CORE / NOTICE  
+LUMI Canonical Header Policy v1.2
+
+※本ファイルは A：HQ（Founder＋LUMI_A）のみ編集可。  
+B／C／D／E は参照のみとし、文言の引用・改変は禁止とする。
+
+本ファイルは LUMI OS 正本（lumi-os/）の一部であり、  
+内容の改変・加筆・派生仕様の生成・PR 提案は A：HQ 以外のクラスには認められない。
+
+If it is not in lumi-os, it is not official.
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">
+  <style>
+    .title { font: bold 28px sans-serif; fill: #0b1530; }
+    .subtitle { font: 16px sans-serif; fill: #0b1530; }
+    .box-title { font: bold 16px sans-serif; fill: #0b1530; }
+    .box-text { font: 13px sans-serif; fill: #1f2933; }
+    .small { font: 12px sans-serif; fill: #4b5563; }
+    .box-core { fill: #e5f0ff; stroke: #1d4ed8; stroke-width: 2; rx: 10; }
+    .box-layer { fill: #f5f5f7; stroke: #9ca3af; stroke-width: 1.5; rx: 8; }
+    .box-app { fill: #fef3c7; stroke: #d97706; stroke-width: 1.5; rx: 8; }
+    .box-side { fill: #ecfeff; stroke: #0891b2; stroke-width: 1.5; rx: 8; }
+    .arrow { stroke: #4b5563; stroke-width: 1.5; marker-end: url(#arrowhead); fill: none; }
+  </style>
+
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7"
+            refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#4b5563" />
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="600" y="50" text-anchor="middle" class="title">
+    LUMI Anatomy – Core OS & Branches
+  </text>
+  <text x="600" y="80" text-anchor="middle" class="small">
+    If it is not in lumi-os, it is not official.
+  </text>
+
+  <!-- Top: Brand -->
+  <rect x="420" y="110" width="360" height="70" class="box-layer" />
+  <text x="600" y="145" text-anchor="middle" class="box-title">
+    LUMINA BULIGE
+  </text>
+  <text x="600" y="170" text-anchor="middle" class="box-text">
+    Brand / Vision / Capital
+  </text>
+
+  <!-- Core OS box -->
+  <rect x="350" y="210" width="500" height="160" class="box-core" />
+  <text x="600" y="240" text-anchor="middle" class="box-title">
+    LUMI OS (Core)
+  </text>
+  <text x="600" y="265" text-anchor="middle" class="box-text">
+    “Floor”守るための憲法・ルール・アルゴリズム
+  </text>
+
+  <!-- Core OS internal layers -->
+  <text x="370" y="295" class="small">/core-os</text>
+  <text x="370" y="315" class="box-text">Constitution / A-CORE</text>
+
+  <text x="520" y="295" class="small">/rules</text>
+  <text x="520" y="315" class="box-text">Safety & Money Rules</text>
+
+  <text x="670" y="295" class="small">/algorithms</text>
+  <text x="670" y="315" class="box-text">Risk & Floor Engines</text>
+
+  <text x="820" y="295" class="small">/protocols</text>
+  <text x="820" y="315" class="box-text">Operations / Flows</text>
+
+  <text x="600" y="345" text-anchor="middle" class="small">
+    /specifications – API & Product Specs（B/C/D 向け正本）
+  </text>
+
+  <!-- Arrows: Brand -> Core -->
+  <line x1="600" y1="180" x2="600" y2="210" class="arrow" />
+
+  <!-- Apps / Surfaces -->
+  <rect x="350" y="420" width="500" height="150" class="box-app" />
+  <text x="600" y="450" text-anchor="middle" class="box-title">
+    Apps / Surfaces
+  </text>
+
+  <text x="380" y="480" class="small">/app</text>
+  <text x="380" y="500" class="box-text">LUMI_CORE_HOME（ユーザーの床ビュー）</text>
+
+  <text x="380" y="530" class="small">Aurora</text>
+  <text x="380" y="550" class="box-text">Wise 連携ルート / Fee 可視化</text>
+
+  <text x="650" y="480" class="small">lumi-core-web</text>
+  <text x="650" y="500" class="box-text">公式サイト / LP / Docs</text>
+
+  <text x="650" y="530" class="small">Other surfaces</text>
+  <text x="650" y="550" class="box-text">LINE / Ads / Future Clients</text>
+
+  <!-- Arrows: Core -> Apps -->
+  <line x1="600" y1="370" x2="600" y2="420" class="arrow" />
+
+  <!-- Left side: Logs in -->
+  <rect x="70" y="250" width="240" height="160" class="box-side" />
+  <text x="190" y="280" text-anchor="middle" class="box-title">
+    Behavior Logs / Money Flow
+  </text>
+  <text x="85" y="305" class="box-text">
+    • Spending / Income patterns
+  </text>
+  <text x="85" y="325" class="box-text">
+    • “床”との距離ログ
+  </text>
+  <text x="85" y="345" class="box-text">
+    • SAFE_NULL, Risk Events
+  </text>
+
+  <!-- Arrows: Logs -> Core -->
+  <line x1="310" y1="300" x2="350" y2="300" class="arrow" />
+
+  <!-- Right side: Guidance out -->
+  <rect x="890" y="250" width="240" height="160" class="box-side" />
+  <text x="1010" y="280" text-anchor="middle" class="box-title">
+    Guidance & Guard Rails
+  </text>
+  <text x="905" y="305" class="box-text">
+    • Floor status: SAFE / WARNING / DANGER
+  </text>
+  <text x="905" y="325" class="box-text">
+    • SAFE_NULL / safe_move_limit
+  </text>
+  <text x="905" y="345" class="box-text">
+    • risk_mode: NORMAL / TIRED / RED
+  </text>
+
+  <!-- Arrows: Core -> Guidance -->
+  <line x1="850" y1="300" x2="890" y2="300" class="arrow" />
+
+  <!-- Footer note -->
+  <text x="600" y="740" text-anchor="middle" class="small">
+    専用領域を越境しないことが、LUMI を壊さない唯一の方法である。
+  </text>
+</svg>
