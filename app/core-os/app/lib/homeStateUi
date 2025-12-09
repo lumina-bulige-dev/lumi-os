@@ -1,0 +1,89 @@
+// app/page.tsx
+"use client";
+
+import { useEffect, useState } from "react";
+import { fetchHomeState, HomeState } from "../lib/homeState";
+import { toHomeUiState, HomeUiState } from "../lib/homeStateUi";
+
+type ViewState =
+  | { loading: true; error?: string; data?: never }
+  | { loading: false; error?: string; data?: { raw: HomeState; ui: HomeUiState } };
+
+export default function HomePage() {
+  const [state, setState] = useState<ViewState>({ loading: true });
+
+  useEffect(() => {
+    // mock を変えると、SAFE/WARNING/DANGER を切り替えて確認できる
+    fetchHomeState(/* "warning" */)
+      .then((raw) => {
+        setState({
+          loading: false,
+          data: { raw, ui: toHomeUiState(raw) },
+        });
+      })
+      .catch((err) => {
+        setState({
+          loading: false,
+          error: err.message ?? "unknown error",
+        });
+      });
+  }, []);
+
+  if (state.loading) {
+    return <main className="p-6">読み込み中…</main>;
+  }
+
+  if (state.error || !state.data) {
+    return (
+      <main className="p-6">
+        <p>エラーが発生しました。</p>
+        <p className="text-xs text-gray-500">{state.error}</p>
+      </main>
+    );
+  }
+
+  const { raw, ui } = state.data;
+
+  return (
+    <main className="p-6 space-y-6">
+      {/* ステータスカード */}
+      <section
+        style={{ borderColor: ui.statusColor }}
+        className="border-2 rounded-xl p-4 space-y-2"
+      >
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-gray-500">
+            Day {raw.challenge.day_in_challenge}
+          </span>
+          <span
+            className="font-bold text-sm px-2 py-1 rounded"
+            style={{ color: "white", backgroundColor: ui.statusColor }}
+          >
+            {ui.statusLabel}
+          </span>
+        </div>
+        <p className="text-base">{ui.message}</p>
+        <p className="text-xs text-gray-500">{ui.safeNullLabel}</p>
+      </section>
+
+      {/* 残高カード */}
+      <section className="border rounded-xl p-4 space-y-2">
+        <h2 className="text-sm text-gray-500">いまのポジション</h2>
+        <p className="text-2xl font-semibold">
+          {raw.balance_total.toLocaleString()} <span className="text-sm">円</span>
+        </p>
+        <p className="text-xs text-gray-500">
+          安全パケット: {raw.paket_bigzoon.toLocaleString()} 円
+        </p>
+      </section>
+
+      {/* HEART 状態 */}
+      <section className="border rounded-xl p-4 space-y-1">
+        <h2 className="text-sm text-gray-500">LUMI HEART</h2>
+        <p className="text-sm">
+          risk_mode: <span className="font-mono">{raw.heart.risk_mode}</span>
+        </p>
+      </section>
+    </main>
+  );
+}
