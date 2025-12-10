@@ -159,7 +159,11 @@
 </head>
 <body>
   <div class="page">
-    <!-- ヘッダー -->
+      <!-- ヘッダー -->
+  <header>
+    <div class="logo">LUMINABULIGE</div>
+    <div class="badge">LUMI CORE HOME v1.0</div>
+  </header>
     <!-- 今日のフロアと残高 -->
     <div class="card">
       <h2>今日のフロアと残高</h2>
@@ -229,26 +233,32 @@
   }
 
   function renderHomeState(s) {
+    // 残高・床
     const bt = document.getElementById("balance_total");
     const pb = document.getElementById("paket_bigzoon");
     if (bt) bt.textContent = "¥" + s.balance_total.toLocaleString();
     if (pb) pb.textContent = "¥" + s.paket_bigzoon.toLocaleString();
 
+    // floor_status
     const floorEl = document.getElementById("floor_status");
     if (floorEl) {
       floorEl.classList.remove("status-safe", "status-warning", "status-danger");
       if (s.floor_status === "WARNING") {
         floorEl.classList.add("status-warning");
-        floorEl.textContent = "WARNING：床に近づいています。大きな支出には注意してください。";
+        floorEl.textContent =
+          "WARNING：ここから先は慎重ゾーン。あと少しで“次回の自分”を苦しめます。";
       } else if (s.floor_status === "DANGER") {
         floorEl.classList.add("status-danger");
-        floorEl.textContent = "DANGER：床スレスレです。今日は減速モード推奨です。";
+        floorEl.textContent =
+          "DANGER：ここで止まれたら、それだけで今日は勝ちです。いま踏ん張るだけで、来週のあなたが助かります。";
       } else {
         floorEl.classList.add("status-safe");
-        floorEl.textContent = "SAFE：床との余裕は十分あります。";
+        floorEl.textContent =
+          "SAFE：今日はまだ動けます。いまのバランスなら、気持ちのいい範囲で選べます。";
       }
     }
 
+    // 30日チャレンジ
     const dayEl = document.getElementById("day_in_challenge");
     if (dayEl) dayEl.textContent = s.challenge.day_in_challenge + "日目";
 
@@ -257,19 +267,20 @@
       if (s.challenge.is_safe_null_today) {
         cm.innerHTML =
           "今日は「何もしない」だけで合格です。<br />" +
-          "大きな支出を休んで、床との距離をキープする日です。";
+          "休む判断も、強い人しかできません。";
       } else if (s.challenge.safe_move_limit > 0) {
         cm.innerHTML =
           "今日は「¥" + s.challenge.safe_move_limit.toLocaleString() +
           " まで」なら動かしても床は安全です。<br />" +
-          "この金額以内なら、来月の固定＋最低生活費を割り込みません。";
+          "この範囲は、未来のあなたを壊しません。";
       } else {
         cm.innerHTML =
           "今日は床のすぐ上です。大きな支出はおすすめしません。<br />" +
-          "必要最低限の支出だけに抑えると、安全度を保てます。";
+          "ここで止まれたら、明日が変わります。";
       }
     }
 
+    // コンディション
     const riskEl = document.getElementById("risk_mode");
     const riskMsgEl = document.getElementById("risk_message");
     if (riskEl) riskEl.textContent = s.heart.risk_mode;
