@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>LUMI / 30日ログ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    body {
+      margin: 0;
+      background: #0f172a;
+      color: #e5e7eb;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont;
+    }
+    .page {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+
+    .card {
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .summary {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+    .sub {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 12px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-right: 6px;
+      font-size: 12px;
+      border: 1px solid #475569;
+    }
+    .safe { color: #4ade80; border-color: #4ade80; }
+    .warn { color: #facc15; border-color: #facc15; }
+    .danger { color: #f87171; border-color: #f87171; }
+
+    .share-box {
+      margin-top: 20px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .share-btn {
+      display: inline-block;
+      padding: 10px 16px;
+      margin-top: 10px;
+      color: #e5e7eb;
+      background: #1e293b;
+      border-radius: 999px;
+      text-decoration: none;
+      border: 1px solid #475569;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+
+    <h1>30日ログ（β）</h1>
+
+    <div class="card">
+      <div class="summary">30日のまとめ</div>
+      <div class="sub">この30日で、あなたが “どこで止まれたか・どこで行きすぎたか” が一目で分かる記録です。</div>
+
+      <div class="badge safe">勝ち越し：18日</div>
+      <div class="badge warn">引き分け：8日</div>
+      <div class="badge danger">反省日：4日</div>
+    </div>
+
+    <div class="card">
+      <div class="summary">行動ログの一例（ダミー）</div>
+      <div class="sub">実際には HOME の daily log から自動生成されます。</div>
+
+      <ul>
+        <li>Day 3：SAFE_NULL（よく止まれた日）</li>
+        <li>Day 7：¥4,000 セーフムーブ成功</li>
+        <li>Day 12：止まれず反省日</li>
+        <li>Day 20：DANGER 直前で停止（GOOD）</li>
+      </ul>
+    </div>
+
+    <div class="card share-box">
+      LUMI が作った 30日の行動ログです。  
+      言い訳ではなく、今月どう生きたかが “そのまま” 残っています。  
+      このページ、あなたなら誰に見せますか？
+
+      <a class="share-btn" href="#">シェアする（準備中）</a>
+    </div>
+
+  </div>
+</body>
+</html>
