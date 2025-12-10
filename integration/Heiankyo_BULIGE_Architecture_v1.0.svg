@@ -1,0 +1,95 @@
+<svg width="960" height="540" viewBox="0 0 960 540" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect x="0" y="0" width="960" height="540" fill="#0b1020"/>
+  <text x="24" y="36" fill="#f5f5f5" font-family="system-ui, -apple-system, BlinkMacSystemFont, sans-serif" font-size="20">
+    LUMI Anatomy — Heiankyo × BULIGE Dual-Layer Architecture v1.0
+  </text>
+
+  <!-- Outer LUMI frame -->
+  <rect x="40" y="60" width="880" height="440" rx="16" ry="16"
+        fill="none" stroke="#3aa9ff" stroke-width="2"/>
+  <text x="60" y="86" fill="#3aa9ff" font-family="system-ui" font-size="16">
+    LUMINA BULIGE / LUMI OS
+  </text>
+
+  <!-- Top layer: Heiankyo -->
+  <rect x="80" y="110" width="800" height="150" rx="12" ry="12"
+        fill="#111827" stroke="#38bdf8" stroke-width="1.5"/>
+  <text x="100" y="140" fill="#e5e7eb" font-family="system-ui" font-size="18">
+    表レイヤー：Heiankyo（行動ログ OS）
+  </text>
+  <text x="100" y="168" fill="#9ca3af" font-family="system-ui" font-size="14">
+    ・30日チャレンジ / 床（paket_bigzoon） / SAFE・WARNING・DANGER
+  </text>
+  <text x="100" y="188" fill="#9ca3af" font-family="system-ui" font-size="14">
+    ・SAFE_NULL / safe_move_limit / risk_mode（NORMAL・TIRED・RED）
+  </text>
+  <text x="100" y="208" fill="#9ca3af" font-family="system-ui" font-size="14">
+    ・ユーザーが毎日見るのはこのレイヤーだけ（スコア・審査は名乗らない）
+  </text>
+
+  <!-- Bottom layer: BULIGE Rank -->
+  <rect x="80" y="270" width="800" height="150" rx="12" ry="12"
+        fill="#020617" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="100" y="300" fill="#fef3c7" font-family="system-ui" font-size="18">
+    裏レイヤー：BULIGE Rank（行動信用パターン）
+  </text>
+  <text x="100" y="328" fill="#e5e7eb" font-family="system-ui" font-size="14">
+    ・SR12：12ヶ月の「勝ち越し率」   ・RE12：12ヶ月のリスクイベント発生回数
+  </text>
+  <text x="100" y="348" fill="#e5e7eb" font-family="system-ui" font-size="14">
+    ・RW12：床付近に落ちた週数   ・SAFE_NULL / 心ブレーキ遵守パターン
+  </text>
+  <text x="100" y="368" fill="#facc15" font-family="system-ui" font-size="13">
+    ※外部審査・貸付・スコアリング用途には一切使わない（本人の説明材料専用）
+  </text>
+
+  <!-- Flow: user behavior to Heiankyo -->
+  <circle cx="160" cy="220" r="18" fill="#22c55e"/>
+  <text x="154" y="224" fill="#022c22" font-family="system-ui" font-size="14">行</text>
+  <text x="186" y="226" fill="#a5b4fc" font-family="system-ui" font-size="14">
+    ユーザーの毎日の行動（使う／止まる／SAFE_NULL）
+  </text>
+  <line x1="160" y1="238" x2="160" y2="270"
+        stroke="#4ade80" stroke-width="2" marker-end="url(#arrow-green)"/>
+
+  <!-- Flow: Heiankyo → BULIGE -->
+  <line x1="480" y1="260" x2="480" y2="270"
+        stroke="#fbbf24" stroke-width="2" marker-end="url(#arrow-gold)"/>
+  <text x="500" y="260" fill="#facc15" font-family="system-ui" font-size="13">
+    日々の結果だけが裏側のパターンに蓄積される
+  </text>
+
+  <!-- "表" vs "裏" labels -->
+  <text x="700" y="150" fill="#38bdf8" font-family="system-ui" font-size="14">
+    表：ユーザーが直接触る世界
+  </text>
+  <text x="700" y="320" fill="#fbbf24" font-family="system-ui" font-size="14">
+    裏：本人専用の「説明の武器」
+  </text>
+
+  <!-- Legal / Fintech boundary -->
+  <line x1="80" y1="430" x2="880" y2="430"
+        stroke="#f87171" stroke-dasharray="6 6" stroke-width="1.5"/>
+  <text x="90" y="424" fill="#fca5a5" font-family="system-ui" font-size="13">
+    Fintech 禁区ボーダー（審査・与信・スコアリング領域）
+  </text>
+  <text x="90" y="450" fill="#fecaca" font-family="system-ui" font-size="12">
+    ・BULIGE Rank はこの線を絶対に越境しない
+  </text>
+  <text x="90" y="468" fill="#fecaca" font-family="system-ui" font-size="12">
+    ・外部提供／ランク付け／ローン判定には使わない
+  </text>
+
+  <!-- Arrow definitions -->
+  <defs>
+    <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="5" refY="5"
+            orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4ade80" />
+    </marker>
+    <marker id="arrow-gold" markerWidth="10" markerHeight="10" refX="5" refY="5"
+            orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#fbbf24" />
+    </marker>
+  </defs>
+</svg>
