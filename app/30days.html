@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>30日ログ / LUMI CORE | LUMINABULIGE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/app/style.css" />
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="logo">LUMINABULIGE</div>
+      <div class="badge">30日ログ</div>
+    </header>
+
+    <!-- タイトル -->
+    <div class="card">
+      <h2>この30日の「勝ち越しログ」</h2>
+      <div class="subtext">
+        この30日で、どこでちゃんと止まれて、どこでやりすぎたか。<br />
+        言い訳より、このページを見せた方が早い “判断のログ” です。
+      </div>
+    </div>
+
+    <!-- 集計カード -->
+    <div class="card">
+      <div class="label-row">
+        <span class="label">勝ち越し日</span>
+        <span class="value" id="days_win">18日</span>
+      </div>
+      <div class="subtext">
+        止まれた日。未来のあなたが助かった日。
+      </div>
+
+      <div class="label-row" style="margin-top:10px;">
+        <span class="label">引き分け日</span>
+        <span class="value" id="days_draw">8日</span>
+      </div>
+      <div class="subtext">
+        必要な動きだけをした日。
+      </div>
+
+      <div class="label-row" style="margin-top:10px;">
+        <span class="label">反省日</span>
+        <span class="value" id="days_lose">4日</span>
+      </div>
+      <div class="subtext">
+        やりすぎた日。ここから整える。
+      </div>
+    </div>
+
+    <!-- 日別タイムライン（例） -->
+    <div class="card">
+      <h2>日別ログ（サンプル）</h2>
+      <ul class="timeline">
+        <li>
+          <div class="day-label">DAY 03 / 勝ち越し</div>
+          <div class="main-text">
+            「今日はここでやめる」を選んだ日。<br />
+            ギャンブル系はスルーして、床との距離をキープ。
+          </div>
+        </li>
+        <li>
+          <div class="day-label">DAY 12 / 反省日</div>
+          <div class="main-text">
+            気分が上がって、想定より多く使った日。<br />
+            次の日に “SAFE_NULL day” を入れてリセット。
+          </div>
+        </li>
+        <li>
+          <div class="day-label">DAY 21 / 引き分け</div>
+          <div class="main-text">
+            必要な支出だけに絞った日。<br />
+            「勝ち」とまでは言えないが、壊してもいない。
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- シェアブロック -->
+    <div class="card">
+      <h2>このページ、誰に見せたいですか？</h2>
+      <div class="main-text">
+        30日、おつかれさまでした。<br />
+        あなたはこの30日、一発退場を避け続けたログを作りました。<br />
+        これは、いつでも自分で見返せるし、<br />
+        いつか誰かに説明したくなったときにも、そのまま見せられる “記録” です。
+      </div>
+
+      <button class="button-primary" type="button" id="share_button">
+        この30日ログをシェアする
+      </button>
+
+      <div class="disclaimer">
+        シェア用の文章は編集できます。誰に見せるかは、あなたが決めてください。
+      </div>
+    </div>
+
+    <footer>
+      LUMI 30days LOG v1.0（プロトタイプ）<br />
+      このページは「自分の判断パターン」を振り返るための画面です。
+    </footer>
+  </div>
+
+  <script>
+    // SNSシェア（簡易版）
+    const shareBtn = document.getElementById("share_button");
+    if (shareBtn) {
+      shareBtn.addEventListener("click", function () {
+        const text =
+          "この30日、自分のお金の使い方をログにしてみた。\\n" +
+          "理由を話すより、このページを見せた方が早い気がする。";
+        const url = window.location.href;
+
+        if (navigator.share) {
+          navigator.share({ text, url }).catch(() => {});
+        } else if (navigator.clipboard) {
+          navigator.clipboard
+            .writeText(text + "\\n" + url)
+            .then(() => alert("シェア用テキストをコピーしました。お好きなSNSに貼り付けてください。"))
+            .catch(() => alert("コピーに失敗しました。"));
+        } else {
+          alert("お使いの環境では自動シェアに対応していません。手動でURLをコピーしてください。");
+        }
+      });
+    }
+  </script>
+</body>
+</html>
