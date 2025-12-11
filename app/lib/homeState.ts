@@ -35,13 +35,14 @@ export async function fetchHomeState(): Promise<HomeState> {
 }
 
 // Wise 紹介 URL を取ってくる
+// Wise 紹介 URL を取ってくる
 export async function fetchWiseReferral(): Promise<WiseReferral> {
-  const res = await fetch("https://luminabulige.com/wise-referral", {
+  const res = await fetch("https://luminabulige.com/api/v1/links/wise_affiliate", {
     cache: "no-store",
   });
 
   if (!res.ok) {
-    throw new Error("Failed to fetch wise-referral");
+    throw new Error("Failed to fetch wise_affiliate");
   }
 
   return (await res.json()) as WiseReferral;
