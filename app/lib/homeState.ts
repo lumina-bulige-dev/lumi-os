@@ -22,8 +22,7 @@ export type WiseReferral = {
 
 // HOME 状態を Cloudflare Worker から取ってくる
 export async function fetchHomeState(): Promise<HomeState> {
-  const res = await fetch(
-    "https://luminabulige.com/api/v1/core/home_state",
+  const WORKER_BASE = "https://api.luminabulige.com";
     { cache: "no-store" }
   );
 
