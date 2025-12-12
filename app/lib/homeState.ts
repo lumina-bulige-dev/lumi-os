@@ -1,5 +1,9 @@
 // app/lib/homeState.ts
 const WORKER_BASE = "https://api.luminabulige.com";
+const WORKER_BASE = "https://api.luminabulige.com";
+
+fetch(`${WORKER_BASE}/api/v1/core/home_state`)
+fetch(`${WORKER_BASE}/api/v1/links/wise`)
 // Worker の /api/v1/core/home_state 用の型
 export type HomeState = {
   balance_total: number;
@@ -36,11 +40,9 @@ export async function fetchHomeState(): Promise<HomeState> {
 // Wise 紹介 URL を取ってくる
 // Wise 紹介 URL を取ってくる
 export async function fetchWiseReferral(): Promise<WiseReferral> {
-  const res = await fetch("https://luminabulige.com/api/v1/links/wise_affiliate", {
-    cache: "no-store",
-  });
+  const res = await fetch(`${WORKER_BASE}/api/v1/links/wise_affiliate`, { cache: "no-store" });
 
-  if (!res.ok) {
+if (!res.ok) {
     throw new Error("Failed to fetch wise_affiliate");
   }
 
