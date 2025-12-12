@@ -1,3 +1,4 @@
+import "./globals.css";
 .badge {
   display: inline-block;
   padding: 6px 10px;
