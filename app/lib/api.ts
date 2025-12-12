@@ -1,19 +1,20 @@
 import { HomeState } from "./types";
+const WORKER_BASE =
+  "https://<luminabulige.com＞";
 
-export async function fetchHomeState(): Promise<HomeState> {
-  const res = await fetch("/api/v1/core/home_state");
-  if (!res.ok) throw new Error("HOME_STATE_FETCH_FAILED");
+export async function fetchHomeState() {
+  const res = await fetch(
+    `${WORKER_BASE}/api/v1/core/home_state`,
+    { cache: "no-store" }
+  );
+  if (!res.ok) throw new Error("API error");
   return res.json();
 }
 
-async function openWise() {
-  try {
-    const res = await fetch("/api/v1/links/wise");
-    if (!res.ok) throw new Error();
-
-    const { url } = await res.json();
-    window.location.href = url;
-  } catch {
-    showError("Wise の画面を開けませんでした。時間をおいて再度お試しください。");
-  }
+export async function fetchWiseLink() {
+  const res = await fetch(
+    `${WORKER_BASE}/api/v1/links/wise`,
+    { cache: "no-store" }
+  );
+  return res.json();
 }
