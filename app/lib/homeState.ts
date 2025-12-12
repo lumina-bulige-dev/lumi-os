@@ -1,5 +1,5 @@
 // app/lib/homeState.ts
-
+const WORKER_BASE = "https://api.luminabulige.com";
 // Worker の /api/v1/core/home_state 用の型
 export type HomeState = {
   balance_total: number;
@@ -22,7 +22,7 @@ export type WiseReferral = {
 
 // HOME 状態を Cloudflare Worker から取ってくる
 export async function fetchHomeState(): Promise<HomeState> {
-  const WORKER_BASE = "https://api.luminabulige.com";
+    `${WORKER_BASE}/api/v1/core/home_state`,
     { cache: "no-store" }
   );
 
