@@ -1,4 +1,8 @@
-const homeState = await fetchHomeState();
-const ui = toHomeUiState(homeState);
+import HomeClient from "./HomeClient";
 
-<button onClick={openWise}>Wise で送金する</button>
+export default async function Page() {
+  const homeState = await fetchHomeState();
+  const ui = toHomeUiState(homeState);
+
+  return <HomeClient ui={ui} />;
+}
