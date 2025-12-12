@@ -1,4 +1,7 @@
 👑 Canonical Header
+※本ファイルは A：HQ（Founder＋LUMI_A）のみ編集可。
+B／C／D／E／F／G は参照のみ。引用・改変・派生仕様の生成は禁止。
+If it is not in lumi-os, it is not official.
 
 # ANTI_DARK_PATTERN_CHARTER v1.0
 
