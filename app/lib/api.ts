@@ -6,8 +6,14 @@ export async function fetchHomeState(): Promise<HomeState> {
   return res.json();
 }
 
-export async function fetchWise(): Promise<{ url: string }> {
-  const res = await fetch("/api/v1/links/wise");
-  if (!res.ok) throw new Error("WISE_LINK_FETCH_FAILED");
-  return res.json();
+async function openWise() {
+  try {
+    const res = await fetch("/api/v1/links/wise");
+    if (!res.ok) throw new Error();
+
+    const { url } = await res.json();
+    window.location.href = url;
+  } catch {
+    showError("Wise の画面を開けませんでした。時間をおいて再度お試しください。");
+  }
 }
