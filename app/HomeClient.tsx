@@ -1,8 +1,12 @@
 "use client";
 
-console.log("🔥 HomeClient mounted");
+import { useEffect } from "react";
 
 export default function HomeClient({ ui }) {
+  useEffect(() => {
+    console.log("🔥 HomeClient mounted (useEffect)");
+  }, []);
+
   return (
     <button
       onClick={() => {
