@@ -28,9 +28,9 @@ export default async function HomePage() {
 
       <section>
         <h2>Wise 紹介リンク</h2>
-        <a href={wise.wise_referral_url} target="_blank">
-          Wise で送金する
-        </a>
+       <button onClick={openWise}>
+  Wise で送金する
+</button>
       </section>
     </main>
   );
