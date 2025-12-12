@@ -1,15 +1,16 @@
 "use client";
 
-import { openWise } from "./lib/openWise";
+console.log("🔥 HomeClient mounted");
 
 export default function HomeClient({ ui }) {
   return (
-    <>
-      <p>残高: {ui.balanceText}</p>
-
-      <button onClick={openWise}>
-        Wise で送金する
-      </button>
-    </>
+    <button
+      onClick={() => {
+        console.log("🔥 CLICKED");
+        alert("clicked");
+      }}
+    >
+      TEST CLICK
+    </button>
   );
 }
