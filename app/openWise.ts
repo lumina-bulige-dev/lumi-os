@@ -1,9 +1,7 @@
 // app/lib/openWise.ts
 
-function openWiseTest() {
-  alert("clicked");
-}
+"use client";
 
 export function openWiseTest() {
-  window.location.href = "https://wise.com";
+  alert("clicked");
 }
