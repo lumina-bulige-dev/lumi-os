@@ -54,19 +54,10 @@ export default function HomeClient() {
         {status === "DANGER" && "床スレスレです。今日は減速推奨。"}
       </p>
 
-      <button
-        onClick={openWise}
-        style={{
-          padding: "12px 16px",
-          borderRadius: 8,
-          background: "#d4b15f",
-          color: "#000",
-          fontWeight: 600,
-          marginTop: 12,
-        }}
-      >
-        Wise 手数料を見る
-      </button>
+<button onClick={openWiseTest}>
+  Wise 手数料を見る
+</button>
+
     </div>
   );
 }
