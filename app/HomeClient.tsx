@@ -36,8 +36,8 @@ export default function HomeClient() {
 
   const status = state.floor_status;
 
-  return (
-    <divclassName={`home-card ${status === "DANGER" ? "danger-bg" : ""}`}>
+ return (
+  <div className={`home-card ${status === "DANGER" ? "danger-bg" : ""}`}>
       <h2>
         <span className={`badge badge-${status.toLowerCase()}`}>
           {status}
