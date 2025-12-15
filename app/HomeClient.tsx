@@ -54,10 +54,14 @@ export default function HomeClient() {
         {status === "DANGER" && "床スレスレです。今日は減速推奨。"}
       </p>
 
-<button onClick={openWiseTest}>
+<button
+  onClick={() => {
+    alert("CLICK OK");
+    console.log("CLICK OK");
+  }}
+>
   Wise 手数料を見る
 </button>
-
     </div>
   );
 }
