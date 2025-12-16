@@ -1,4 +1,3 @@
-// app/components/HomeStateUi.tsx
 type Props = {
   balance: number;
 };
