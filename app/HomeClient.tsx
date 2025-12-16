@@ -1,7 +1,7 @@
 // app/HomeClient.tsx
 "use client";
 
-import HomeStateUi from "./components/HomeStateUi";
+import { toHomeUiState } from "./lib/toHomeUiState";
 import { useEffect, useState } from "react";
 
 import { fetchHomeState, fetchWiseLink } from "./lib/api";
