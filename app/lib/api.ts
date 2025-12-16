@@ -1,6 +1,6 @@
 import { HomeState } from "./types";
 
-const WORKER_BASE = "https://api.luminabulige.com";
+const WORKER_BASE = "https://luminabulige.com";
 
 export async function fetchHomeState(): Promise<HomeState> {
   const res = await fetch(

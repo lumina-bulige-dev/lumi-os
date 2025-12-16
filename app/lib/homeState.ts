@@ -1,6 +1,6 @@
 // app/lib/homeState.ts
-const WORKER_BASE = "https://api.luminabulige.com";
-const WORKER_BASE = "https://api.luminabulige.com";
+const WORKER_BASE = "https://luminabulige.com";
+const WORKER_BASE = "https://luminabulige.com";
 
 fetch(`${WORKER_BASE}/api/v1/core/home_state`)
 fetch(`${WORKER_BASE}/api/v1/links/wise`)
