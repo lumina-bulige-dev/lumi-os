@@ -32,7 +32,6 @@ export async function fetchHomeState(): Promise<HomeState> {
 }
 
 // Wise 紹介 URL を取ってくる
-// Wise 紹介 URL を取ってくる
 export async function fetchWiseReferral(): Promise<WiseReferral> {
   const res = await fetch(`${WORKER_BASE}/api/v1/links/wise_affiliate`, { cache: "no-store" });
 
