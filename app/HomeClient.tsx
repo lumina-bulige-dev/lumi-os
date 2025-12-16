@@ -1,14 +1,3 @@
-"use client";
-
-
-export default function HomeClient() {
-  const [state, setState] = useState<any>(null);
-
-  useEffect(() => {
-    fetchHomeState().then(setState).catch(console.error);
-  }, []);
-
-  if (!state) return <p>Loading...</p>;
-
-  // 以下 UI …
+export function HomeClient({ data }) {
+  return <div>{data.balance_total}</div>;
 }
