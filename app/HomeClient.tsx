@@ -2,9 +2,8 @@
 "use client";
 
 import HomeStateUi from "./components/HomeStateUi";
-
 import { useEffect, useState } from "react";
-import { fetchHomeState, fetchWiseReferral } from "./lib/api";
+import { fetchHomeState, fetchWiseLink } from "./lib/api";
 
 type HomeState = {
   balance_total: number;
