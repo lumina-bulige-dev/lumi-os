@@ -193,6 +193,20 @@ This expresses the law of financial action–reaction, ensuring:
 	•	risk score responds to user behavior
 	•	every action updates the OS in a deterministic way
 
+{
+  "balance_total": 123456,
+  "paket_bigzoon": 80000,
+  "floor_status": "SAFE", 
+  "heart": {
+    "risk_mode": "LOW"
+  },
+  "meta": {
+    "version": "v1",
+    "generated_at": "2025-12-16T10:30:00Z"
+  }
+}
+
+
 ⸻
 
 5. AUTO_AURORA_ROUTER (Automatic Optimization Module)
