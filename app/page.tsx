@@ -1,10 +1,8 @@
-import HomeClient from './HomeClient';
+import HomeClient from "./HomeClient";
 import { fetchHomeState } from "./lib/api";
 
-
 export default async function Page() {
-  const homeState = await fetchHomeState();
-  const ui = toHomeUiState(homeState);
+  const state = await fetchHomeState();
 
-  return <HomeClient ui={ui} />;
+  return <HomeClient state={state} />;
 }
