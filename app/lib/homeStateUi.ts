@@ -1,4 +1,4 @@
-// app/page.tsx
+// app/components/HomeStateUi.tsx
 
 import { fetchHomeState, fetchWiseReferral } from "./lib/homeState";
 import { toHomeUiState } from "./lib/homeStateUi";
