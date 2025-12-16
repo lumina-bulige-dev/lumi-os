@@ -26,14 +26,16 @@ export default function HomeClient() {
   }, []);
 
   const openWise = async () => {
-    try {
-      const { url } = await fetchWiseReferral();
-      window.open(url, "_blank", "noopener,noreferrer");
-    } catch (e) {
-      alert("Wiseリンクの取得に失敗しました");
-      console.error(e);
-    }
-  };
+  try {
+    const data = await fetchWiseLink();
+    const url = data.url ?? data.wise_url ?? data.wiseUrl;
+    if (!url) throw new Error("Wise URL missing");
+    window.open(url, "_blank", "noopener,noreferrer");
+  } catch (e) {
+    alert("Wiseリンクの取得に失敗しました");
+    console.error(e);
+  }
+};
 
   if (!state) return <p>Loading...</p>;
 
