@@ -19,3 +19,14 @@ export async function fetchWiseLink() {
   if (!res.ok) throw new Error("API error");
   return res.json();
 }
+export async function fetchHomeState() {
+  const res = await fetch("/api/home_state", { cache: "no-store" });
+  if (!res.ok) throw new Error(`fetchHomeState failed: ${res.status}`);
+  return res.json();
+}
+
+export async function fetchWiseReferral(): Promise<{ url: string }> {
+  const res = await fetch("/api/wise-referral", { cache: "no-store" });
+  if (!res.ok) throw new Error(`fetchWiseReferral failed: ${res.status}`);
+  return res.json();
+}
