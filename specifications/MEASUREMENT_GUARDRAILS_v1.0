@@ -1,0 +1,140 @@
+MEASUREMENT_GUARDRAILS_v1.0
+
+Status: Canonical
+Owner: A-CORE
+Scope: Partnerize / Wise 計測（SubID）
+Last Updated: v1.0
+
+⸻
+
+1. Purpose（目的）
+
+本ドキュメントは、LUMINA BULIGE における 計測の境界線（Guardrails） を定義する。
+「測ってよいもの／測ってはいけないもの」「実装してよい場所／禁止される場所」を固定し、
+法令・規約・将来拡張に耐える計測を担保する。
+
+⸻
+
+2. Non-Goals（非目的）
+	•	個人特定（PII）の取得・推定
+	•	クロスサービスでのユーザー追跡
+	•	指紋採取（Fingerprinting）
+	•	BI/高度分析の設計（別ドキュメント）
+
+⸻
+
+3. Measurement Boundary（計測境界）
+
+3.1 計測してよい（Allowed）
+
+区分
+内容
+導線
+クリック元（LP / blog / app / sns / mail）
+ページ
+Page ID（slug短縮）
+実験
+Variant（a / b / c）
+施策
+Campaign（wise 固定）
+環境
+Country / Device（Partnerizeが提供する範囲）
+
+※ すべて SubID に圧縮された非個人情報のみ
+
+⸻
+
+3.2 計測してはいけない（Prohibited）
+
+禁止項目
+理由
+氏名 / メール / 電話
+個人情報
+IP / UA の独自保存
+規約・GDPR リスク
+UserID / SessionID
+個人追跡になる
+日本語文字
+文字化け・解析破綻
+可変長自由入力
+集計不能
+
+4. SubID Guardrails（SubID 制約）
+
+4.1 形式制約
+	•	文字種：[a-z0-9-] のみ
+	•	長さ：最大 40 文字
+	•	区切り：ハイフン - のみ
+	•	大文字禁止
+
+4.2 命名規約
+
+{src}-{page}-{variant}-{campaign}
+
+例：
+	•	lp-home-a-wise
+	•	blog-aufee-b-wise
+	•	app-dash-a-wise
+
+⸻
+
+5. Implementation Guardrails（実装制約）
+
+5.1 リンク生成
+	•	Wiseリンクは 必ずサーバー側で生成
+	•	クライアント直書き禁止
+	•	SubID は 辞書参照のみ
+
+5.2 禁止実装
+	•	JS で SubID を組み立てる
+	•	URL パラメータをそのまま SubID に流す
+	•	Cookie / LocalStorage に SubID を保存
+
+⸻
+
+6. Environment Separation（環境分離）
+
+環境
+計測
+Local
+❌
+Preview / Staging
+❌
+Production
+✅
+
+7. Operational Rules（運用ルール）
+	•	SubID 辞書は 追記のみ（破壊変更禁止）
+	•	新 page 追加時は 辞書 → 実装 の順
+	•	週次で Report #1 / #2 を確認
+	•	異常時のみ Report #3
+
+⸻
+
+8. Compliance Notes（準拠）
+	•	GDPR：PII 非取得
+	•	Partnerize TOS：SubID 利用範囲遵守
+	•	Wise Affiliate Policy：誤誘導・誇大禁止
+
+⸻
+
+9. Change Policy（変更方針）
+	•	v1.x：追記のみ
+	•	v2.0：計測モデル変更時のみ
+
+⸻
+
+10. References
+	•	specifications/sub_DIC/SUBID_DICTIONARY_v1.0.md
+	•	Partnerize Docs
+	•	Wise Affiliate Policy
+
+⸻
+
+END
+
+
+
+
+
+
