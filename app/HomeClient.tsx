@@ -1,4 +1,7 @@
+// app/HomeClient.tsx
 "use client";
+
+import HomeStateUi from "./components/HomeStateUi";
 
 import { useEffect, useState } from "react";
 import { fetchHomeState, fetchWiseReferral } from "./lib/api";
