@@ -13,7 +13,7 @@ export async function fetchHomeState(): Promise<HomeState> {
 
 export async function fetchWiseLink() {
   const res = await fetch(
-    `${WORKER_BASE}/api/v1/links/wise`,
+    `${WORKER_BASE}/api/v1/links/wise_affiliate`,
     { cache: "no-store" }
   );
   if (!res.ok) throw new Error("API error");
