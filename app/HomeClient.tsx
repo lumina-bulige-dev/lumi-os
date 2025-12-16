@@ -1,3 +1,4 @@
-export function HomeClient({ data }) {
-  return <div>{data.balance_total}</div>;
+// app/HomeClient.tsx
+export default function HomeClient() {
+  ...
 }
