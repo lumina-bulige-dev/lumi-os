@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { fetchHomeState } from "./lib/api"; // ← これが必須
+import { fetchHomeState, fetchWiseLink } from "./lib/api";
 
 export default function HomeClient() {
   const [state, setState] = useState<any>(null);
