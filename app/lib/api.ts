@@ -11,6 +11,11 @@ export async function fetchHomeState(): Promise<HomeState> {
   return res.json();
 }
 
+export async function fetchHomeState() {
+  const res = await fetch("/api/home_state", { cache: "no-store" });
+  if (!res.ok) throw new Error("fetchHomeState failed");
+  return res.json();
+
 export async function fetchWiseLink() {
   const res = await fetch(`${WORKER_BASE}/api/v1/links/wise`, {
     cache: "no-store",
