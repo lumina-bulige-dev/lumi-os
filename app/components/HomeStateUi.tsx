@@ -1,6 +1,5 @@
 // app/components/HomeStateUi.tsx
-"use client";
-
-export default function HomeStateUi() {
-  return <div>...</div>;
-}
+const data = await fetch(
+  "https://api.luminabulige.com/api/v1/core/home_state",
+  { cache: "no-store" }
+).then(r => r.json());
