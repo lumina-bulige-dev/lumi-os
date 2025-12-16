@@ -1,7 +1,6 @@
-'use client';
+// app/components/HomeStateUi.tsx
+"use client";
 
-import HomeStateUi from './components/HomeStateUi';
-
-export default function HomeClient() {
-  return <HomeStateUi />;
+export default function HomeStateUi() {
+  return <div>...</div>;
 }
