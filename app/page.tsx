@@ -1,4 +1,4 @@
-import HomeClient from "./HomeClient";
+import HomeClient from './HomeClient';
 import { fetchHomeState } from "./lib/api";
 import { toHomeUiState } from "./lib/homeStateUi";
 
