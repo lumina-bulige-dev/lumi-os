@@ -3,6 +3,7 @@
 
 import HomeStateUi from "./components/HomeStateUi";
 import { useEffect, useState } from "react";
+
 import { fetchHomeState, fetchWiseLink } from "./lib/api";
 
 type HomeState = {
