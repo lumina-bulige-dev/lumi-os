@@ -1,40 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { fetchHomeState, fetchWiseReferral } from "./lib/api";
+import { fetchWiseReferral } from "./lib/api";
+import { toHomeUiState } from "./lib/mapper";
+import { HomeState } from "./lib/types";
 
-type HomeState = {
-  balance_total: number;
-  paket_bigzoon: number;
-  floor_status: "SAFE" | "WARNING" | "DANGER";
-  heart: { risk_mode: string };
+type Props = {
+  state: HomeState;
 };
 
-export default function HomeClient() {
-  const [state, setState] = useState<HomeState | null>(null);
-
-  useEffect(() => {
-    fetchHomeState()
-      .then((data) => {
-        console.log("🔥 home_state", data);
-        setState(data);
-      })
-      .catch(console.error);
-  }, []);
-
+export default function HomeClient({ state }: Props) {
   const openWise = async () => {
     try {
-      const { url } = await fetchWiseReferral();
-      window.open(url, "_blank", "noopener,noreferrer");
+      const { url, wise_referral_url } = await fetchWiseReferral();
+      // API currently returns `url`; `wise_referral_url` remains for older affiliates.
+      const targetUrl = url ?? wise_referral_url;
+      if (!targetUrl) throw new Error("No URL available in Wise link response");
+      window.open(targetUrl, "_blank", "noopener,noreferrer");
     } catch (e) {
       alert("Wiseリンクの取得に失敗しました");
       console.error(e);
     }
   };
 
-  if (!state) return <p>Loading...</p>;
-
   const status = state.floor_status;
+  const ui = toHomeUiState(state);
 
  return (
   <div className={`home-card ${status === "DANGER" ? "danger-bg" : ""}`}>
@@ -44,9 +33,9 @@ export default function HomeClient() {
         </span>
       </h2>
 
-      <p>残高: ¥{Number(state.balance_total).toLocaleString()}</p>
-      <p>床: ¥{Number(state.paket_bigzoon).toLocaleString()}</p>
-      <p>リスク: {state.heart?.risk_mode}</p>
+      <p>残高: {ui.balanceText}</p>
+      <p>床: {ui.paketText}</p>
+      <p>リスク: {ui.riskLabel}</p>
 
       <p className="hint">
         {status === "SAFE" && "床との余裕は十分あります。"}
