@@ -1,9 +1,3 @@
-/app
-  layout.tsx
-  page.tsx
-  HomeClient.tsx
-/lib
-  api.ts
-  openWise.ts
-package.json
-next.config.js
+export default function Page() {
+  return <div>APP OK</div>;
+}
