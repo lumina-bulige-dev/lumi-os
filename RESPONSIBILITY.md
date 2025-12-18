@@ -20,5 +20,6 @@ purpose: /blog /legal /about
 
 ## Rules
 - GitHub is the source of truth
-- Cloudflare Dashboard Editor is emergency-only
+- Cloudflare Dashboard Editor is emergency-only (view/logs first)
+- Workers Routes keep: api.luminabulige.com/*
 - Never route app.luminabulige.com/* to Workers
