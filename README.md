@@ -1,3 +1,4 @@
+📌 System ownership map: see `RESPONSIBILITY.md` (single source of truth).
 正式版を追加。
 lumi-os — Canonical OS / Rules / META / Algorithms Repository for LUMINA BULIGE
 
