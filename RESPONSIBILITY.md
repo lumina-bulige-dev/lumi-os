@@ -18,6 +18,8 @@ root: lumi-core-web/
 domain: luminabulige.com/*
 purpose: /blog /legal /about
 
+•	LP/Web: repo root index.html (current prod), future: migrate to lumi-core-web when ready
+
 ## Rules
 - GitHub is the source of truth
 - Cloudflare Dashboard Editor is emergency-only (view/logs first)
