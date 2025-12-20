@@ -85,6 +85,9 @@ Flow:
 E (Deep Source) → AI_E structuring → A:HQ adoption → lumi-os (canonical)
 All classes must read from main branch of this repo.
 
+
+•	NOTE: lumi-core-web is mock-only; production LP is served from /index.html (for now).
+
 下に古い説明文を残す。
 
 # lumi-os
