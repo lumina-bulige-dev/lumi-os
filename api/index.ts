@@ -9,20 +9,22 @@ export default {
       });
     }
 
-    // wise webhook only
-    
-        if (url.pathname !== "/webhooks/wise") {
+// webhook path only
+    if (url.pathname !== "/webhooks/wise") {
       return new Response("not found", { status: 404 });
     }
 
+    // Wise URL 検証用（GET/HEAD は 200）
     if (request.method === "GET" || request.method === "HEAD") {
-  return new Response("OK", { status: 200 });
-}
+      return new Response("OK", { status: 200 });
+    }
 
+    // webhook 本体は POST のみ
     if (request.method !== "POST") {
       return new Response("method not allowed", { status: 405 });
     }
 
+    // ↓↓↓ ここから署名検証・DB保存 ↓↓↓
     const raw = await request.arrayBuffer();
 
     const sigB64 = request.headers.get("X-Signature-SHA256");
