@@ -15,7 +15,7 @@ export default {
       return new Response("not found", { status: 404 });
     }
 
-    if (request.method === "GET" || request.method === "HEAD") {
+    if (req.method === "GET" || request.method === "HEAD") {
   return new Response("OK", { status: 200 });
 }
 
