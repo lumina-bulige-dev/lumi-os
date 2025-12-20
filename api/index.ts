@@ -1,6 +1,6 @@
 export default {
-  async fetch(req: Request, env: any) {
-    const url = new URL(req.url);
+  async fetch(request: Request, env: any) {
+    const url = new URL(request.url);
 
     // health check
     if (url.pathname === "/health") {
@@ -15,17 +15,17 @@ export default {
       return new Response("not found", { status: 404 });
     }
 
-    if (req.method === "GET" || request.method === "HEAD") {
+    if (request.method === "GET" || request.method === "HEAD") {
   return new Response("OK", { status: 200 });
 }
 
-    if (req.method !== "POST") {
+    if (request.method !== "POST") {
       return new Response("method not allowed", { status: 405 });
     }
 
-    const raw = await req.arrayBuffer();
+    const raw = await request.arrayBuffer();
 
-    const sigB64 = req.headers.get("X-Signature-SHA256");
+    const sigB64 = request.headers.get("X-Signature-SHA256");
     if (!sigB64) return new Response("missing signature", { status: 400 });
 
     const pubPem = env.WISE_WEBHOOK_PUBLIC_KEY_PEM;
