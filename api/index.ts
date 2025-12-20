@@ -48,12 +48,17 @@ export default {
        0. HEALTH CHECK
     ========================= */
     if (req.method === "GET" && url.pathname === "/health") {
-      return Response.json({
-        status: "ok",
-        service: "lumi-core-api",
-        timestamp: new Date().toISOString(),
-      });
-    }
+      return new Response(
+  JSON.stringify({
+    status: "ok",
+    service: "lumi-core-api",
+    timestamp: new Date().toISOString(),
+  }),
+  {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  }
+);
 
     /* =========================
        1. HOME STATE（MVP）
