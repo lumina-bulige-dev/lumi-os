@@ -1,6 +1,3 @@
-Bが12月20日修正。
-
-
 const MOCK_SAFE = {
   balance_total: 320000,
   paket_bigzoon: 300000,
