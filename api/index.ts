@@ -10,12 +10,14 @@ export default {
     }
 
     // wise webhook only
+    
+        if (url.pathname !== "/webhooks/wise") {
+      return new Response("not found", { status: 404 });
+    }
+
     if (request.method === "GET" || request.method === "HEAD") {
   return new Response("OK", { status: 200 });
 }
-    if (url.pathname !== "/webhooks/wise") {
-      return new Response("not found", { status: 404 });
-    }
 
     if (req.method !== "POST") {
       return new Response("method not allowed", { status: 405 });
