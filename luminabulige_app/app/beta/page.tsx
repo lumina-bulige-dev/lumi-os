@@ -84,11 +84,18 @@ async function createVerifiedPdf(payload: any) {
   pdf.setSubject("LUMI Verified Log");
   pdf.setKeywords([`hash=${hashB64u}`, `sig=${sigB64u}`, `kid=${kid}`]);
 
-  const pdfBytes = await pdf.save();
+  // Uint8Array -> ArrayBuffer(確実に ArrayBuffer) にコピー
+function toArrayBuffer(u8: Uint8Array) {
+  const ab = new ArrayBuffer(u8.byteLength);
+  new Uint8Array(ab).set(u8);
+  return ab;
+}
 
-  // Blob は ArrayBuffer を渡すのが安全（型でも落ちにくい）
-  const ab = pdfBytes.buffer.slice(pdfBytes.byteOffset, pdfBytes.byteOffset + pdfBytes.byteLength);
-  const blob = new Blob([ab], { type: "application/pdf" });
+// ...
+
+const pdfBytes = await pdf.save(); // Uint8Array
+const ab = toArrayBuffer(pdfBytes);
+const blob = new Blob([ab], { type: "application/pdf" });
 
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
