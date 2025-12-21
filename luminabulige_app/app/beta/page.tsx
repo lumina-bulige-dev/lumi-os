@@ -11,7 +11,78 @@ function getLast30Range() {
   const from = fromDate.toISOString().slice(0, 10);
   return { from, to };
 }
+import { PDFDocument, StandardFonts } from "pdf-lib";
 
+function bytesToB64u(bytes: Uint8Array) {
+  let s = "";
+  for (const b of bytes) s += String.fromCharCode(b);
+  return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+async function sha256Bytes(data: Uint8Array) {
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return new Uint8Array(hash);
+}
+
+async function createVerifiedPdf(payload: any) {
+  // 1) 署名対象（JSONを固定化）
+  const payloadJson = JSON.stringify(payload);
+  const payloadBytes = new TextEncoder().encode(payloadJson);
+
+  // 2) SHA-256
+  const hashBytes = await sha256Bytes(payloadBytes);
+  const hashB64u = bytesToB64u(hashBytes);
+
+  // 3) サーバ署名
+  const res = await fetch("/api/sign", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ hashB64u }),
+  });
+  if (!res.ok) throw new Error("sign api failed");
+  const { sigB64u, kid, alg, ts } = await res.json();
+
+  // 4) PDF生成
+  const pdf = await PDFDocument.create();
+  const page = pdf.addPage([595, 842]); // A4
+  const font = await pdf.embedFont(StandardFonts.Helvetica);
+
+  const lines = [
+    "LUMI 30日ログ（Verified）",
+    "",
+    `alg: ${alg}  kid: ${kid}`,
+    `ts: ${ts}`,
+    "",
+    `hashB64u: ${hashB64u}`,
+    `sigB64u : ${sigB64u}`,
+    "",
+    "payload:",
+    payloadJson,
+  ];
+
+  let y = 800;
+  for (const line of lines) {
+    page.drawText(line.slice(0, 110), { x: 40, y, size: 10, font });
+    y -= 14;
+    if (y < 40) break;
+  }
+
+  // 5) できれば「メタデータ」にも埋める（検証しやすい）
+  pdf.setSubject("LUMI Verified Log");
+  pdf.setKeywords([`hash=${hashB64u}`, `sig=${sigB64u}`, `kid=${kid}`]);
+
+  const pdfBytes = await pdf.save();
+
+  // 6) DL
+  const blob = new Blob([pdfBytes], { type: "application/pdf" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `lumi_verified_${payload?.range?.to || "log"}.pdf`;
+  a.click();
+  URL.revokeObjectURL(url);
+
+  return { hashB64u, sigB64u, kid };
+}
 export default function BetaPage() {
   const [logs, setLogs] = useState<DailyLog[]>([]);
   const [isSharing, setIsSharing] = useState(false);
