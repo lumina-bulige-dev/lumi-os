@@ -1,5 +1,5 @@
 /* =========================
-   THEME TOKENS
+   Design Tokens
 ========================= */
 :root{
   color-scheme: dark;
@@ -29,24 +29,18 @@
 }
 
 /* =========================
-   BASE
+   Base
 ========================= */
-*{ box-sizing:border-box; }
-html, body{ height:100%; }
-
 body{
   margin:0;
-  color: var(--text);
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
-    "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  background: radial-gradient(1200px 800px at 20% 0%, var(--bg1) 0%, var(--bg0) 55%, #03060b 100%);
+  color:var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   line-height: 1.6;
-
-  background:
-    radial-gradient(1200px 800px at 20% 0%, var(--bg1) 0%, var(--bg0) 58%, #03060b 100%);
 }
 
 /* =========================
-   LAYOUT
+   Layout
 ========================= */
 .page{
   max-width: 820px;
@@ -55,19 +49,11 @@ body{
 }
 
 .hero{ margin-bottom: 18px; }
-
-.title{
-  font-size: 34px;
-  margin: 0 0 8px;
-}
-
-.lead{
-  margin: 0;
-  opacity: 0.8;
-}
+.title{ font-size: 34px; margin: 0 0 8px; }
+.lead{ margin: 0; opacity: 0.8; }
 
 /* =========================
-   CARD
+   Card
 ========================= */
 .card{
   background: rgba(8, 16, 28, 0.72);
@@ -78,19 +64,11 @@ body{
   box-shadow: 0 8px 30px rgba(0,0,0,0.35);
 }
 
-.cardTitle{
-  margin: 0 0 10px;
-  font-size: 18px;
-}
-
-.muted{
-  opacity: 0.75;
-  margin: 10px 0 0;
-  color: var(--muted);
-}
+.cardTitle{ margin: 0 0 10px; font-size: 18px; }
+.muted{ opacity: 0.75; margin: 10px 0 0; }
 
 /* =========================
-   BADGES (summary)
+   Badges
 ========================= */
 .badges{
   display:flex;
@@ -102,25 +80,24 @@ body{
 .badge{
   display:inline-flex;
   align-items:center;
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-weight: 800;
-  font-size: 13px;
-  border: 1px solid rgba(255,255,255,0.18);
-  background: rgba(255,255,255,0.03);
+  padding:6px 10px;
+  border-radius:999px;
+  font-weight:800;
+  font-size:13px;
+  border:1px solid rgba(255,255,255,0.18);
 }
 
-.badge-safe   { color: var(--success); border-color: rgba(46,229,157,0.35); }
-.badge-warning{ color: var(--warning); border-color: rgba(255,194,74,0.35); }
-.badge-danger { color: var(--danger);  border-color: rgba(255,92,108,0.35); }
+.badge-safe    { color: var(--success); border-color: color-mix(in oklab, var(--success) 35%, transparent); }
+.badge-warning { color: var(--warning); border-color: color-mix(in oklab, var(--warning) 35%, transparent); }
+.badge-danger  { color: var(--danger);  border-color: color-mix(in oklab, var(--danger)  35%, transparent); }
 
 /* =========================
-   LOG LIST
+   Logs
 ========================= */
 .logList{
   list-style:none;
   padding:0;
-  margin: 10px 0 0;
+  margin:10px 0 0;
   display:grid;
   gap:10px;
 }
@@ -130,38 +107,31 @@ body{
   gap:10px;
   align-items:center;
   justify-content:space-between;
-  padding: 12px;
-  border-radius: 14px;
-  border: 1px solid var(--border);
+  padding:12px;
+  border-radius:14px;
+  border:1px solid var(--border);
   background: rgba(255,255,255,0.04);
 }
 
-/* 今日のログだけ強調 */
 .logItemToday{
   border-color: rgba(215, 180, 90, 0.65);
   box-shadow: 0 0 0 2px rgba(215, 180, 90, 0.20);
 }
 
-.logDate{
-  opacity: 0.9;
-  font-variant-numeric: tabular-nums;
-}
-
-.logDiff{ opacity: 0.85; }
+.logDate{ opacity:0.9; font-variant-numeric: tabular-nums; }
+.logDiff{ opacity:0.85; }
 
 /* =========================
-   PILLS (per log)
+   Pills
 ========================= */
 .pill{
-  padding: 5px 10px;
-  border-radius: 999px;
-  font-weight: 900;
-  font-size: 12px;
-  border: 1px solid rgba(255,255,255,0.18);
-  background: rgba(255,255,255,0.03);
+  padding:5px 10px;
+  border-radius:999px;
+  font-weight:900;
+  font-size:12px;
+  border:1px solid rgba(255,255,255,0.18);
 }
 
-/* TODAY pill */
 .pillToday{
   border-color: rgba(215, 180, 90, 0.65);
   background: rgba(215, 180, 90, 0.16);
@@ -170,42 +140,40 @@ body{
 
 .pill-safe{
   color: var(--success);
-  background: rgba(46,229,157,0.12);
-  border-color: rgba(46,229,157,0.35);
+  background: color-mix(in oklab, var(--success) 14%, transparent);
+  border-color: color-mix(in oklab, var(--success) 35%, transparent);
 }
+
 .pill-warning{
   color: var(--warning);
-  background: rgba(255,194,74,0.12);
-  border-color: rgba(255,194,74,0.35);
+  background: color-mix(in oklab, var(--warning) 14%, transparent);
+  border-color: color-mix(in oklab, var(--warning) 35%, transparent);
 }
+
 .pill-danger{
   color: var(--danger);
-  background: rgba(255,92,108,0.12);
-  border-color: rgba(255,92,108,0.35);
+  background: color-mix(in oklab, var(--danger) 14%, transparent);
+  border-color: color-mix(in oklab, var(--danger) 35%, transparent);
 }
 
 /* =========================
-   LINKS / ACTIONS
+   Links
 ========================= */
 .actions{ margin-top: 14px; }
-.link{
-  color: #a8c7ff;
-  text-decoration: underline;
-}
+.link{ color:#a8c7ff; text-decoration: underline; }
 
 /* =========================
-   BUTTONS (unified)
+   Buttons（ここを“唯一の定義”にする）
 ========================= */
 .btn-base{
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
+  display:inline-flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  width:100%;
 
-  width: 100%;
   padding: 12px 14px;
   border-radius: 14px;
-
   font-weight: 900;
   font-size: 15px;
 
@@ -219,25 +187,22 @@ body{
 
 .btn-base:hover{ filter: brightness(1.07); }
 .btn-base:active{ transform: translateY(1px); }
-.btn-base:disabled{
-  opacity: 0.45;
-  cursor: not-allowed;
-  transform: none;
-}
+.btn-base:disabled{ opacity:0.45; cursor:not-allowed; transform:none; }
 
-/* SAFE / WARNING / DANGER */
 .btn-safe{
-  background: rgba(46,229,157,0.16);
-  border-color: rgba(46,229,157,0.38);
+  background: color-mix(in oklab, var(--success) 18%, rgba(255,255,255,0.06));
+  border-color: color-mix(in oklab, var(--success) 38%, transparent);
   color: var(--success);
 }
+
 .btn-warning{
-  background: rgba(255,194,74,0.14);
-  border-color: rgba(255,194,74,0.38);
+  background: color-mix(in oklab, var(--warning) 18%, rgba(255,255,255,0.06));
+  border-color: color-mix(in oklab, var(--warning) 38%, transparent);
   color: var(--warning);
 }
+
 .btn-danger{
-  background: rgba(255,92,108,0.14);
-  border-color: rgba(255,92,108,0.38);
+  background: color-mix(in oklab, var(--danger) 18%, rgba(255,255,255,0.06));
+  border-color: color-mix(in oklab, var(--danger) 38%, transparent);
   color: var(--danger);
 }
