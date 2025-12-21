@@ -77,8 +77,11 @@ async function createVerifiedPdfFile(payload: any) {
   const pdfBytes = await pdf.save();
 
   const fileName = `lumi_verified_${payload?.range?.to || "log"}.pdf`;
-  const blob = new Blob([pdfBytes], { type: "application/pdf" });
-  const file = new File([blob], fileName, { type: "application/pdf" });
+  const ab = new ArrayBuffer(pdfBytes.byteLength);
+new Uint8Array(ab).set(pdfBytes);
+
+const blob = new Blob([ab], { type: "application/pdf" });
+const url = URL.createObjectURL(blob);
 
   return { file, fileName, meta: { hashB64u, sigB64u, kid, alg, ts } };
 }
