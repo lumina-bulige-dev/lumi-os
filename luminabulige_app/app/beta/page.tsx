@@ -7,7 +7,9 @@ import { loadDailyLogs, last30, summarize } from "../lib/lumiStorage";
 
 export default function BetaPage() {
   const [logs, setLogs] = useState<any[]>([]);
-
+const all = loadDailyLogs();
+const logs = last30(all);
+const sum = summarize(logs);
   useEffect(() => {
     const raw = loadLogs();
     // 直近30日だけ & 日付降順（既存ロジックに合わせて）
