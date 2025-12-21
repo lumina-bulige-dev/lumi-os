@@ -5,6 +5,7 @@ import { calcLevel } from "../lib/lumiRules";
 import { loadCompare, saveCompare, upsertTodayLog } from "../lib/lumiStorage";
 
 export default function ComparePage() {
+  const router = useRouter(); // 追加
   const [balance, setBalance] = useState<number>(0);
   const [floor, setFloor] = useState<number>(0);
   const [savedMsg, setSavedMsg] = useState<string>("");
@@ -38,7 +39,14 @@ export default function ComparePage() {
   function saveToday() {
     const entry = upsertTodayLog(balance, floor);
     setSavedMsg(`今日のログ保存OK：${entry.date} / ${entry.level}`);
-    setTimeout(() => setSavedMsg(""), 2500);
+   
+  setTimeout(() => setSavedMsg(""), 2500);
+   // ✅ ここで30日ログへ飛ばす（少し待ってから）
+    setTimeout(() => {
+      router.push("/beta");
+    }, 300);
+  }
+
   }
 
   return (
