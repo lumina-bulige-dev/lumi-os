@@ -77,7 +77,7 @@ async function createVerifiedPdfFile(payload: any) {
   pdf.setKeywords([`hash=${hashB64u}`, `sig=${sigB64u}`, `kid=${kid}`]);
 
   const pdfBytes = await pdf.save(); // Uint8Array
-
+const fileName = `lumi_verified_${payload?.range?.to || "log"}.pdf`;
 const ab = pdfBytes.buffer.slice(
   pdfBytes.byteOffset,
   pdfBytes.byteOffset + pdfBytes.byteLength
