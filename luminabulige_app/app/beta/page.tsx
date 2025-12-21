@@ -58,10 +58,9 @@ export default function BetaPage() {
         )}
 
         <div className="actions">
-          <Link className="link" href="/compare">
-            Compareへ戻る
-          </Link>
-        </div>
+  <Link className="link" href="/compare">Compareへ戻る</Link>
+  <a className="link" href="https://luminabulige.com/">LPへ戻る</a>
+</div>
       </section>
     </main>
   );
