@@ -20,7 +20,11 @@ function bytesToB64u(bytes: Uint8Array) {
 }
 
 async function sha256Bytes(data: Uint8Array) {
-  const hash = await crypto.subtle.digest("SHA-256", data);
+  // ArrayBuffer に“確実に”寄せる（SharedArrayBuffer を排除）
+  const ab = new ArrayBuffer(data.byteLength);
+  new Uint8Array(ab).set(data);
+
+  const hash = await crypto.subtle.digest("SHA-256", ab);
   return new Uint8Array(hash);
 }
 
