@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation"; // 追加
+import { useRouter } from "next/navigation";
 import { calcLevel } from "../lib/lumiRules";
 import { loadCompare, saveCompare, upsertTodayLog } from "../lib/lumiStorage";
 
 export default function ComparePage() {
-  const router = useRouter(); // 追加
+  const router = useRouter();
 
   const [balance, setBalance] = useState<number>(0);
   const [floor, setFloor] = useState<number>(0);
@@ -42,20 +42,14 @@ export default function ComparePage() {
     const entry = upsertTodayLog(balance, floor);
     setSavedMsg(`今日のログ保存OK：${entry.date} / ${entry.level}`);
 
-    // ✅ ここで30日ログへ飛ばす（少し待ってから）
     setTimeout(() => {
       router.push("/beta");
-    }, 555;
+    }, 555);
   }
-
-
 
   return (
     <main style={{ padding: 24, maxWidth: 720, margin: "0 auto" }}>
       <h1 style={{ fontSize: 40, marginBottom: 8 }}>Compare</h1>
-      <p style={{ opacity: 0.8, marginBottom: 24 }}>
-        入力した数字で、今日の安全度を即計算します（端末に保存）。
-      </p>
 
       <section style={{ display: "grid", gap: 12, marginBottom: 20 }}>
         <label>
@@ -80,7 +74,6 @@ export default function ComparePage() {
           />
         </label>
 
-        {/* レベルに応じたボタン */}
         <button onClick={saveToday} className={saveBtn.className}>
           {saveBtn.label}
         </button>
@@ -97,10 +90,6 @@ export default function ComparePage() {
           Floorとの差分：<b>{diff.toLocaleString()}円</b>
         </p>
       </section>
-
-      <p style={{ marginTop: 18, opacity: 0.7 }}>
-        ※Wise/銀行連携はまだ無し。ここで“数字が動く”状態を先に固める。
-      </p>
     </main>
   );
 }
