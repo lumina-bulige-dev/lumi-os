@@ -32,13 +32,20 @@ async function sha256Bytes(data: Uint8Array) {
   return new Uint8Array(hash);
 }
 
-async function createVerifiedPdf(payload: any) {
+type VerifiedPdfResult = {
+  file: File;
+  fileName: string;
+  meta: { hashB64u: string; sigB64u: string; kid: string; alg: string; ts: string };
+};
+
+async function createVerifiedPdf(payload: any): Promise<VerifiedPdfResult> {
   const payloadJson = JSON.stringify(payload);
   const payloadBytes = new TextEncoder().encode(payloadJson);
-const { file, fileName } = await createVerifiedPdf(payload);
+
   const hashBytes = await sha256Bytes(payloadBytes);
   const hashB64u = bytesToB64u(hashBytes);
 
+  // サーバ署名
   const res = await fetch("/api/sign", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -47,15 +54,12 @@ const { file, fileName } = await createVerifiedPdf(payload);
   if (!res.ok) throw new Error("sign api failed");
   const { sigB64u, kid, alg, ts } = await res.json();
 
+  // PDF生成
   const pdf = await PDFDocument.create();
-
-  // ★ここが重要：日本語フォントを登録
   pdf.registerFontkit(fontkit);
 
-  // public/fonts からフォント読み込み
-  const fontRes = await fetch("/fonts/NotoSansJP-Regular.otf");
-  if (!fontRes.ok) throw new Error("font load failed");
-  const fontBytes = new Uint8Array(await fontRes.arrayBuffer());
+  // ★日本語フォント（public/fonts に置く）
+  const fontBytes = await fetch("/fonts/NotoSansJP-Regular.otf").then((r) => r.arrayBuffer());
   const jpFont = await pdf.embedFont(fontBytes, { subset: true });
 
   const page = pdf.addPage([595, 842]);
@@ -75,36 +79,22 @@ const { file, fileName } = await createVerifiedPdf(payload);
 
   let y = 800;
   for (const line of lines) {
-    // 日本語が混ざっても落ちない
     page.drawText(line.slice(0, 110), { x: 40, y, size: 10, font: jpFont });
     y -= 14;
     if (y < 40) break;
   }
 
-  pdf.setSubject("LUMI Verified Log");
-  pdf.setKeywords([`hash=${hashB64u}`, `sig=${sigB64u}`, `kid=${kid}`]);
+  const pdfBytes = await pdf.save(); // Uint8Array
 
-  // Uint8Array -> ArrayBuffer(確実に ArrayBuffer) にコピー
-function toArrayBuffer(u8: Uint8Array) {
-  const ab = new ArrayBuffer(u8.byteLength);
-  new Uint8Array(ab).set(u8);
-  return ab;
-}
+  // Blobの型地雷回避：ArrayBufferに確定させる
+  const u8 = new Uint8Array(pdfBytes);
+  const ab: ArrayBuffer = u8.buffer.slice(u8.byteOffset, u8.byteOffset + u8.byteLength) as ArrayBuffer;
 
-// ...
+  const fileName = `lumi_verified_${payload?.range?.to ?? "log"}.pdf`;
+  const blob = new Blob([ab], { type: "application/pdf" });
+  const file = new File([blob], fileName, { type: "application/pdf" });
 
-const pdfBytes = await pdf.save(); // Uint8Array
-const ab = toArrayBuffer(pdfBytes);
-const blob = new Blob([ab], { type: "application/pdf" });
-
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `lumi_verified_${payload?.range?.to || "log"}.pdf`;
-  a.click();
-  URL.revokeObjectURL(url);
-
-  return { hashB64u, sigB64u, kid };
+  return { file, fileName, meta: { hashB64u, sigB64u, kid, alg, ts } };
 }
 function downloadFile(file: File, fileName: string) {
   const url = URL.createObjectURL(file);
