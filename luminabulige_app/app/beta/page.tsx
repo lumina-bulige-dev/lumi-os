@@ -86,11 +86,7 @@ const ab = pdfBytes.buffer.slice(
 const blob = new Blob([ab], { type: "application/pdf" });
 const file = new File([blob], fileName, { type: "application/pdf" });
 
-  const fileName = `lumi_verified_${payload?.range?.to || "log"}.pdf`;
-  const blob = new Blob([pdfBytes], { type: "application/pdf" });
-  const file = new File([blob], fileName, { type: "application/pdf" });
-
-  return { file, fileName, meta: { hashB64u, sigB64u, kid, alg, ts } };
+    return { file, fileName, meta: { hashB64u, sigB64u, kid, alg, ts } };
 }
 
 function downloadFile(file: File, fileName: string) {
