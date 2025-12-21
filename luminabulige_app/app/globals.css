@@ -1,1 +1,104 @@
+/* base */
+:root {
+  color-scheme: dark;
+}
+body {
+  margin: 0;
+  background: radial-gradient(1200px 800px at 20% 0%, #0b1d3a 0%, #050a12 55%, #03060b 100%);
+  color: #e8eefc;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+}
 
+/* layout */
+.page {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 28px 18px 48px;
+}
+.hero {
+  margin-bottom: 18px;
+}
+.title {
+  font-size: 34px;
+  margin: 0 0 8px;
+}
+.lead {
+  margin: 0;
+  opacity: 0.8;
+  line-height: 1.6;
+}
+
+/* card */
+.card {
+  background: rgba(8, 16, 28, 0.72);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 16px;
+  padding: 16px;
+  margin-top: 14px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+}
+.cardTitle {
+  margin: 0 0 10px;
+  font-size: 18px;
+}
+.muted {
+  opacity: 0.75;
+  margin: 10px 0 0;
+}
+
+/* badges */
+.badges {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 13px;
+  border: 1px solid rgba(255,255,255,0.18);
+}
+.badge-safe { color: #5ff7a7; border-color: rgba(95,247,167,0.35); }
+.badge-warning { color: #ffd86b; border-color: rgba(255,216,107,0.35); }
+.badge-danger { color: #ff7b7b; border-color: rgba(255,123,123,0.35); }
+
+/* logs */
+.logList {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 0;
+  display: grid;
+  gap: 10px;
+}
+.logItem {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04);
+}
+.logDate { opacity: 0.9; font-variant-numeric: tabular-nums; }
+.logDiff { opacity: 0.85; }
+
+/* pills */
+.pill {
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 12px;
+  border: 1px solid rgba(255,255,255,0.18);
+}
+.pill-safe { color: #0b1; background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.35); }
+.pill-warning { color: #ffda63; background: rgba(250,204,21,0.12); border-color: rgba(250,204,21,0.35); }
+.pill-danger { color: #ff7b7b; background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.35); }
+
+/* links */
+.actions { margin-top: 14px; }
+.link { color: #a8c7ff; text-decoration: underline; }
