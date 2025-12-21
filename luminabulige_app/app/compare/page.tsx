@@ -9,14 +9,12 @@ export default function ComparePage() {
   const [floor, setFloor] = useState<number>(0);
   const [savedMsg, setSavedMsg] = useState<string>("");
 
-  // 初回：保存値を復元（旧キーも吸い上げて新キーへ寄せる）
   useEffect(() => {
     const v = loadCompare();
     setBalance(v.balance);
     setFloor(v.floor);
   }, []);
 
-  // 変更時：保存（新キーに統一）
   useEffect(() => {
     saveCompare(balance, floor);
   }, [balance, floor]);
