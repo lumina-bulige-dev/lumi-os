@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <title>LUMI / 30日ログ</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
   <style>
     body {
       margin: 0;
@@ -17,12 +16,10 @@
       margin: 0 auto;
       padding: 20px;
     }
-
     h1 {
       font-size: 20px;
       margin-bottom: 12px;
     }
-
     .card {
       background: #020617;
       border: 1px solid #1e293b;
@@ -30,7 +27,6 @@
       padding: 16px;
       margin-bottom: 20px;
     }
-
     .summary {
       font-size: 16px;
       margin-bottom: 8px;
@@ -40,7 +36,6 @@
       color: #94a3b8;
       margin-bottom: 12px;
     }
-
     .badge {
       display: inline-block;
       padding: 4px 10px;
@@ -52,7 +47,6 @@
     .safe { color: #4ade80; border-color: #4ade80; }
     .warn { color: #facc15; border-color: #facc15; }
     .danger { color: #f87171; border-color: #f87171; }
-
     .share-box {
       margin-top: 20px;
       font-size: 14px;
@@ -69,189 +63,20 @@
       border: 1px solid #475569;
     }
   </style>
-</head><script>
-  function getLast30Range() {
-    const today = new Date();
-    const to = today.toISOString().slice(0, 10);
-    const fromDate = new Date(today);
-    fromDate.setDate(today.getDate() - 29);
-    const from = fromDate.toISOString().slice(0, 10);
-    return { from, to };
-  }
-
-  function addDays(isoDate, add) {
-    const d = new Date(isoDate + "T00:00:00Z");
-    d.setUTCDate(d.getUTCDate() + add);
-    return d.toISOString().slice(0, 10);
-  }
-
-  function parseDaysCount(text) {
-    const t = (text || "").toString();
-    const m = t.match(/(\d+)\s*日/);
-    if (m) return Number(m[1]);
-    const m2 = t.match(/(\d+)/);
-    return m2 ? Number(m2[1]) : 0;
-  }
-
-  function inferLevelFromText(t) {
-    const s = (t || "").toUpperCase();
-    if (s.includes("DANGER")) return "DANGER";
-    if (s.includes("WARNING") || s.includes("WARN")) return "WARNING";
-    if (s.includes("SAFE")) return "SAFE";
-    if ((t || "").includes("反省") || (t || "").includes("止まれず")) return "DANGER";
-    if ((t || "").includes("直前") || (t || "").includes("注意")) return "WARNING";
-    if ((t || "").includes("成功") || (t || "").includes("止まれた") || (t || "").includes("GOOD")) return "SAFE";
-    return "WARNING";
-  }
-
-  function parseDiffYen(t) {
-    const m = (t || "").match(/[¥￥]\s*([\d,]+)/);
-    return m ? Number(m[1].replace(/,/g, "")) : undefined;
-  }
-
-  function extractLumi30DayFromLPDOM() {
-    const range = getLast30Range();
-
-    const safeBadge = document.querySelector(".badge.safe");
-    const warnBadge = document.querySelector(".badge.warn");
-    const dangerBadge = document.querySelector(".badge.danger");
-
-    const counts = {
-      SAFE: parseDaysCount(safeBadge && safeBadge.innerText),
-      WARNING: parseDaysCount(warnBadge && warnBadge.innerText),
-      DANGER: parseDaysCount(dangerBadge && dangerBadge.innerText),
-    };
-
-    const lis = Array.from(document.querySelectorAll(".card ul li"));
-    const logs = lis.map((li) => {
-      const text = li.innerText || "";
-      const dayM = text.match(/Day\s*(\d+)/i);
-      const dayIndex = dayM ? Number(dayM[1]) : undefined;
-      const date =
-        (dayIndex && dayIndex >= 1 && dayIndex <= 30)
-          ? addDays(range.from, dayIndex - 1)
-          : range.to;
-
-      return { date, level: inferLevelFromText(text), diffYen: parseDiffYen(text), note: text };
-    });
-
-    return { range, counts, logs };
-  }
-
-  function openShareModal(onSubmitSync) {
-    const old = document.getElementById("lumi-share-modal");
-    if (old) old.remove();
-
-    const modal = document.createElement("div");
-    modal.id = "lumi-share-modal";
-    modal.style.cssText = `
-      position:fixed; inset:0; background:rgba(0,0,0,.55);
-      display:flex; align-items:flex-end; justify-content:center; z-index:9999;
-    `;
-    modal.innerHTML = `
-      <div style="
-        width:min(640px, 100%); background:#020617; border:1px solid #1e293b;
-        border-radius:16px 16px 0 0; padding:16px; color:#e5e7eb;">
-        <div style="font-size:14px; opacity:.9; margin-bottom:10px;">誰に見せますか？（ラベル）</div>
-
-        <select id="lumi-share-label" style="
-          width:100%; padding:12px; border-radius:12px; background:#0b1220;
-          border:1px solid #1e293b; color:#e5e7eb; font-size:14px;">
-          <option value="family">家族</option>
-          <option value="cofounder">共同経営者</option>
-          <option value="accountant">税理士</option>
-          <option value="investor">投資家</option>
-          <option value="myself">自分</option>
-          <option value="other">その他</option>
-        </select>
-
-        <div style="display:grid; gap:10px; margin-top:12px;">
-          <button id="lumi-share-go" type="button" style="
-            height:48px; border-radius:999px; border:1px solid rgba(70,182,255,.4);
-            background:rgba(255,255,255,.06); color:#e5e7eb; font-weight:650;">
-            共有する（MVP）
-          </button>
-          <button id="lumi-share-cancel" type="button" style="
-            height:44px; border-radius:999px; border:1px solid #475569;
-            background:transparent; color:#94a3b8;">
-            キャンセル
-          </button>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(modal);
-
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) modal.remove();
-    });
-    modal.querySelector("#lumi-share-cancel").addEventListener("click", () => modal.remove());
-
-    // ★ async/await を挟まない（ユーザー操作権限を切らさない）
-    modal.querySelector("#lumi-share-go").addEventListener("click", () => {
-      const label = modal.querySelector("#lumi-share-label").value;
-      modal.remove();
-      onSubmitSync(label);
-    });
-  }
-
-  function shareTextNow(text, url) {
-    // ここも “同期呼び出し” を優先（shareの呼び出しだけは即）
-    if (navigator.share) {
-      navigator.share({ title: "LUMI 30日ログ（MVP）", text, url }).catch(() => {});
-      return;
-    }
-
-    // share が無い環境は、コピー→プロンプトに落とす
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(
-        () => alert("シェア文をコピーしました。貼り付けて送ってください。"),
-        () => prompt("コピーして共有してください", text)
-      );
-      return;
-    }
-
-    prompt("コピーして共有してください", text);
-  }
-
-  // ★ onclick から呼ぶ入口（配線ミスしない）
-  window.lumiShareStart = function (e) {
-    e.preventDefault();
-
-    openShareModal((share_to_label) => {
-      const { range, counts } = extractLumi30DayFromLPDOM();
-      const url = window.location.href;
-
-      const text =
-        `LUMI 30日ログ（MVP）\n` +
-        `share_to=${share_to_label}\n` +
-        `期間: ${range.from}〜${range.to}\n` +
-        `SAFE:${counts.SAFE} / WARNING:${counts.WARNING} / DANGER:${counts.DANGER}\n` +
-        `URL: ${url}`;
-
-      shareTextNow(text, url);
-    });
-
-    return false;
-  };
-</script>
+</head>
 <body>
   <div class="page">
-
     <h1>30日ログ（β）</h1>
-
     <div class="card">
       <div class="summary">30日のまとめ</div>
       <div class="sub">この30日で、あなたが “どこで止まれたか・どこで行きすぎたか” が一目で分かる記録です。</div>
-
       <div class="badge safe">勝ち越し：18日</div>
       <div class="badge warn">引き分け：8日</div>
       <div class="badge danger">反省日：4日</div>
     </div>
-
     <div class="card">
       <div class="summary">行動ログの一例（ダミー）</div>
       <div class="sub">実際には HOME の daily log から自動生成されます。</div>
-
       <ul>
         <li>Day 3：SAFE_NULL（よく止まれた日）</li>
         <li>Day 7：¥4,000 セーフムーブ成功</li>
@@ -259,15 +84,12 @@
         <li>Day 20：DANGER 直前で停止（GOOD）</li>
       </ul>
     </div>
-
     <div class="card share-box">
       LUMI が作った 30日の行動ログです。  
       言い訳ではなく、今月どう生きたかが “そのまま” 残っています。  
       このページ、あなたなら誰に見せますか？
-
-     <a class="share-btn" href="#" onclick="return lumiShareStart(event)">シェアする（準備中）</a>
+      <a class="share-btn" href="#">シェアする（準備中）</a>
     </div>
-
   </div>
 </body>
 </html>
