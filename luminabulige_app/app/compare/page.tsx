@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link"; // ← 3) 用
 import { calcLevel } from "../lib/lumiRules";
 import { loadCompare, saveCompare, upsertTodayLog } from "../lib/lumiStorage";
 
@@ -11,11 +12,16 @@ export default function ComparePage() {
   const [balance, setBalance] = useState<number>(0);
   const [floor, setFloor] = useState<number>(0);
   const [savedMsg, setSavedMsg] = useState<string>("");
+  const [isSaving, setIsSaving] = useState<boolean>(false); // ✅追加
+  const tRef = useRef<number | null>(null); // ✅タイマー掃除用（安全）
 
   useEffect(() => {
     const v = loadCompare();
     setBalance(v.balance);
     setFloor(v.floor);
+    return () => {
+      if (tRef.current) window.clearTimeout(tRef.current);
+    };
   }, []);
 
   useEffect(() => {
@@ -25,24 +31,35 @@ export default function ComparePage() {
   const level = useMemo(() => calcLevel(balance, floor), [balance, floor]);
   const diff = useMemo(() => balance - floor, [balance, floor]);
 
+  // 入力が0/未設定のときは保存させない（事故防止）
+  const canSave = useMemo(() => balance > 0 && floor > 0, [balance, floor]);
+
   const saveBtn = useMemo(() => {
+    const base = isSaving ? "btn-base" : "btn-base"; // クラスは同じでOK（disabledで見た目変える）
+    if (!canSave) return { label: "数字を入れてください", className: base };
+
     switch (level) {
       case "SAFE":
-        return { label: "今日のログとして保存（SAFE）", className: "btn-base btn-safe" };
+        return { label: isSaving ? "保存中…" : "今日のログとして保存（SAFE）", className: `${base} btn-safe` };
       case "WARNING":
-        return { label: "少し注意しながら保存（WARNING）", className: "btn-base btn-warning" };
+        return { label: isSaving ? "保存中…" : "少し注意しながら保存（WARNING）", className: `${base} btn-warning` };
       case "DANGER":
-        return { label: "要注意ログとして保存（DANGER）", className: "btn-base btn-danger" };
+        return { label: isSaving ? "保存中…" : "要注意ログとして保存（DANGER）", className: `${base} btn-danger` };
       default:
-        return { label: "今日のログとして保存", className: "btn-base" };
+        return { label: isSaving ? "保存中…" : "今日のログとして保存", className: base };
     }
-  }, [level]);
+  }, [level, isSaving, canSave]);
 
   function saveToday() {
+    if (!canSave) return;
+    if (isSaving) return; // ✅二重クリック防止
+
+    setIsSaving(true);
+
     const entry = upsertTodayLog(balance, floor);
     setSavedMsg(`今日のログ保存OK：${entry.date} / ${entry.level}`);
 
-    setTimeout(() => {
+    tRef.current = window.setTimeout(() => {
       router.push("/beta");
     }, 555);
   }
@@ -59,7 +76,6 @@ export default function ComparePage() {
             value={balance}
             onChange={(e) => setBalance(Number(e.target.value))}
             style={{ width: "100%", padding: 12, fontSize: 16, marginTop: 6 }}
-            placeholder="例: 123456"
           />
         </label>
 
@@ -70,15 +86,24 @@ export default function ComparePage() {
             value={floor}
             onChange={(e) => setFloor(Number(e.target.value))}
             style={{ width: "100%", padding: 12, fontSize: 16, marginTop: 6 }}
-            placeholder="例: 100000"
           />
         </label>
 
-        <button onClick={saveToday} className={saveBtn.className}>
+        <button
+          onClick={saveToday}
+          className={saveBtn.className}
+          disabled={!canSave || isSaving} // ✅無効化
+        >
           {saveBtn.label}
         </button>
 
         {savedMsg ? <div style={{ opacity: 0.8 }}>{savedMsg}</div> : null}
+
+        {/* 3) 導線 */}
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+          <Link href="/beta" className="link">30日ログを見る</Link>
+          <a href="https://luminabulige.com/" className="link">LPへ戻る</a>
+        </div>
       </section>
 
       <section style={{ padding: 16, border: "1px solid #ddd", borderRadius: 12 }}>
