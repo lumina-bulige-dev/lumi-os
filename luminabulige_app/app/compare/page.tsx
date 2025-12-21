@@ -67,7 +67,7 @@ export default function ComparePage() {
     // すぐ戻すのが嫌なら 600ms 後に戻すでもOK
     window.setTimeout(() => setIsSaving(false), 700);
   }
-}
+
 
   return (
     <main style={{ padding: 24, maxWidth: 720, margin: "0 auto" }}>
