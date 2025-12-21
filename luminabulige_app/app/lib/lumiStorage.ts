@@ -62,23 +62,21 @@ export function loadDailyLogs(): DailyLog[] {
  * - 最大30件に制限
  */
 export function upsertTodayLog(balanceYen: number, floorYen: number) {
-  if (typeof window === "undefined") {
-    // クライアントでしか動かない前提（念のため）
-    return {
-      date: todayISO(),
-      balanceYen,
-      floorYen,
-      level: calcLevel(balanceYen, floorYen),
-      diffYen: balanceYen - floorYen,
-    } as DailyLog;
+  if (typeof window === "undefined") { /* 省略 */ }
+
+  // ✅ ここ追加（stringでも確実にnumber化）
+  const b = Number(balanceYen);
+  const f = Number(floorYen);
+  if (!Number.isFinite(b) || !Number.isFinite(f)) {
+    throw new Error("Invalid balance/floor");
   }
 
   const date = todayISO();
-  const level = calcLevel(balanceYen, floorYen);
-  const diffYen = balanceYen - floorYen;
+  const level = calcLevel(b, f);
+  const diffYen = b - f;
 
   const logs = loadDailyLogs();
-  const next: DailyLog = { date, balanceYen, floorYen, level, diffYen };
+  const next: DailyLog = { date, balanceYen: b, floorYen: f, level, diffYen };
 
   const withoutToday = logs.filter((x) => x.date !== date);
   const updated = [next, ...withoutToday]
