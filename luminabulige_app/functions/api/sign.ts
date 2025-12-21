@@ -1,17 +1,13 @@
 export const onRequestPost: PagesFunction<{
-  SIGN_PRIVATE_JWK: string; // Cloudflare環境変数（Secret推奨）
+  SIGN_PRIVATE_JWK: string;
   SIGN_KID?: string;
 }> = async ({ request, env }) => {
-  const body = await request.json().catch(() => null) as { hash?: string } | null;
-  const hashHex = body?.hash;
-
-  if (!hashHex || !/^[0-9a-f]{64}$/i.test(hashHex)) {
-    return new Response(JSON.stringify({ error: "invalid hash" }), {
-      status: 400,
-      headers: { "content-type": "application/json" },
-    });
+  const body = await request.json().catch(() => null);
+  if (!body?.hashB64u) {
+    return Response.json({ error: "hashB64u required" }, { status: 400 });
   }
 
+  const kid = env.SIGN_KID || "p256-v1";
   const jwk = JSON.parse(env.SIGN_PRIVATE_JWK);
 
   const key = await crypto.subtle.importKey(
@@ -22,30 +18,33 @@ export const onRequestPost: PagesFunction<{
     ["sign"]
   );
 
-  const msg = hexToBytes(hashHex);
+  const hashBytes = b64uToBytes(body.hashB64u);
 
+  // ES256: ECDSA(P-256) + SHA-256 の組。ここでは「hashBytesをそのまま署名」ではなく
+  // 署名対象を “バイト列” として扱う（後段のclient側も同じバイト列を作るのが重要）
   const sig = await crypto.subtle.sign(
     { name: "ECDSA", hash: "SHA-256" },
     key,
-    msg
+    hashBytes
   );
 
-  return new Response(
-    JSON.stringify({
-      kid: env.SIGN_KID || "p256-v1",
-      sigB64u: toBase64Url(new Uint8Array(sig)),
-    }),
-    { headers: { "content-type": "application/json" } }
-  );
+  return Response.json({
+    alg: "ES256",
+    kid,
+    sigB64u: bytesToB64u(new Uint8Array(sig)),
+    ts: new Date().toISOString(),
+  });
 };
 
-function hexToBytes(hex: string) {
-  const a = new Uint8Array(hex.length / 2);
-  for (let i = 0; i < a.length; i++) a[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
-  return a;
-}
-function toBase64Url(bytes: Uint8Array) {
+function bytesToB64u(bytes: Uint8Array) {
   let s = "";
   for (const b of bytes) s += String.fromCharCode(b);
   return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+function b64uToBytes(b64u: string) {
+  const b64 = b64u.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((b64u.length + 3) % 4);
+  const bin = atob(b64);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
 }
