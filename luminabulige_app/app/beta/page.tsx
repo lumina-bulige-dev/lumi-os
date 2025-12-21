@@ -98,49 +98,48 @@ export default function BetaPage() {
   const range = useMemo(() => getLast30Range(), []);
 
   const onShare = useCallback(async () => {
-    if (isSharing) return;
-    setIsSharing(true);
+  if (isSharing) return;
+  setIsSharing(true);
 
+  try {
+    const payload = {
+      v: 1,
+      kind: "lumi_30day_verified",
+      generatedAt: new Date().toISOString(),
+      range,
+      summary: sum,
+      logs: logs.map((l) => ({
+        date: l.date,
+        level: l.level,
+        diffYen: l.diffYen,
+        balanceYen: l.balanceYen,
+        floorYen: l.floorYen,
+      })),
+      disclaimer: "銀行ではありません／資金は預かりません／投資助言はしません",
+    };
+
+    const { file, fileName } = await createVerifiedPdfFile(payload);
+
+    // iPhone共有（ファイル共有できる環境なら最優先）
     try {
-      const url = window.location.href;
-      const latest = logs[0];
-      const latestLine = latest
-        ? `最新: ${latest.date} / ${latest.level} / ${Number(latest.diffYen).toLocaleString()}円`
-        : "最新: まだ記録なし";
-
-      const text =
-        `LUMI 30日ログ（β）\n` +
-        `期間: ${range.from}〜${range.to}\n` +
-        `SAFE:${sum.safe} / WARNING:${sum.warning} / DANGER:${sum.danger}（記録:${sum.total}）\n` +
-        `${latestLine}\n` +
-        `URL: ${url}\n\n` +
-        `※ 銀行ではありません／資金は預かりません／投資助言はしません`;
-
-      // 1) iPhone共有シート（最優先）
-      try {
-        if (navigator.share) {
-          await navigator.share({ title: "LUMI 30日ログ（β）", text, url });
-          return;
-        }
-      } catch {
-        // ユーザーキャンセル等は握りつぶしでOK
+      if (navigator.share && (navigator as any).canShare?.({ files: [file] })) {
+        await navigator.share({
+          title: "LUMI 30日ログ（Verified PDF）",
+          files: [file],
+          text: "LUMIが生成した改ざん検出つきPDFです。",
+        });
+        return;
       }
-
-      // 2) クリップボード
-      try {
-        if (navigator.clipboard?.writeText) {
-          await navigator.clipboard.writeText(text);
-          alert("シェア文をコピーしました。SNS/チャットに貼ってください。");
-          return;
-        }
-      } catch {}
-
-      // 3) 最終フォールバック（手動コピー）
-      prompt("コピーして共有してください", text);
-    } finally {
-      setTimeout(() => setIsSharing(false), 400);
+    } catch {
+      // キャンセル等は無視してDLへ
     }
-  }, [isSharing, logs, range.from, range.to, sum.safe, sum.warning, sum.danger, sum.total]);
+
+    // フォールバック：ダウンロード
+    downloadFile(file, fileName);
+  } finally {
+    setTimeout(() => setIsSharing(false), 400);
+  }
+}, [isSharing, logs, range, sum]);
 
   return (
     <main className="beta">
