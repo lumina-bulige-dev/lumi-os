@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState, useCallback } from "react";
-import { PDFDocument, StandardFonts } from "pdf-lib";
 import { loadDailyLogs, last30, summarize, type DailyLog } from "../lib/lumiStorage";
+import { PDFDocument } from "pdf-lib";
+import fontkit from "@pdf-lib/fontkit";
+
 
 function getLast30Range() {
   const today = new Date();
@@ -30,28 +32,30 @@ async function sha256Bytes(data: Uint8Array) {
   return new Uint8Array(hash);
 }
 
-async function createVerifiedPdfFile(payload: any) {
-  // 1) 署名対象（固定化）
+async function createVerifiedPdf(payload: any) {
   const payloadJson = JSON.stringify(payload);
   const payloadBytes = new TextEncoder().encode(payloadJson);
 
-  // 2) SHA-256
   const hashBytes = await sha256Bytes(payloadBytes);
   const hashB64u = bytesToB64u(hashBytes);
 
-  // 3) サーバ署名
   const res = await fetch("/api/sign", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ hashB64u }),
   });
-  if (!res.ok) throw new Error(`sign api failed: ${res.status}`);
+  if (!res.ok) throw new Error("sign api failed");
   const { sigB64u, kid, alg, ts } = await res.json();
 
-  // 4) PDF生成
+  // PDF生成
   const pdf = await PDFDocument.create();
+  pdf.registerFontkit(fontkit);
+
+  // ✅ 日本語フォントを埋め込む（これが本命）
+  const fontBytes = await fetch("/fonts/NotoSansJP-Regular.ttf").then((r) => r.arrayBuffer());
+  const jpFont = await pdf.embedFont(fontBytes);
+
   const page = pdf.addPage([595, 842]); // A4
-  const font = await pdf.embedFont(StandardFonts.Helvetica);
 
   const lines = [
     "LUMI 30日ログ（Verified）",
@@ -68,7 +72,7 @@ async function createVerifiedPdfFile(payload: any) {
 
   let y = 800;
   for (const line of lines) {
-    page.drawText(line.slice(0, 110), { x: 40, y, size: 10, font });
+    page.drawText(line, { x: 40, y, size: 10, font: jpFont });
     y -= 14;
     if (y < 40) break;
   }
@@ -76,19 +80,24 @@ async function createVerifiedPdfFile(payload: any) {
   pdf.setSubject("LUMI Verified Log");
   pdf.setKeywords([`hash=${hashB64u}`, `sig=${sigB64u}`, `kid=${kid}`]);
 
-  const pdfBytes = await pdf.save(); // Uint8Array
-const fileName = `lumi_verified_${payload?.range?.to || "log"}.pdf`;
-const ab = pdfBytes.buffer.slice(
-  pdfBytes.byteOffset,
-  pdfBytes.byteOffset + pdfBytes.byteLength
-) as ArrayBuffer;
+  const pdfBytes = await pdf.save();
 
-const blob = new Blob([ab], { type: "application/pdf" });
-const file = new File([blob], fileName, { type: "application/pdf" });
+  // ✅ TSがうるさい環境対策：ArrayBufferに確定させる
+  const ab = pdfBytes.buffer.slice(
+    pdfBytes.byteOffset,
+    pdfBytes.byteOffset + pdfBytes.byteLength
+  );
 
-    return { file, fileName, meta: { hashB64u, sigB64u, kid, alg, ts } };
+  const blob = new Blob([ab], { type: "application/pdf" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `lumi_verified_${payload?.range?.to || "log"}.pdf`;
+  a.click();
+  URL.revokeObjectURL(url);
+
+  return { hashB64u, sigB64u, kid };
 }
-
 function downloadFile(file: File, fileName: string) {
   const url = URL.createObjectURL(file);
   const a = document.createElement("a");
