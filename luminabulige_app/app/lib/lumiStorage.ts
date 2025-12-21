@@ -1,6 +1,34 @@
 import type { Level } from "./lumiRules";
 import { calcLevel } from "./lumiRules";
+const LOG_KEY = 'lumi_logs_v1';
 
+function todayYYYYMMDD() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+type LogItem = {
+  date: string;
+  level: Level;
+  balance: number;
+  floor: number;
+  diff: number;
+};
+
+function saveLog(item: LogItem) {
+  const raw = localStorage.getItem(LOG_KEY);
+  const arr: LogItem[] = raw ? JSON.parse(raw) : [];
+
+  // 同日があれば上書き
+  const filtered = arr.filter(x => x.date !== item.date);
+  filtered.unshift(item); // 新しいのを先頭に
+
+  // 直近30件に制限
+  localStorage.setItem(LOG_KEY, JSON.stringify(filtered.slice(0, 30)));
+}
 export const KEYS = {
   compare: "lumi:compare:v1",
   dailyLogs: "lumi:dailyLogs:v1",
