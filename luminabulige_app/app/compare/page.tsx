@@ -8,7 +8,22 @@ export default function ComparePage() {
   const [balance, setBalance] = useState<number>(0);
   const [floor, setFloor] = useState<number>(0);
   const [savedMsg, setSavedMsg] = useState<string>("");
+const level = useMemo(() => calcLevel(balance, floor), [balance, floor]);
+const diff = useMemo(() => balance - floor, [balance, floor]);
 
+const saveBtn = useMemo(() => {
+  switch (level) {
+    case "SAFE":
+      return { label: "今日のログとして保存（SAFE）", className: "btn-base btn-safe" };
+    case "WARNING":
+      return { label: "少し注意しながら保存（WARNING）", className: "btn-base btn-warning" };
+    case "DANGER":
+      return { label: "要注意ログとして保存（DANGER）", className: "btn-base btn-danger" };
+    default:
+      return { label: "今日のログとして保存", className: "btn-base" };
+  }
+}, [level]);
+  
   useEffect(() => {
     const v = loadCompare();
     setBalance(v.balance);
@@ -58,19 +73,12 @@ export default function ComparePage() {
           />
         </label>
 
-        <button
-          onClick={saveToday}
-          style={{
-            padding: "10px 14px",
-            fontSize: 16,
-            cursor: "pointer",
-            borderRadius: 10,
-            border: "1px solid #ddd",
-            background: "#fff",
-          }}
-        >
-          今日のログとして保存（30日ログ）
-        </button>
+        // 追加：レベルに応じたボタン表示を作る
+<button onClick={saveToday} className={saveBtn.className}>
+  {saveBtn.label}
+</button>
+
+
 
         {savedMsg ? <div style={{ opacity: 0.8 }}>{savedMsg}</div> : null}
       </section>
