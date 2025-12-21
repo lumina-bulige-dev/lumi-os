@@ -1,1 +1,4 @@
-
+/app https://app.luminabulige.com/beta 302
+/app/* https://app.luminabulige.com/:splat 302
+/compare https://app.luminabulige.com/compare 302
+/beta https://app.luminabulige.com/beta 302
