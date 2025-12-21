@@ -18,6 +18,7 @@ function bytesToB64u(bytes: Uint8Array) {
   for (const b of bytes) s += String.fromCharCode(b);
   return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
+
 async function sha256Bytes(data: Uint8Array) {
   const hash = await crypto.subtle.digest("SHA-256", data);
   return new Uint8Array(hash);
@@ -39,7 +40,7 @@ async function createVerifiedPdfFile(payload: any) {
   const { sigB64u, kid, alg, ts } = await res.json();
 
   const pdf = await PDFDocument.create();
-  const page = pdf.addPage([595, 842]);
+  const page = pdf.addPage([595, 842]); // A4
   const font = await pdf.embedFont(StandardFonts.Helvetica);
 
   const lines = [
@@ -71,7 +72,7 @@ async function createVerifiedPdfFile(payload: any) {
   const blob = new Blob([pdfBytes], { type: "application/pdf" });
   const file = new File([blob], fileName, { type: "application/pdf" });
 
-  return { file, fileName, hashB64u, sigB64u, kid };
+  return { file, fileName, meta: { hashB64u, sigB64u, kid, alg, ts } };
 }
 
 function downloadFile(file: File, fileName: string) {
@@ -82,65 +83,6 @@ function downloadFile(file: File, fileName: string) {
   a.click();
   URL.revokeObjectURL(url);
 }
-  return { hashB64u, sigB64u, kid };
-}
-export default function BetaPage() {
-  const [logs, setLogs] = useState<DailyLog[]>([]);
-  const [isSharing, setIsSharing] = useState(false);
-
-  useEffect(() => {
-    const all = loadDailyLogs();
-    const viewLogs = last30(all);
-    setLogs(viewLogs);
-  }, []);
-
-  const sum = useMemo(() => summarize(logs), [logs]);
-  const range = useMemo(() => getLast30Range(), []);
-
-  const onShare = useCallback(async () => {
-  if (isSharing) return;
-  setIsSharing(true);
-
-  try {
-    const payload = {
-      v: 1,
-      kind: "lumi_30day_verified",
-      generatedAt: new Date().toISOString(),
-      range,
-      summary: sum,
-      logs: logs.map((l) => ({
-        date: l.date,
-        level: l.level,
-        diffYen: l.diffYen,
-        balanceYen: l.balanceYen,
-        floorYen: l.floorYen,
-      })),
-      disclaimer: "銀行ではありません／資金は預かりません／投資助言はしません",
-    };
-
-    const { file, fileName } = await createVerifiedPdfFile(payload);
-
-    // iPhone共有（ファイル共有できる環境なら最優先）
-    try {
-      if (navigator.share && (navigator as any).canShare?.({ files: [file] })) {
-        await navigator.share({
-          title: "LUMI 30日ログ（Verified PDF）",
-          files: [file],
-          text: "LUMIが生成した改ざん検出つきPDFです。",
-        });
-        return;
-      }
-    } catch {
-      // キャンセル等は無視してDLへ
-    }
-
-    // フォールバック：ダウンロード
-    downloadFile(file, fileName);
-  } finally {
-    setTimeout(() => setIsSharing(false), 400);
-  }
-}, [isSharing, logs, range, sum]);
-
   return (
     <main className="beta">
       <div className="page">
