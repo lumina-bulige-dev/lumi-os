@@ -75,20 +75,16 @@ async function createVerifiedPdfFile(payload: any) {
   pdf.setKeywords([`hash=${hashB64u}`, `sig=${sigB64u}`, `kid=${kid}`]);
 
   const pdfBytes = await pdf.save();
-
   const fileName = `lumi_verified_${payload?.range?.to || "log"}.pdf`;
 
-const ab = new ArrayBuffer(pdfBytes.byteLength);
-new Uint8Array(ab).set(pdfBytes);
+  // ArrayBuffer に確実に寄せる（SharedArrayBuffer問題の回避）
+  const ab = new ArrayBuffer(pdfBytes.byteLength);
+  new Uint8Array(ab).set(pdfBytes);
 
-const blob = new Blob([ab], { type: "application/pdf" });
-const url = URL.createObjectURL(blob);
+  const file = new File([ab], fileName, { type: "application/pdf" });
 
-// ★これが抜けてる
-const file = new File([ab], fileName, { type: "application/pdf" });
-
-// url を返したいなら meta に入れても良い
-return { file, fileName, meta: { hashB64u, sigB64u, kid, alg, ts, url } };
+  return { file, fileName, meta: { hashB64u, sigB64u, kid, alg, ts } };
+} // ← ★これが必須。これが無いと export が壊れる
 
 function downloadFile(file: File, fileName: string) {
   const url = URL.createObjectURL(file);
