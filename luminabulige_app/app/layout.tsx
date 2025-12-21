@@ -1,3 +1,5 @@
+import "./globals.css";
+
 export const metadata = {
   title: "LUMINA BULIGE",
   description: "Money Flow Stabilizer OS",
