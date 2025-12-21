@@ -214,38 +214,45 @@
   }
 
   // ====== createVerifiedPdf の仮実装（いまはJSON共有にしておく） ======
+    // ====== createVerifiedPdf（いまは「テキスト共有」最優先で確実に動かす） ======
   window.createVerifiedPdf = async function (payload) {
-    const json = JSON.stringify(payload, null, 2);
-    const blob = new Blob([json], { type: "application/json" });
-    const fileName = `lumi_30day_${payload.range?.to || "share"}.json`;
+    const url = window.location.href;
 
-    // iPhone等：Web Shareが使えれば起動
+    // 共有したい本文（あとで好きに整形してOK）
+    const text =
+      `LUMI 30日ログ（MVP）\n` +
+      `share_to=${payload.share_to_label}\n` +
+      `期間: ${payload.range.from}〜${payload.range.to}\n` +
+      `SAFE:${payload.counts.SAFE} / WARNING:${payload.counts.WARNING} / DANGER:${payload.counts.DANGER}\n` +
+      `URL: ${url}`;
+
+    // 1) Web Share（最優先）
     try {
-      if (navigator.share && navigator.canShare) {
-        const file = new File([blob], fileName, { type: "application/json" });
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            title: "LUMI 30日ログ（MVP）",
-            text: `share_to=${payload.share_to_label}`,
-            files: [file],
-          });
-          return;
-        }
+      if (navigator.share) {
+        await navigator.share({
+          title: "LUMI 30日ログ（MVP）",
+          text,
+          url,
+        });
+        return;
       }
     } catch (e) {
-      // share失敗時は下のDLに落とす
+      // ユーザーがキャンセルした等もここに来るので握りつぶしでOK
     }
 
-    // フォールバック：JSONダウンロード
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
+    // 2) クリップボード（次点）
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+        alert("シェア文をコピーしました。SNS/チャットに貼ってください。");
+        return;
+      }
+    } catch (e) {}
+
+    // 3) 最終フォールバック（手動コピー）
+    prompt("コピーして共有してください", text);
   };
+
 
   // ====== ボタンに配線 ======
   document.addEventListener("DOMContentLoaded", () => {
