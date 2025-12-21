@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import ComparePage from "./compare/page";
 
 export default function Page() {
-  redirect("/compare");
+  return <ComparePage />;
 }
