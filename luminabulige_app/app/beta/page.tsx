@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { loadLogs } from "../lib/lumiStorage"; // あなたの実体に合わせて
 // import { LumiLogV1 } ... あるなら型も使ってOK
+import { loadDailyLogs, last30, summarize } from "../lib/lumiStorage";
 
 export default function BetaPage() {
   const [logs, setLogs] = useState<any[]>([]);
