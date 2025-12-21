@@ -51,23 +51,22 @@ export default function ComparePage() {
   }, [level, isSaving, canSave]);
 
   function saveToday() {
-    if (!canSave) return;
-    if (isSaving) return; // ✅二重クリック防止
+  if (!canSave) return;
+  if (isSaving) return;
 
-    setIsSaving(true);
+  setIsSaving(true);
 
+  try {
     const entry = upsertTodayLog(balance, floor);
     setSavedMsg(`今日のログ保存OK：${entry.date} / ${entry.level}`);
 
     tRef.current = window.setTimeout(() => {
       router.push("/beta");
     }, 555);
-  }finally {
-    // 遷移する前提でも、失敗時の保険として戻す
-    // すぐ戻すのが嫌なら 600ms 後に戻すでもOK
+  } finally {
     window.setTimeout(() => setIsSaving(false), 700);
   }
-
+}
 
   return (
     <main style={{ padding: 24, maxWidth: 720, margin: "0 auto" }}>
