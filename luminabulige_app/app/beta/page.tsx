@@ -26,8 +26,14 @@ export default function BetaPage() {
   const range = useMemo(() => getLast30Range(), [logs]);
 
   const onShare = async () => {
-    if (isSharing) return;
-    setIsSharing(true);
+  if (isSharing) return;
+  setIsSharing(true);
+  try {
+    // share / clipboard / prompt
+  } finally {
+    setTimeout(() => setIsSharing(false), 400);
+  }
+};
 const latest = logs[0];
 const latestLine = latest
   ? `最新: ${latest.date} / ${latest.level} / ${Number(latest.diffYen).toLocaleString()}円`
