@@ -203,6 +203,8 @@
     document.body.appendChild(modal);
 
     modal.addEventListener("click", (e) => {
+  e.preventDefault();
+  alert("share click ok"); // ←これが出ないなら配線の問題
       if (e.target === modal) modal.remove();
     });
     modal.querySelector("#lumi-share-cancel").addEventListener("click", () => modal.remove());
