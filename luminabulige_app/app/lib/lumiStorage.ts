@@ -4,9 +4,7 @@ import { calcLevel } from "./lumiRules";
 export const KEYS = {
   compare: "lumi:compare:v1",
   dailyLogs: "lumi:dailyLogs:v1",
-
-  // 既存の互換（今のCompareが使ってる）
-  legacyCompare: "lumi_compare_v1",
+  legacyCompare: "lumi_compare_v1", // 既存互換
 } as const;
 
 export type DailyLog = {
@@ -14,7 +12,7 @@ export type DailyLog = {
   balanceYen: number;
   floorYen: number;
   level: Level;
-  diffYen: number;     // balance - floor
+  diffYen: number;
 };
 
 export function todayISO(): string {
@@ -26,17 +24,14 @@ export function todayISO(): string {
 }
 
 export function loadCompare(): { balance: number; floor: number } {
-  // v1（新）
   const v1 = safeJson(KEYS.compare);
   if (v1 && typeof v1.balance === "number" && typeof v1.floor === "number") {
     return { balance: v1.balance, floor: v1.floor };
   }
 
-  // 旧キー互換（lumi_compare_v1）
   const legacy = safeJson(KEYS.legacyCompare);
   if (legacy && typeof legacy.balance === "number" && typeof legacy.floor === "number") {
-    // ついでに新キーへ移行しておく
-    saveCompare(legacy.balance, legacy.floor);
+    saveCompare(legacy.balance, legacy.floor); // 新キーへ移行
     return { balance: legacy.balance, floor: legacy.floor };
   }
 
