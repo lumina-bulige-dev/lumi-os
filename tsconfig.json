@@ -13,5 +13,5 @@
     "jsx": "preserve",
     "incremental": true
   },
-  "exclude": ["api/**"]
+"exclude": ["node_modules", "api"]
 }
