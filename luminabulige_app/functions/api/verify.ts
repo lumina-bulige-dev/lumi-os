@@ -1,43 +1,49 @@
-export const onRequestGet: PagesFunction<{
-  SIGN_PUBLIC_JWK: string;
-}> = async ({ request, env }) => {
-  const url = new URL(request.url);
-  const hashHex = url.searchParams.get("hash") || "";
-  const sigB64u = url.searchParams.get("sig") || "";
+// functions/api/verify.ts
 
-  if (!/^[0-9a-f]{64}$/i.test(hashHex) || !sigB64u) {
-    return new Response(JSON.stringify({ ok: false, error: "bad params" }), {
-      status: 400,
-      headers: { "content-type": "application/json" },
-    });
+type Env = {
+  PUBLIC_JWK: string;
+};
+
+export const onRequestGet = async ({ request, env }: { request: Request; env: Env }) => {
+  if (!env.PUBLIC_JWK) {
+    return Response.json({ ok: false, error: "PUBLIC_JWK missing" }, { status: 500 });
   }
 
-  const pub = await crypto.subtle.importKey(
+  const url = new URL(request.url);
+  const toSignB64u = url.searchParams.get("toSignB64u");
+  const sigB64u = url.searchParams.get("sigB64u");
+
+  if (!toSignB64u || !sigB64u) {
+    return Response.json(
+      { ok: false, error: "toSignB64u and sigB64u are required" },
+      { status: 400 }
+    );
+  }
+
+  const jwk = JSON.parse(env.PUBLIC_JWK);
+
+  const key = await crypto.subtle.importKey(
     "jwk",
-    JSON.parse(env.SIGN_PUBLIC_JWK),
+    jwk,
     { name: "ECDSA", namedCurve: "P-256" },
     false,
     ["verify"]
   );
 
+  const dataBytes = b64uToBytes(toSignB64u);
+  const sigBytes = b64uToBytes(sigB64u);
+
   const ok = await crypto.subtle.verify(
     { name: "ECDSA", hash: "SHA-256" },
-    pub,
-    fromBase64Url(sigB64u),
-    hexToBytes(hashHex)
+    key,
+    sigBytes,
+    dataBytes
   );
 
-  return new Response(JSON.stringify({ ok }), {
-    headers: { "content-type": "application/json" },
-  });
+  return Response.json({ ok });
 };
 
-function hexToBytes(hex: string) {
-  const a = new Uint8Array(hex.length / 2);
-  for (let i = 0; i < a.length; i++) a[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
-  return a;
-}
-function fromBase64Url(b64u: string) {
+function b64uToBytes(b64u: string) {
   const b64 = b64u.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((b64u.length + 3) % 4);
   const bin = atob(b64);
   const out = new Uint8Array(bin.length);
