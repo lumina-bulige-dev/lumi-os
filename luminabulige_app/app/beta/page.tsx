@@ -24,8 +24,7 @@ export default function BetaPage() {
       <section style={{ padding: 16, border: "1px solid #ddd", borderRadius: 12, marginTop: 16 }}>
         <h2 style={{ marginTop: 0 }}>30日のまとめ（直近30日）</h2>
         <p style={{ margin: 0 }}>
-          SAFE：<b>{sum.safe}</b> 日 / WARNING：<b>{sum.warning}</b> 日 / DANGER：<b>{sum.danger}</b> 日
-          {" "}（記録：{sum.total} 日）
+          SAFE：<b>{sum.safe}</b> 日 / WARNING：<b>{sum.warning}</b> 日 / DANGER：<b>{sum.danger}</b> 日（記録：{sum.total} 日）
         </p>
       </section>
 
