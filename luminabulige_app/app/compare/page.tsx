@@ -39,16 +39,12 @@ export default function ComparePage() {
   function saveToday() {
     const entry = upsertTodayLog(balance, floor);
     setSavedMsg(`今日のログ保存OK：${entry.date} / ${entry.level}`);
-   
-  setTimeout(() => {
-  router.push("/beta");
-}, 555);
-
-// ↓ 消すのは遷移しない設計の時だけ
-// setTimeout(() => setSavedMsg(""), 2500);
+      // ✅ ここで30日ログへ飛ばす（少し待ってから）
+    setTimeout(() => {
+      router.push("/beta");
+    }, 555;
   }
 
-}
 
   return (
     <main style={{ padding: 24, maxWidth: 720, margin: "0 auto" }}>
