@@ -46,7 +46,7 @@ export default function ComparePage() {
 
 // ↓ 消すのは遷移しない設計の時だけ
 // setTimeout(() => setSavedMsg(""), 2500);
-  
+  }
 
 }
 
