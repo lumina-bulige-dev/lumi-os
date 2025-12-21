@@ -1,55 +1,49 @@
-// functions/api/sign.ts
+// functions/api/verify.ts
 
 type Env = {
-  PRIVATE_JWK: string; // Cloudflare Pages の環境変数名
-  SIGN_KID?: string;
+  PUBLIC_JWK: string; // Cloudflare Pages の環境変数名（公開鍵JWKのJSON文字列）
 };
 
-export const onRequestPost = async (context: { request: Request; env: Env }) => {
+export const onRequestGet = async (context: { request: Request; env: Env }) => {
   const { request, env } = context;
 
-  const body = await request.json().catch(() => null);
-  if (!body?.toSignB64u) {
-    return Response.json({ error: "toSignB64u required" }, { status: 400 });
+  if (!env.PUBLIC_JWK) {
+    return Response.json({ ok: false, error: "PUBLIC_JWK missing" }, { status: 500 });
   }
 
-  if (!env.PRIVATE_JWK) {
-    return Response.json({ error: "PRIVATE_JWK missing" }, { status: 500 });
+  const url = new URL(request.url);
+  const toSignB64u = url.searchParams.get("toSignB64u");
+  const sigB64u = url.searchParams.get("sigB64u");
+
+  if (!toSignB64u || !sigB64u) {
+    return Response.json(
+      { ok: false, error: "toSignB64u and sigB64u are required" },
+      { status: 400 }
+    );
   }
 
-  const kid = env.SIGN_KID || "p256-v1";
-  const jwk = JSON.parse(env.PRIVATE_JWK);
+  const jwk = JSON.parse(env.PUBLIC_JWK);
 
   const key = await crypto.subtle.importKey(
     "jwk",
     jwk,
     { name: "ECDSA", namedCurve: "P-256" },
     false,
-    ["sign"]
+    ["verify"]
   );
 
-  // 署名対象（※ここは「ハッシュ」ではなく “署名したいバイト列” を渡す）
-  const dataBytes = b64uToBytes(body.toSignB64u);
+  const dataBytes = b64uToBytes(toSignB64u);
+  const sigBytes = b64uToBytes(sigB64u);
 
-  const sig = await crypto.subtle.sign(
+  const ok = await crypto.subtle.verify(
     { name: "ECDSA", hash: "SHA-256" },
     key,
+    sigBytes,
     dataBytes
   );
 
-  return Response.json({
-    alg: "ES256",
-    kid,
-    sigB64u: bytesToB64u(new Uint8Array(sig)),
-    ts: new Date().toISOString(),
-  });
+  return Response.json({ ok });
 };
-
-function bytesToB64u(bytes: Uint8Array) {
-  let s = "";
-  for (const b of bytes) s += String.fromCharCode(b);
-  return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
-}
 
 function b64uToBytes(b64u: string) {
   const b64 = b64u.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((b64u.length + 3) % 4);
