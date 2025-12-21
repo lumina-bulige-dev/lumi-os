@@ -14,7 +14,27 @@ export type DailyLog = {
   level: Level;
   diffYen: number;
 };
+const KEY_LOGS = "lumi_logs_v1";
 
+export type LumiLogEntry = {
+  date: string; // "YYYY-MM-DD"
+  level: "SAFE" | "WARNING" | "DANGER";
+  balance: number;
+  floor: number;
+  diff: number;
+};
+
+export function loadLogs(): LumiLogEntry[] {
+  try {
+    const raw = localStorage.getItem(KEY_LOGS);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed as LumiLogEntry[];
+  } catch {
+    return [];
+  }
+}
 export function todayISO(): string {
   const d = new Date();
   const yyyy = d.getFullYear();
