@@ -122,18 +122,20 @@
       -webkit-backdrop-filter: blur(10px);
     }
 
-    .btn.primary {
-      border-color: rgba(70,182,255,.42);
-      background:
-        radial-gradient(800px 140px at 50% 0%, rgba(70,182,255,.22), transparent 60%),
-        rgba(255,255,255,.06);
-    }
+   /* 銀＋ほんのり青み（Primary） */
+.btn.primary {
+  border-color: rgba(221,232,248,.85);
+  background:
+    linear-gradient(135deg, #dfe6f0 0%, #b8c2d2 45%, #eef3fb 100%);
+  color: #020814;
+}
 
-    .btn.secondary {
-      background: transparent;
-      border-color: rgba(255,255,255,.18);
-      color: rgba(234,242,255,.92);
-    }
+/* 透明＋銀フチ（Secondary） */
+.btn.secondary {
+  background: transparent;
+  border-color: rgba(221,232,248,.55);
+  color: rgba(234,242,255,.92);
+}
 
     .trust {
       margin-top: 14px;
