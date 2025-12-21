@@ -28,14 +28,18 @@ export default function BetaPage() {
   const onShare = async () => {
     if (isSharing) return;
     setIsSharing(true);
+const latest = logs[0];
+const latestLine = latest
+  ? `最新: ${latest.date} / ${latest.level} / ${Number(latest.diffYen).toLocaleString()}円`
+  : `最新: まだ記録なし`;
 
-    const url = `${location.origin}/beta`;
-    const text =
-      `LUMI 30日ログ（β）\n` +
-      `期間: ${range.from}〜${range.to}\n` +
-      `SAFE:${sum.safe} / WARNING:${sum.warning} / DANGER:${sum.danger}（記録:${sum.total}）\n` +
-      `URL: ${url}\n\n` +
-      `※ 銀行ではありません／資金は預かりません／投資助言はしません`;
+const text =
+  `LUMI 30日ログ（β）\n` +
+  `期間: ${range.from}〜${range.to}\n` +
+  `SAFE:${sum.safe} / WARNING:${sum.warning} / DANGER:${sum.danger}（記録:${sum.total}）\n` +
+  `${latestLine}\n` +
+  `URL: ${url}\n\n` +
+  `※ 銀行ではありません／資金は預かりません／投資助言はしません`;
 
     // 1) iPhoneの共有シート（最優先）
     try {
