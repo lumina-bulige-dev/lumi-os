@@ -47,15 +47,18 @@ async function createVerifiedPdf(payload: any) {
   if (!res.ok) throw new Error("sign api failed");
   const { sigB64u, kid, alg, ts } = await res.json();
 
-  // PDF生成
   const pdf = await PDFDocument.create();
+
+  // ★ここが重要：日本語フォントを登録
   pdf.registerFontkit(fontkit);
 
-  // ✅ 日本語フォントを埋め込む（これが本命）
-  const fontBytes = await fetch("/fonts/NotoSansJP-Regular.ttf").then((r) => r.arrayBuffer());
-  const jpFont = await pdf.embedFont(fontBytes);
+  // public/fonts からフォント読み込み
+  const fontRes = await fetch("/fonts/NotoSansJP-Regular.otf");
+  if (!fontRes.ok) throw new Error("font load failed");
+  const fontBytes = new Uint8Array(await fontRes.arrayBuffer());
+  const jpFont = await pdf.embedFont(fontBytes, { subset: true });
 
-  const page = pdf.addPage([595, 842]); // A4
+  const page = pdf.addPage([595, 842]);
 
   const lines = [
     "LUMI 30日ログ（Verified）",
@@ -72,7 +75,8 @@ async function createVerifiedPdf(payload: any) {
 
   let y = 800;
   for (const line of lines) {
-    page.drawText(line, { x: 40, y, size: 10, font: jpFont });
+    // 日本語が混ざっても落ちない
+    page.drawText(line.slice(0, 110), { x: 40, y, size: 10, font: jpFont });
     y -= 14;
     if (y < 40) break;
   }
@@ -82,13 +86,10 @@ async function createVerifiedPdf(payload: any) {
 
   const pdfBytes = await pdf.save();
 
-  // ✅ TSがうるさい環境対策：ArrayBufferに確定させる
-  const ab = pdfBytes.buffer.slice(
-    pdfBytes.byteOffset,
-    pdfBytes.byteOffset + pdfBytes.byteLength
-  );
-
+  // Blob は ArrayBuffer を渡すのが安全（型でも落ちにくい）
+  const ab = pdfBytes.buffer.slice(pdfBytes.byteOffset, pdfBytes.byteOffset + pdfBytes.byteLength);
   const blob = new Blob([ab], { type: "application/pdf" });
+
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
