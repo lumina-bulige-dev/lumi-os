@@ -1,42 +1,14 @@
 import type { Level } from "./lumiRules";
 import { calcLevel } from "./lumiRules";
-const LOG_KEY = 'lumi_logs_v1';
 
-function todayYYYYMMDD() {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
-}
-
-type LogItem = {
-  date: string;
-  level: Level;
-  balance: number;
-  floor: number;
-  diff: number;
-};
-
-function saveLog(item: LogItem) {
-  const raw = localStorage.getItem(LOG_KEY);
-  const arr: LogItem[] = raw ? JSON.parse(raw) : [];
-
-  // 同日があれば上書き
-  const filtered = arr.filter(x => x.date !== item.date);
-  filtered.unshift(item); // 新しいのを先頭に
-
-  // 直近30件に制限
-  localStorage.setItem(LOG_KEY, JSON.stringify(filtered.slice(0, 30)));
-}
 export const KEYS = {
   compare: "lumi:compare:v1",
   dailyLogs: "lumi:dailyLogs:v1",
-  legacyCompare: "lumi_compare_v1", // 既存互換
+  legacyCompare: "lumi_compare_v1", // 既存互換（Compare旧キー）
 } as const;
 
 export type DailyLog = {
-  date: string;        // YYYY-MM-DD
+  date: string; // YYYY-MM-DD
   balanceYen: number;
   floorYen: number;
   level: Level;
@@ -51,6 +23,7 @@ export function todayISO(): string {
   return `${yyyy}-${mm}-${dd}`;
 }
 
+/** Compare入力値を復元（新キー優先、無ければ旧キーを吸い上げて移行） */
 export function loadCompare(): { balance: number; floor: number } {
   const v1 = safeJson(KEYS.compare);
   if (v1 && typeof v1.balance === "number" && typeof v1.floor === "number") {
@@ -59,24 +32,43 @@ export function loadCompare(): { balance: number; floor: number } {
 
   const legacy = safeJson(KEYS.legacyCompare);
   if (legacy && typeof legacy.balance === "number" && typeof legacy.floor === "number") {
-    saveCompare(legacy.balance, legacy.floor); // 新キーへ移行
+    // 新キーへ移行
+    saveCompare(legacy.balance, legacy.floor);
     return { balance: legacy.balance, floor: legacy.floor };
   }
 
   return { balance: 0, floor: 0 };
 }
 
+/** Compare入力値を保存 */
 export function saveCompare(balance: number, floor: number) {
+  if (typeof window === "undefined") return;
   localStorage.setItem(KEYS.compare, JSON.stringify({ balance, floor }));
 }
 
+/** 30日ログを読み込み */
 export function loadDailyLogs(): DailyLog[] {
   const raw = safeJson(KEYS.dailyLogs);
   if (!raw || !Array.isArray(raw)) return [];
   return raw.filter(isDailyLog);
 }
 
+/**
+ * 今日のログを upsert（同日上書き）して保存
+ * - 最大30件に制限
+ */
 export function upsertTodayLog(balanceYen: number, floorYen: number) {
+  if (typeof window === "undefined") {
+    // クライアントでしか動かない前提（念のため）
+    return {
+      date: todayISO(),
+      balanceYen,
+      floorYen,
+      level: calcLevel(balanceYen, floorYen),
+      diffYen: balanceYen - floorYen,
+    } as DailyLog;
+  }
+
   const date = todayISO();
   const level = calcLevel(balanceYen, floorYen);
   const diffYen = balanceYen - floorYen;
@@ -85,19 +77,26 @@ export function upsertTodayLog(balanceYen: number, floorYen: number) {
   const next: DailyLog = { date, balanceYen, floorYen, level, diffYen };
 
   const withoutToday = logs.filter((x) => x.date !== date);
-  const updated = [next, ...withoutToday].sort((a, b) => (a.date < b.date ? 1 : -1));
+  const updated = [next, ...withoutToday]
+    .sort((a, b) => (a.date < b.date ? 1 : -1))
+    .slice(0, 30);
 
   localStorage.setItem(KEYS.dailyLogs, JSON.stringify(updated));
   return next;
 }
 
+/** 直近30日ぶんを抽出（表示用） */
 export function last30(logs: DailyLog[]): DailyLog[] {
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - 29);
   const cutoffStr = cutoff.toISOString().slice(0, 10);
-  return logs.filter((x) => x.date >= cutoffStr).sort((a, b) => (a.date < b.date ? 1 : -1));
+
+  return logs
+    .filter((x) => x.date >= cutoffStr)
+    .sort((a, b) => (a.date < b.date ? 1 : -1));
 }
 
+/** SAFE/WARNING/DANGER の集計 */
 export function summarize(logs: DailyLog[]) {
   const safe = logs.filter((x) => x.level === "SAFE").length;
   const warning = logs.filter((x) => x.level === "WARNING").length;
@@ -106,6 +105,7 @@ export function summarize(logs: DailyLog[]) {
 }
 
 function safeJson(key: string): any | null {
+  if (typeof window === "undefined") return null;
   try {
     const raw = localStorage.getItem(key);
     if (!raw) return null;
