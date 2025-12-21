@@ -35,7 +35,7 @@ async function sha256Bytes(data: Uint8Array) {
 async function createVerifiedPdf(payload: any) {
   const payloadJson = JSON.stringify(payload);
   const payloadBytes = new TextEncoder().encode(payloadJson);
-
+const { file, fileName } = await createVerifiedPdf(payload);
   const hashBytes = await sha256Bytes(payloadBytes);
   const hashB64u = bytesToB64u(hashBytes);
 
