@@ -1,76 +1,74 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { loadDailyLogs, last30, summarize } from "../lib/lumiStorage";
-
-function toISO(d: Date) {
-  return d.toISOString().slice(0, 10);
-}
+import { useEffect, useMemo, useState, useCallback } from "react";
+import { loadDailyLogs, last30, summarize, type DailyLog } from "../lib/lumiStorage";
 
 function getLast30Range() {
-  const to = new Date();
-  const from = new Date();
-  from.setDate(to.getDate() - 29);
-  return { from: toISO(from), to: toISO(to) };
+  const today = new Date();
+  const to = today.toISOString().slice(0, 10);
+  const fromDate = new Date(today);
+  fromDate.setDate(today.getDate() - 29);
+  const from = fromDate.toISOString().slice(0, 10);
+  return { from, to };
 }
 
 export default function BetaPage() {
-  const [logs, setLogs] = useState<any[]>([]);
+  const [logs, setLogs] = useState<DailyLog[]>([]);
   const [isSharing, setIsSharing] = useState(false);
 
   useEffect(() => {
-    setLogs(last30(loadDailyLogs()));
+    const all = loadDailyLogs();
+    const viewLogs = last30(all);
+    setLogs(viewLogs);
   }, []);
 
   const sum = useMemo(() => summarize(logs), [logs]);
-  const range = useMemo(() => getLast30Range(), [logs]);
+  const range = useMemo(() => getLast30Range(), []);
 
-  const onShare = async () => {
-  if (isSharing) return;
-  setIsSharing(true);
-  try {
-    // share / clipboard / prompt
-  } finally {
-    setTimeout(() => setIsSharing(false), 400);
-  }
-};
-const latest = logs[0];
-const latestLine = latest
-  ? `最新: ${latest.date} / ${latest.level} / ${Number(latest.diffYen).toLocaleString()}円`
-  : `最新: まだ記録なし`;
+  const onShare = useCallback(async () => {
+    if (isSharing) return;
+    setIsSharing(true);
 
-const text =
-  `LUMI 30日ログ（β）\n` +
-  `期間: ${range.from}〜${range.to}\n` +
-  `SAFE:${sum.safe} / WARNING:${sum.warning} / DANGER:${sum.danger}（記録:${sum.total}）\n` +
-  `${latestLine}\n` +
-  `URL: ${url}\n\n` +
-  `※ 銀行ではありません／資金は預かりません／投資助言はしません`;
-
-    // 1) iPhoneの共有シート（最優先）
     try {
-      if (navigator.share) {
-        await navigator.share({ title: "LUMI 30日ログ（β）", text, url });
-        return;
+      const url = window.location.href;
+      const latest = logs[0];
+      const latestLine = latest
+        ? `最新: ${latest.date} / ${latest.level} / ${Number(latest.diffYen).toLocaleString()}円`
+        : "最新: まだ記録なし";
+
+      const text =
+        `LUMI 30日ログ（β）\n` +
+        `期間: ${range.from}〜${range.to}\n` +
+        `SAFE:${sum.safe} / WARNING:${sum.warning} / DANGER:${sum.danger}（記録:${sum.total}）\n` +
+        `${latestLine}\n` +
+        `URL: ${url}\n\n` +
+        `※ 銀行ではありません／資金は預かりません／投資助言はしません`;
+
+      // 1) iPhone共有シート（最優先）
+      try {
+        if (navigator.share) {
+          await navigator.share({ title: "LUMI 30日ログ（β）", text, url });
+          return;
+        }
+      } catch {
+        // ユーザーキャンセル等は握りつぶしでOK
       }
-    } catch {
-      // キャンセルもここに来る。無視でOK
+
+      // 2) クリップボード
+      try {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(text);
+          alert("シェア文をコピーしました。SNS/チャットに貼ってください。");
+          return;
+        }
+      } catch {}
+
+      // 3) 最終フォールバック（手動コピー）
+      prompt("コピーして共有してください", text);
+    } finally {
+      setTimeout(() => setIsSharing(false), 400);
     }
-
-    // 2) クリップボード
-    try {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(text);
-        alert("シェア文をコピーしました。SNS/チャットに貼ってください。");
-        return;
-      }
-    } catch {}
-
-    // 3) 最終フォールバック
-    prompt("コピーして共有してください", text);
-
-    setTimeout(() => setIsSharing(false), 400);
-  };
+  }, [isSharing, logs, range.from, range.to, sum.safe, sum.warning, sum.danger, sum.total]);
 
   return (
     <main className="beta">
