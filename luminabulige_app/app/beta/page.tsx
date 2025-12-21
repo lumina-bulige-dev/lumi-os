@@ -23,16 +23,13 @@ async function sha256Bytes(data: Uint8Array) {
   return new Uint8Array(hash);
 }
 
-async function createVerifiedPdf(payload: any) {
-  // 1) 署名対象（JSONを固定化）
+async function createVerifiedPdfFile(payload: any) {
   const payloadJson = JSON.stringify(payload);
   const payloadBytes = new TextEncoder().encode(payloadJson);
 
-  // 2) SHA-256
   const hashBytes = await sha256Bytes(payloadBytes);
   const hashB64u = bytesToB64u(hashBytes);
 
-  // 3) サーバ署名
   const res = await fetch("/api/sign", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -41,9 +38,8 @@ async function createVerifiedPdf(payload: any) {
   if (!res.ok) throw new Error("sign api failed");
   const { sigB64u, kid, alg, ts } = await res.json();
 
-  // 4) PDF生成
   const pdf = await PDFDocument.create();
-  const page = pdf.addPage([595, 842]); // A4
+  const page = pdf.addPage([595, 842]);
   const font = await pdf.embedFont(StandardFonts.Helvetica);
 
   const lines = [
@@ -66,21 +62,26 @@ async function createVerifiedPdf(payload: any) {
     if (y < 40) break;
   }
 
-  // 5) できれば「メタデータ」にも埋める（検証しやすい）
   pdf.setSubject("LUMI Verified Log");
   pdf.setKeywords([`hash=${hashB64u}`, `sig=${sigB64u}`, `kid=${kid}`]);
 
   const pdfBytes = await pdf.save();
 
-  // 6) DL
+  const fileName = `lumi_verified_${payload?.range?.to || "log"}.pdf`;
   const blob = new Blob([pdfBytes], { type: "application/pdf" });
-  const url = URL.createObjectURL(blob);
+  const file = new File([blob], fileName, { type: "application/pdf" });
+
+  return { file, fileName, hashB64u, sigB64u, kid };
+}
+
+function downloadFile(file: File, fileName: string) {
+  const url = URL.createObjectURL(file);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `lumi_verified_${payload?.range?.to || "log"}.pdf`;
+  a.download = fileName;
   a.click();
   URL.revokeObjectURL(url);
-
+}
   return { hashB64u, sigB64u, kid };
 }
 export default function BetaPage() {
