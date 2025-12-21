@@ -84,6 +84,11 @@ body {
   border: 1px solid rgba(255,255,255,0.10);
   background: rgba(255,255,255,0.04);
 }
+/* 今日のログだけ強調（追加） */
+.logItemToday {
+  border-color: rgba(215, 180, 90, 0.65);
+  box-shadow: 0 0 0 2px rgba(215, 180, 90, 0.20);
+}
 .logDate { opacity: 0.9; font-variant-numeric: tabular-nums; }
 .logDiff { opacity: 0.85; }
 
@@ -94,6 +99,12 @@ body {
   font-weight: 800;
   font-size: 12px;
   border: 1px solid rgba(255,255,255,0.18);
+}
+/* TODAY pill（追加） */
+.pillToday {
+  border-color: rgba(215, 180, 90, 0.65);
+  background: rgba(215, 180, 90, 0.16);
+  color: #d7b45a;
 }
 .pill-safe { color: #0b1; background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.35); }
 .pill-warning { color: #ffda63; background: rgba(250,204,21,0.12); border-color: rgba(250,204,21,0.35); }
