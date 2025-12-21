@@ -1,113 +1,68 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
-import { LumiLogV1, loadLogs } from "./utils/logs"; // ここは既存のまま
+import { useEffect, useMemo, useState } from "react";
+import { loadDailyLogs, last30, summarize } from "../lib/lumiStorage";
 
-function todayISO(): string {
-  const d = new Date();
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}`;
-}
-
-function isWithinLast30Days(dateStr: string): boolean {
-  const today = new Date();
-  const target = new Date(dateStr + "T00:00:00");
-  const diffMs = today.getTime() - target.getTime();
-  const diffDays = diffMs / (1000 * 60 * 60 * 24);
-  return diffDays >= 0 && diffDays <= 30;
-}
-
-export default function Logs30Page() {
-  const [logs, setLogs] = useState<LumiLogV1[]>([]);
-  const todayStr = useMemo(() => todayISO(), []);
-  const todayRef = useRef<HTMLLIElement | null>(null);
+export default function BetaPage() {
+  const [logs, setLogs] = useState<ReturnType<typeof loadDailyLogs>>([]);
 
   useEffect(() => {
-    const raw = loadLogs();
-    const recent = raw
-      .filter((l) => isWithinLast30Days(l.date))
-      .sort((a, b) => (a.date < b.date ? 1 : -1));
-    setLogs(recent);
+    const all = loadDailyLogs();
+    setLogs(last30(all));
   }, []);
 
-  // ✅ 今日の行があれば自動でそこへスクロール（任意）
-  useEffect(() => {
-    if (todayRef.current) {
-      todayRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
-  }, [logs]);
-
-  const summary = useMemo(() => {
-    let safe = 0, warning = 0, danger = 0;
-    for (const log of logs) {
-      if (log.level === "SAFE") safe++;
-      if (log.level === "WARNING") warning++;
-      if (log.level === "DANGER") danger++;
-    }
-    return { safe, warning, danger, total: logs.length };
-  }, [logs]);
+  const summary = useMemo(() => summarize(logs), [logs]);
 
   return (
-    <main style={{ padding: 24, maxWidth: 720, margin: "0 auto" }}>
-      <h1>30日ログ（β）</h1>
-
-      <section style={{ marginBottom: 16 }}>
-        <h2>30日のまとめ（直近30日）</h2>
-        <p>
-          SAFE：{summary.safe} 日 / WARNING：{summary.warning} 日 / DANGER：{summary.danger} 日
-          （記録：{summary.total} 日）
+    <main className="page">
+      <header className="hero">
+        <h1 className="title">30日ログ（β）</h1>
+        <p className="lead">
+          Compareで「今日のログとして保存」を押すと、ここに集計が反映されます。
         </p>
+      </header>
 
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-          <Link className="link" href="/compare">Compareへ戻る</Link>
-          <a className="link" href="https://luminabulige.com/">LPへ戻る</a>
+      <section className="card">
+        <h2 className="cardTitle">30日のまとめ（直近30日）</h2>
+
+        <div className="badges">
+          <span className="badge badge-safe">SAFE：{summary.safe}日</span>
+          <span className="badge badge-warning">WARNING：{summary.warning}日</span>
+          <span className="badge badge-danger">DANGER：{summary.danger}日</span>
         </div>
+
+        <p className="muted">
+          SAFE：{summary.safe}日 / WARNING：{summary.warning}日 / DANGER：{summary.danger}日（記録：{summary.total}日）
+        </p>
       </section>
 
-      <section>
-        <h2>ログ一覧</h2>
-        <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 10 }}>
-          {logs.map((log) => {
-            const isToday = log.date === todayStr;
+      <section className="card">
+        <h2 className="cardTitle">ログ一覧</h2>
 
-            // 今日の行だけref付与（見つかったらスクロール）
-            const ref = isToday ? todayRef : undefined;
+        <ul className="logList">
+          {logs.map((log) => (
+            <li key={log.date} className="logItem">
+              <span className="logDate">{log.date}</span>
 
-            return (
-              <li
-                key={`${log.date}-${log.diff}-${log.level}`}
-                ref={ref as any}
-                className={`log-item ${isToday ? "log-item--today" : ""}`}
+              <span
+                className={[
+                  "pill",
+                  log.level === "SAFE" ? "pill-safe" : "",
+                  log.level === "WARNING" ? "pill-warning" : "",
+                  log.level === "DANGER" ? "pill-danger" : "",
+                ].join(" ")}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
-                  <div>
-                    <b>{log.date}</b>
-                    {isToday ? <span className="pill pill-today">TODAY</span> : null}
-                  </div>
+                {log.level}
+              </span>
 
-                  <span
-                    className={`badge ${
-                      log.level === "SAFE"
-                        ? "badge-safe"
-                        : log.level === "WARNING"
-                        ? "badge-warning"
-                        : "badge-danger"
-                    }`}
-                  >
-                    {log.level}
-                  </span>
-                </div>
-
-                <div style={{ opacity: 0.9, marginTop: 6 }}>
-                  差分：<b>{Number(log.diff).toLocaleString()}円</b>
-                </div>
-              </li>
-            );
-          })}
+              <span className="logDiff">差分：{log.diffYen.toLocaleString()}円</span>
+            </li>
+          ))}
         </ul>
+
+        <div className="actions">
+          <a className="link" href="/compare">Compareへ戻る</a>
+        </div>
       </section>
     </main>
   );
