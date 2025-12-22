@@ -274,6 +274,25 @@ export default function VClient() {
   const showVerifiedFlag = typeof data?.verified === "boolean";
 
   return (
+    <>
+      <style jsx global>{`
+        @media print {
+          details { display: block !important; }
+          details > summary { display: none !important; }
+          details:not([open]) > *:not(summary) { display: block !important; }
+
+          pre {
+            overflow: visible !important;
+            white-space: pre-wrap !important;
+            word-break: break-word !important;
+          }
+
+          button { display: none !important; } /* Copyや検証ボタンを消すなら */
+          a { text-decoration: none !important; }
+        }
+      `}</style>
+
+  
     <main
       style={{
         minHeight: "100vh",
