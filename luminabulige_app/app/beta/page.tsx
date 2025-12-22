@@ -30,10 +30,11 @@ async function sha256Bytes(data: Uint8Array) {
 
 async function createVerifiedPdfFile(payload: any) {
   // 1) 署名対象（固定化）
-  const payloadB64u = bytesToB64u(new TextEncoder().encode(payloadJson));
-// PDFには payloadJson じゃなく payloadB64u を載せる
   const payloadJson = JSON.stringify(payload);
   const payloadBytes = new TextEncoder().encode(payloadJson);
+
+  // payload をPDFに載せる用（JSON直書きは事故るのでB64u化）
+  const payloadB64u = bytesToB64u(payloadBytes);
 
   // 2) SHA-256
   const hashBytes = await sha256Bytes(payloadBytes);
@@ -41,38 +42,31 @@ async function createVerifiedPdfFile(payload: any) {
 
   // 3) サーバ署名
   const res = await fetch("/api/sign", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  cache: "no-store",
-  body: JSON.stringify({ hashB64u }),
-});
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    cache: "no-store",
+    body: JSON.stringify({ hashB64u }),
+  });
   if (!res.ok) throw new Error(`sign api failed: ${res.status}`);
   const { sigB64u, kid, alg, ts } = await res.json();
 
   // 4) PDF生成
   const pdf = await PDFDocument.create();
-  const page = pdf.addPage([595, 842]); // A4
+  const page = pdf.addPage([595, 842]);
   const font = await pdf.embedFont(StandardFonts.Helvetica);
 
-  function wrapText(s: string, width = 100) {
-  const out: string[] = [];
-  for (let i = 0; i < s.length; i += width) out.push(s.slice(i, i + width));
-  return out;
-}
-
-// lines を作る時に payload は wrap して入れる
-const lines = [
-  "LUMI 30-day log (Verified)",
-  "",
-  `alg: ${alg}  kid: ${kid}`,
-  `ts: ${ts}`,
-  "",
-  `hashB64u: ${hashB64u}`,
-  `sigB64u : ${sigB64u}`,
-  "",
-  "payload (json, truncated/wrapped):",
-  ...wrapText(payloadJson, 100).slice(0, 60), // 多すぎ防止
-];
+  const lines = [
+    "LUMI 30-day log (Verified)",
+    "",
+    `alg: ${alg}  kid: ${kid}`,
+    `ts: ${ts}`,
+    "",
+    `hashB64u: ${hashB64u}`,
+    `sigB64u : ${sigB64u}`,
+    "",
+    "payloadB64u:",
+    payloadB64u,
+  ];
 
   let y = 800;
   for (const line of lines) {
@@ -81,18 +75,14 @@ const lines = [
     if (y < 40) break;
   }
 
-  pdf.setSubject("LUMI Verified Log");
-  pdf.setKeywords([`hash=${hashB64u}`, `sig=${sigB64u}`, `kid=${kid}`]);
-
   const pdfBytes = await pdf.save();
   const fileName = `lumi_verified_${payload?.range?.to || "log"}.pdf`;
 
-  // ArrayBuffer に確実に寄せる（SharedArrayBuffer問題の回避）
+  // ArrayBuffer に確実に寄せる
   const ab = new ArrayBuffer(pdfBytes.byteLength);
   new Uint8Array(ab).set(pdfBytes);
 
   const file = new File([ab], fileName, { type: "application/pdf" });
-
   return { file, fileName, meta: { hashB64u, sigB64u, kid, alg, ts } };
 } // ← ★これが必須。これが無いと export が壊れる
 
