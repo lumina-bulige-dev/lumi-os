@@ -207,7 +207,9 @@ export default function VClient() {
             {httpStatus ? <span style={{ fontWeight: 700, opacity: 0.7 }}>HTTP {httpStatus}</span> : null}
           </div>
           <div style={{ marginTop: 10, fontSize: 18, fontWeight: 900 }}>{headline(result)}</div>
-        </div>
+        <div style={{ marginTop: 6, color: "#6B7280", fontWeight: 800 }}>
+  {criteriaLine(result)}
+　　　　　</div>
 
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "flex-end" }}>
   {(result === "NG" || result === "UNKNOWN") && (
