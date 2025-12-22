@@ -138,7 +138,6 @@ await writeVerificationLog(env, {
   request,
 });
 
-// 6) Heiankyo（proof.verified）も積む（OK/NGどちらも）
 await appendHeiankyo(env, matchedProof?.user_id, {
   type: "proof.verified",
   ts: Date.now(),
@@ -150,7 +149,7 @@ await appendHeiankyo(env, matchedProof?.user_id, {
     alg,
   },
   request,
-});
+}); // ← ここが重要。 "}," じゃなくて "});"
 
 return json(
   {
@@ -162,12 +161,7 @@ return json(
     alg,
     payload_hash_b64u: hashB64u,
   },
-  return json({ ok: true, result, verified, proof: matchedProof ? summarizeProof(matchedProof) : null, kid, alg, payload_hash_b64u: hashB64u }, 200);
-
-  } catch (e: any) {
-    return json({ ok: false, result: "NG", error: "exception", message: e?.message || String(e) }, 500);
-  }
-} // handleVerify end
+  200
 );
 
 /* -----------------------
