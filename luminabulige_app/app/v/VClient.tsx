@@ -210,6 +210,18 @@ export default function VClient() {
     return `mailto:contact@luminabulige.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   }, [data, q, verifiedAt]);
 
+  
+  
+  
+const verifyUrl = useMemo(() => {
+  if (typeof window === "undefined") return "";
+  const u = new URL(window.location.href);
+  // 必要パラメータを維持したまま
+  return u.toString();
+}, [q.proofId, q.hash, q.sig, q.kid, q.alg]);
+ 
+  
+  
   async function runVerify() {
     setErrorText(null);
     setLoading(true);
@@ -410,6 +422,12 @@ export default function VClient() {
             </div>
 
             {showContact && data && (
+  <div style={{ marginTop: 10, marginBottom: 10, color: ui.color.sub, fontSize: 12, lineHeight: 1.6 }}>
+    問い合わせボタンを押すと、検証に必要な情報（proofId / hash / kid / alg / 結果 / 応答JSON）が本文に自動で入ります。
+  </div>
+)}
+            
+            {showContact && data && (
               <a
                 href={contactMailto}
                 style={{
@@ -475,6 +493,13 @@ export default function VClient() {
                     }
                   />
 
+　　　　　　　　<Row
+　　　　　　　　  k="verify_url"
+　　　　　　　　　  v={<span style={{ fontFamily: ui.font.mono }}>{shortHash(verifyUrl, 42, 14)}</span>}
+　　　　　　　  right={<CopyButton value={verifyUrl} label="verify_url" />}
+　　　　　　　　　　/>
+
+                  
                   <Row
                     k="ruleset_version"
                     v={<span style={{ fontFamily: ui.font.mono }}>{data?.proof?.ruleset_version ?? "-"}</span>}
@@ -509,12 +534,12 @@ export default function VClient() {
                 </div>
               ) : (
                 <div style={{ color: ui.color.sub, lineHeight: 1.7 }}>
-                  proof 情報が取得できませんでした。
-                  <br />
-                  <span style={{ color: ui.color.weak }}>
-                    （proofId 未指定、または hash に一致する proof が存在しない可能性があります）
-                  </span>
-                </div>
+  Proof 情報が取得できませんでした。
+  <br />
+  <span style={{ color: ui.color.weak }}>
+    proofId 付きURLでの検証が最短で確実です（例: /v?proofId=xxxx）
+  </span>
+</div>
               )}
             </div>
           </div>
