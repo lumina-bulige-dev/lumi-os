@@ -1,5 +1,5 @@
 "use client";
-
+import { ui } from "./ui";
 import React, { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
@@ -180,17 +180,15 @@ export default function VClient() {
   const hasProof = !!proof;
 
   return (
-    <section
-      style={{
-        maxWidth: 720,
-        margin: "24px auto",
-        padding: 18,
-        borderRadius: 18,
-        border: "1px solid #E5E7EB",
-        background: "#FFFFFF",
-        boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
-      }}
-    >
+   <section style={{
+  maxWidth: 760,
+  margin: `${ui.space.xl}px auto`,
+  padding: ui.space.lg,
+  borderRadius: ui.radius.lg,
+  border: `1px solid ${ui.color.border}`,
+  background: ui.color.card,
+  boxShadow: ui.shadow.card,
+}}>
       {/* Header */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
         <div>
