@@ -83,7 +83,7 @@ async function handleVerify(ctx: any, method: "GET" | "POST") {
       );
     }
 
-const publicJwk = await getPublicJwk(env, kid);
+
     // 3) 公開鍵取得（keysテーブル or env.JWKS）
     const publicJwk = await getPublicJwk(env, kid);
     if (!publicJwk) {
