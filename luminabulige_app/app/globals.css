@@ -301,8 +301,10 @@ body{
   border-color: color-mix(in oklab, var(--danger) 38%, transparent);
   color: var(--danger);
 }
-.print-one [data-print="json"] { display: none !important; }
-.print-one .mono { white-space: pre-wrap !important; word-break: break-word !important; }
+@media print {
+  .pdf-page { page-break-after: always; }
+  .pdf-page:last-child { page-break-after: auto; }
+}
 @media print {
   pre {
     overflow: visible !important;
