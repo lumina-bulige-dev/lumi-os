@@ -157,17 +157,7 @@ function Row(p: { k: string; v: React.ReactNode; right?: React.ReactNode }) {
 
 export default function VClient() {
   const sp = useSearchParams();
-const onPdf = () => {
-    window.print();
-  };
 
-  return (
-    <main>
-      <button onClick={onPdf}>PDF</button>
-      {/* ... */}
-    </main>
-  );
-}
   const q = useMemo(() => {
     const proofId = sp.get("proofId") || undefined;
     const hash = sp.get("hash") || undefined;
@@ -189,17 +179,16 @@ const onPdf = () => {
     return null;
   }, [data]);
 
-    const showContact = result === "NG" || result === "UNKNOWN";
+  const showContact = result === "NG" || result === "UNKNOWN";
 
   const verifyUrl = useMemo(() => {
     if (typeof window === "undefined") return "";
-    return window.location.href; // ここは new URL() すら不要
+    return window.location.href;
   }, [q.proofId, q.hash, q.sig, q.kid, q.alg]);
 
   const contactMailto = useMemo(() => {
     if (!data) return "";
     const subject = "Proof Verification Issue";
-
     const bodyLines = [
       "Proof Verification Issue",
       "",
@@ -220,17 +209,17 @@ const onPdf = () => {
       "",
       "Please advise next steps.",
     ];
-
     const body = bodyLines.join("\n");
     return `mailto:contact@luminabulige.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   }, [data, q, verifiedAt, verifyUrl]);
 
+  const onPdf = () => {
+    window.print();
+  };
 
-  
   async function runVerify() {
     setErrorText(null);
     setLoading(true);
-
     try {
       const params = new URLSearchParams();
       if (q.proofId) params.set("proofId", q.proofId);
@@ -259,33 +248,11 @@ const onPdf = () => {
 
   const hasParams = !!(q.proofId || (q.hash && q.sig && q.kid && q.alg));
   const hasProof = !!data?.proof;
-
-  const explanation = useMemo(() => {
-    if (!data || !result) return null;
-
-    if (result === "NG" && q.proofId) {
-      return "proofId は存在しますが署名が一致しません。URL改ざん、転記ミス、または署名不一致の可能性があります。";
-    }
-    if (result === "NG" && !q.proofId) {
-      return "署名が一致しません。入力値（hash / sig / kid / alg）の転記ミスや改ざんの可能性があります。";
-    }
-    if (result === "UNKNOWN") {
-      return "kid に対応する公開鍵が取得できません。発行元側の鍵ローテーション、または入力値の不整合の可能性があります。";
-    }
-    if (result === "REVOKED") {
-      return "この Proof は発行元により無効化されています（検証自体は実施済みとして扱います）。";
-    }
-    if (result === "OK") {
-      return "検証は成功しました。表示される Proof 情報は発行元DB（または一致した記録）に基づきます。";
-    }
-    return null;
-  }, [data, result, q.proofId]);
-
   const showVerifiedFlag = typeof data?.verified === "boolean";
 
   return (
     <>
-      <style jsx global>{`
+      <style>{`
         @media print {
           details { display: block !important; }
           details > summary { display: none !important; }
@@ -297,12 +264,11 @@ const onPdf = () => {
             word-break: break-word !important;
           }
 
-          button { display: none !important; } /* Copyや検証ボタンを消すなら */
+          /* PDFに残したいボタンは class で除外する */
+          button:not(.print-keep) { display: none !important; }
           a { text-decoration: none !important; }
         }
-      `}</style>
-
-  
+      `}</style>  
     <main
       style={{
         minHeight: "100vh",
