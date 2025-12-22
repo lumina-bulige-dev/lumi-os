@@ -41,10 +41,11 @@ async function createVerifiedPdfFile(payload: any) {
 
   // 3) サーバ署名
   const res = await fetch("/api/sign", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ hashB64u }),
-  });
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  cache: "no-store",
+  body: JSON.stringify({ hashB64u }),
+});
   if (!res.ok) throw new Error(`sign api failed: ${res.status}`);
   const { sigB64u, kid, alg, ts } = await res.json();
 
