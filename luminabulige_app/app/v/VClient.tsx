@@ -399,6 +399,17 @@ export default function VClient() {
                 </div>
               )}
 
+{verifyUrl && (
+  <div style={{ marginTop: ui.space.sm }}>
+    <Row
+      k="verify_url"
+      v={<span style={{ fontFamily: ui.font.mono }}>{shortHash(verifyUrl, 42, 14)}</span>}
+      right={<CopyButton value={verifyUrl} label="verify_url" />}
+    />
+  </div>
+)}
+
+              
               {errorText && (
                 <div
                   style={{
