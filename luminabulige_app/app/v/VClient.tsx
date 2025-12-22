@@ -392,13 +392,6 @@ export default function VClient() {
                   検証時刻（JST）: <span style={{ color: ui.color.text, fontWeight: 900 }}>{verifiedAt ? fmtJST(verifiedAt) : "-"}</span>
                 </div>
               </div>
-
-              {explanation && (
-                <div style={{ marginTop: ui.space.sm, color: ui.color.sub, lineHeight: 1.7 }}>
-                  {explanation}
-                </div>
-              )}
-
 {verifyUrl && (
   <div style={{ marginTop: ui.space.sm }}>
     <Row
@@ -408,8 +401,15 @@ export default function VClient() {
     />
   </div>
 )}
-
               
+        
+              {explanation && (
+                <div style={{ marginTop: ui.space.sm, color: ui.color.sub, lineHeight: 1.7 }}>
+                  {explanation}
+                </div>
+              )}
+
+  
               {errorText && (
                 <div
                   style={{
