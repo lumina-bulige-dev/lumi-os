@@ -82,7 +82,7 @@ async function handleVerify(ctx: any, method: "GET" | "POST") {
         200
       );
     }
-const { hashB64u, sigB64u, alg, kid } = body;
+
 const publicJwk = await getPublicJwk(env, kid);
     // 3) 公開鍵取得（keysテーブル or env.JWKS）
     const publicJwk = await getPublicJwk(env, kid);
