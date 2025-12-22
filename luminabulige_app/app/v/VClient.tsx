@@ -62,16 +62,12 @@ function shortHash(s?: string | null, head = 10, tail = 6) {
 function toDateMaybe(x: any): Date | null {
   if (x == null) return null;
   if (typeof x === "number") {
-    const ms = x < 1e12 ? x * 1000 : x; // sec -> ms
+    const ms = x < 1e12 ? x * 1000 : x;
     const d = new Date(ms);
     return isNaN(d.getTime()) ? null : d;
   }
   if (typeof x === "string") {
-    // numeric string?
-    if (/^\d+$/.test(x)) {
-      const n = Number(x);
-      return toDateMaybe(n);
-    }
+    if (/^\d+$/.test(x)) return toDateMaybe(Number(x));
     const d = new Date(x);
     return isNaN(d.getTime()) ? null : d;
   }
@@ -92,6 +88,73 @@ function fmtJST(x: any): string {
   }
 }
 
+async function copyToClipboard(text: string) {
+  if (!text) return;
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    // fallback（古い環境用）
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+}
+
+function CopyButton(p: { value?: string | null; label?: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const disabled = !p.value;
+
+  return (
+    <button
+      onClick={async () => {
+        if (!p.value) return;
+        const ok = await copyToClipboard(p.value);
+        if (ok) {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 900);
+        }
+      }}
+      disabled={disabled}
+      style={{
+        appearance: "none",
+        border: `1px solid ${ui.color.border}`,
+        background: "#FFFFFF",
+        borderRadius: ui.radius.pill,
+        padding: "6px 10px",
+        fontSize: 12,
+        fontWeight: 800,
+        cursor: disabled ? "not-allowed" : "pointer",
+        color: disabled ? ui.color.weak : ui.color.text,
+      }}
+      title={p.value ? `Copy ${p.label ?? ""}` : "コピー対象がありません"}
+    >
+      {copied ? "Copied" : "Copy"}
+    </button>
+  );
+}
+
+function Row(p: { k: string; v: React.ReactNode; right?: React.ReactNode }) {
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "180px 1fr auto", gap: 10, alignItems: "start" }}>
+      <div style={{ color: ui.color.sub, fontSize: 13, paddingTop: 2 }}>{p.k}</div>
+      <div style={{ color: ui.color.text }}>{p.v}</div>
+      <div>{p.right}</div>
+    </div>
+  );
+}
+
 export default function VClient() {
   const sp = useSearchParams();
 
@@ -107,6 +170,7 @@ export default function VClient() {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<VerifyResponse | null>(null);
   const [errorText, setErrorText] = useState<string | null>(null);
+  const [verifiedAt, setVerifiedAt] = useState<number | null>(null);
 
   const result: Result | null = useMemo(() => {
     if (!data?.result) return null;
@@ -128,6 +192,7 @@ export default function VClient() {
       `result: ${String(data.result ?? "-")}`,
       `error: ${data.error ?? "-"}`,
       `verified: ${typeof data.verified === "boolean" ? String(data.verified) : "-"}`,
+      `verifiedAt(JST): ${verifiedAt ? fmtJST(verifiedAt) : "-"}`,
       "",
       `page_url: ${typeof window !== "undefined" ? window.location.href : "-"}`,
       "",
@@ -143,7 +208,7 @@ export default function VClient() {
 
     const body = bodyLines.join("\n");
     return `mailto:contact@luminabulige.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  }, [data, q]);
+  }, [data, q, verifiedAt]);
 
   async function runVerify() {
     setErrorText(null);
@@ -161,12 +226,15 @@ export default function VClient() {
       const json = (await res.json()) as VerifyResponse;
 
       setData(json);
+      setVerifiedAt(Date.now());
+
       if (!res.ok) {
         setErrorText(json?.error ? `${json.error}` : `HTTP ${res.status}`);
       }
     } catch (e: any) {
       setErrorText(e?.message || String(e));
       setData(null);
+      setVerifiedAt(Date.now());
     } finally {
       setLoading(false);
     }
@@ -178,7 +246,6 @@ export default function VClient() {
   const explanation = useMemo(() => {
     if (!data || !result) return null;
 
-    // verified=false かつ proofId がある場合の説明（要件）
     if (result === "NG" && q.proofId) {
       return "proofId は存在しますが署名が一致しません。URL改ざん、転記ミス、または署名不一致の可能性があります。";
     }
@@ -197,6 +264,8 @@ export default function VClient() {
     return null;
   }, [data, result, q.proofId]);
 
+  const showVerifiedFlag = typeof data?.verified === "boolean";
+
   return (
     <main
       style={{
@@ -206,18 +275,21 @@ export default function VClient() {
         fontFamily: ui.font.ui,
       }}
     >
-      <div style={{ maxWidth: 820, margin: "0 auto" }}>
+      <div style={{ maxWidth: 860, margin: "0 auto" }}>
+        {/* Title */}
         <div style={{ marginBottom: ui.space.lg }}>
-          <div style={{ color: "#E5E7EB", fontSize: 13, letterSpacing: 0.2 }}>LUMINA BULIGE</div>
-          <h1 style={{ color: "#FFFFFF", margin: "6px 0 0", fontSize: 26, lineHeight: 1.2 }}>
+          <div style={{ color: "rgba(255,255,255,0.78)", fontSize: 12, letterSpacing: 0.9 }}>
+            LUMINA BULIGE
+          </div>
+          <h1 style={{ color: "#FFFFFF", margin: "6px 0 0", fontSize: 28, lineHeight: 1.2 }}>
             Proof Verification
           </h1>
-          <div style={{ color: "rgba(255,255,255,0.72)", marginTop: 8, fontSize: 14 }}>
-            QR / API で渡された値をもとに署名検証を行い、結果と根拠を表示します。
+          <div style={{ color: "rgba(255,255,255,0.72)", marginTop: 10, fontSize: 14, lineHeight: 1.7 }}>
+            QR / API の値を用いて署名検証し、結果と根拠を提示します（監査・問い合わせ前提の表示）。
           </div>
         </div>
 
-        {/* Action bar */}
+        {/* Action */}
         <div
           style={{
             display: "flex",
@@ -233,31 +305,31 @@ export default function VClient() {
             style={{
               appearance: "none",
               border: `1px solid ${ui.color.border}`,
-              background: hasParams ? "#FFFFFF" : "rgba(255,255,255,0.75)",
+              background: hasParams ? "#FFFFFF" : "rgba(255,255,255,0.78)",
               borderRadius: ui.radius.md,
-              padding: "10px 14px",
-              fontWeight: 700,
+              padding: "11px 14px",
+              fontWeight: 900,
               cursor: hasParams && !loading ? "pointer" : "not-allowed",
               boxShadow: ui.shadow.soft,
+              letterSpacing: 0.2,
             }}
             title={!hasParams ? "proofId または (hash,sig,kid,alg) が必要です" : ""}
           >
             {loading ? "Verifying…" : "検証する"}
           </button>
 
-          <div style={{ color: "rgba(255,255,255,0.75)", fontSize: 13 }}>
-            入力:{" "}
-            <span style={{ fontFamily: ui.font.mono }}>
+          <div style={{ color: "rgba(255,255,255,0.72)", fontSize: 12, lineHeight: 1.6 }}>
+            <div style={{ fontFamily: ui.font.mono }}>
               proofId={q.proofId ? shortHash(q.proofId, 10, 6) : "-"} / hash={q.hash ? "yes" : "no"} / sig=
               {q.sig ? "yes" : "no"} / kid={q.kid ? shortHash(q.kid, 10, 6) : "-"} / alg={q.alg ?? "-"}
-            </span>
+            </div>
           </div>
         </div>
 
         {/* Result card */}
         <section
           style={{
-            border: `1px solid ${ui.color.border}`,
+            border: `1px solid rgba(229,231,235,0.9)`,
             borderRadius: ui.radius.lg,
             padding: ui.space.xl,
             background: ui.color.card,
@@ -266,7 +338,7 @@ export default function VClient() {
         >
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
             <div>
-              <div style={{ fontSize: 13, color: ui.color.sub, marginBottom: 6 }}>結果</div>
+              <div style={{ fontSize: 12, color: ui.color.sub, marginBottom: 8, letterSpacing: 0.3 }}>結果</div>
 
               {result ? (
                 <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
@@ -275,26 +347,47 @@ export default function VClient() {
                       ...badgeStyle(result),
                       padding: "6px 10px",
                       borderRadius: ui.radius.pill,
-                      fontWeight: 800,
-                      fontSize: 13,
-                      letterSpacing: 0.4,
+                      fontWeight: 900,
+                      fontSize: 12,
+                      letterSpacing: 0.6,
                     }}
                   >
                     {result}
                   </span>
 
-                  <span style={{ color: ui.color.text, fontWeight: 800, fontSize: 16 }}>
+                  <span style={{ color: ui.color.text, fontWeight: 900, fontSize: 16 }}>
                     {CRITERIA[result]}
                   </span>
+
+                  {showVerifiedFlag && (
+                    <span
+                      style={{
+                        marginLeft: 6,
+                        padding: "6px 10px",
+                        borderRadius: ui.radius.pill,
+                        border: `1px solid ${ui.color.border}`,
+                        background: ui.color.soft,
+                        fontSize: 12,
+                        fontWeight: 900,
+                        color: ui.color.text,
+                      }}
+                    >
+                      verified: {String(data?.verified)}
+                    </span>
+                  )}
                 </div>
               ) : (
-                <div style={{ color: ui.color.sub }}>
-                  まだ検証していません（上の「検証する」を押してください）
-                </div>
+                <div style={{ color: ui.color.sub }}>まだ検証していません（上の「検証する」を押してください）</div>
               )}
 
+              <div style={{ marginTop: ui.space.sm, display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <div style={{ color: ui.color.sub, fontSize: 12 }}>
+                  検証時刻（JST）: <span style={{ color: ui.color.text, fontWeight: 900 }}>{verifiedAt ? fmtJST(verifiedAt) : "-"}</span>
+                </div>
+              </div>
+
               {explanation && (
-                <div style={{ marginTop: ui.space.sm, color: ui.color.sub, lineHeight: 1.6 }}>
+                <div style={{ marginTop: ui.space.sm, color: ui.color.sub, lineHeight: 1.7 }}>
                   {explanation}
                 </div>
               )}
@@ -310,7 +403,7 @@ export default function VClient() {
                     color: ui.color.text,
                   }}
                 >
-                  <div style={{ fontWeight: 800, marginBottom: 6 }}>エラー</div>
+                  <div style={{ fontWeight: 900, marginBottom: 6 }}>エラー</div>
                   <div style={{ fontFamily: ui.font.mono, fontSize: 12, whiteSpace: "pre-wrap" }}>{errorText}</div>
                 </div>
               )}
@@ -329,7 +422,7 @@ export default function VClient() {
                   border: `1px solid ${ui.color.border}`,
                   background: "#FFFFFF",
                   color: ui.color.link,
-                  fontWeight: 800,
+                  fontWeight: 900,
                   textDecoration: "none",
                   whiteSpace: "nowrap",
                 }}
@@ -341,7 +434,9 @@ export default function VClient() {
 
           {/* Proof card */}
           <div style={{ marginTop: ui.space.xl }}>
-            <div style={{ fontSize: 13, color: ui.color.sub, marginBottom: ui.space.sm }}>Proof 情報</div>
+            <div style={{ fontSize: 12, color: ui.color.sub, marginBottom: ui.space.sm, letterSpacing: 0.3 }}>
+              Proof 情報
+            </div>
 
             <div
               style={{
@@ -352,39 +447,66 @@ export default function VClient() {
               }}
             >
               {hasProof ? (
-                <>
-                  <div style={{ display: "grid", gridTemplateColumns: "180px 1fr", gap: 10 }}>
-                    <div style={{ color: ui.color.sub }}>proof_id</div>
-                    <div style={{ fontFamily: ui.font.mono }}>{data?.proof?.proof_id ?? "-"}</div>
+                <div style={{ display: "grid", gap: 10 }}>
+                  <Row
+                    k="proof_id"
+                    v={<span style={{ fontFamily: ui.font.mono }}>{data?.proof?.proof_id ?? "-"}</span>}
+                    right={<CopyButton value={data?.proof?.proof_id ?? null} label="proof_id" />}
+                  />
 
-                    <div style={{ color: ui.color.sub }}>期間</div>
-                    <div>
-                      {data?.proof?.range?.from ?? "-"} 〜 {data?.proof?.range?.to ?? "-"}
-                    </div>
+                  <Row
+                    k="期間"
+                    v={
+                      <span>
+                        {data?.proof?.range?.from ?? "-"} 〜 {data?.proof?.range?.to ?? "-"}
+                      </span>
+                    }
+                  />
 
-                    <div style={{ color: ui.color.sub }}>作成</div>
-                    <div>{fmtJST(data?.proof?.created_at_ts)}</div>
+                  <Row k="作成" v={<span>{fmtJST(data?.proof?.created_at_ts)}</span>} />
 
-                    <div style={{ color: ui.color.sub }}>カウント</div>
-                    <div>
-                      SAFE {data?.proof?.counts?.SAFE ?? 0} / WARNING {data?.proof?.counts?.WARNING ?? 0} / DANGER{" "}
-                      {data?.proof?.counts?.DANGER ?? 0} / total {data?.proof?.counts?.total ?? 0}
-                    </div>
+                  <Row
+                    k="カウント"
+                    v={
+                      <span>
+                        SAFE {data?.proof?.counts?.SAFE ?? 0} / WARNING {data?.proof?.counts?.WARNING ?? 0} / DANGER{" "}
+                        {data?.proof?.counts?.DANGER ?? 0} / total {data?.proof?.counts?.total ?? 0}
+                      </span>
+                    }
+                  />
 
-                    <div style={{ color: ui.color.sub }}>ruleset_version</div>
-                    <div style={{ fontFamily: ui.font.mono }}>{data?.proof?.ruleset_version ?? "-"}</div>
+                  <Row
+                    k="ruleset_version"
+                    v={<span style={{ fontFamily: ui.font.mono }}>{data?.proof?.ruleset_version ?? "-"}</span>}
+                  />
 
-                    <div style={{ color: ui.color.sub }}>kid / alg</div>
-                    <div style={{ fontFamily: ui.font.mono }}>
-                      {data?.proof?.kid ?? data?.kid ?? "-"} / {data?.proof?.alg ?? data?.alg ?? "-"}
-                    </div>
+                  <Row
+                    k="kid"
+                    v={<span style={{ fontFamily: ui.font.mono }}>{data?.proof?.kid ?? data?.kid ?? "-"}</span>}
+                    right={<CopyButton value={(data?.proof?.kid ?? data?.kid) ?? null} label="kid" />}
+                  />
 
-                    <div style={{ color: ui.color.sub }}>payload_hash_b64u</div>
-                    <div style={{ fontFamily: ui.font.mono }}>
-                      {data?.proof?.payload_hash_b64u ?? data?.payload_hash_b64u ?? "-"}
-                    </div>
-                  </div>
-                </>
+                  <Row
+                    k="alg"
+                    v={<span style={{ fontFamily: ui.font.mono }}>{data?.proof?.alg ?? data?.alg ?? "-"}</span>}
+                    right={<CopyButton value={(data?.proof?.alg ?? data?.alg) ?? null} label="alg" />}
+                  />
+
+                  <Row
+                    k="payload_hash_b64u"
+                    v={
+                      <span style={{ fontFamily: ui.font.mono }}>
+                        {data?.proof?.payload_hash_b64u ?? data?.payload_hash_b64u ?? "-"}
+                      </span>
+                    }
+                    right={
+                      <CopyButton
+                        value={(data?.proof?.payload_hash_b64u ?? data?.payload_hash_b64u) ?? null}
+                        label="payload_hash_b64u"
+                      />
+                    }
+                  />
+                </div>
               ) : (
                 <div style={{ color: ui.color.sub, lineHeight: 1.7 }}>
                   proof 情報が取得できませんでした。
@@ -397,11 +519,11 @@ export default function VClient() {
             </div>
           </div>
 
-          {/* Details (audit-friendly) */}
+          {/* Details */}
           {data && (
             <div style={{ marginTop: ui.space.lg }}>
               <details>
-                <summary style={{ cursor: "pointer", color: ui.color.link, fontWeight: 800 }}>
+                <summary style={{ cursor: "pointer", color: ui.color.link, fontWeight: 900 }}>
                   技術詳細（レスポンスJSON）
                 </summary>
                 <pre
@@ -424,9 +546,10 @@ export default function VClient() {
           )}
         </section>
 
-        {/* Footer */}
-        <div style={{ color: "rgba(255,255,255,0.65)", fontSize: 12, marginTop: ui.space.lg, lineHeight: 1.6 }}>
-          注意: NG / UNKNOWN の場合は、入力値（hash/sig/kid/alg）や QR の転記ミス、改ざん、鍵ローテーション等が原因になり得ます。
+        <div style={{ color: "rgba(255,255,255,0.62)", fontSize: 12, marginTop: ui.space.lg, lineHeight: 1.7 }}>
+          注意: NG / UNKNOWN の場合は、入力値の転記ミス、改ざん、鍵ローテーション等が原因になり得ます。
+          <br />
+          ここまで整ってると、言い訳じゃなくて「説明」になります（大事）。
         </div>
       </div>
     </main>
