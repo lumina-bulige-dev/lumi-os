@@ -515,6 +515,15 @@ export default function VClient() {
                 {hasProof ? (
                   <div style={{ display: "grid", gap: 10 }}>
                     <Row
+  k="payload_hash_b64u"
+  v={
+    <span className="mono" style={{ fontFamily: ui.font.mono }}
+      title={(data?.proof?.payload_hash_b64u ?? data?.payload_hash_b64u) ?? ""}>
+      {shortHash((data?.proof?.payload_hash_b64u ?? data?.payload_hash_b64u) ?? "-", 22, 12)}
+    </span>
+  }
+/>
+                    <Row
                       k="proof_id"
                       v={<span className="mono" style={{ fontFamily: ui.font.mono }} title={data?.proof?.proof_id ?? ""}>{shortHash(data?.proof?.proof_id ?? "-", 18, 10)}</span>}
                       right={<CopyButton value={data?.proof?.proof_id ?? null} label="proof_id" />}
