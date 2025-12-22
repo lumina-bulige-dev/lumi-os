@@ -179,6 +179,26 @@ export default function VClient() {
     return null;
   }, [data]);
 
+  const explanation = useMemo(() => {
+  if (!data || !result) return null;
+
+  if (result === "NG" && q.proofId) {
+    return "proofId は存在しますが署名が一致しません。URL改ざん、転記ミス、または署名不一致の可能性があります。";
+  }
+  if (result === "NG" && !q.proofId) {
+    return "署名が一致しません。入力値（hash / sig / kid / alg）の転記ミスや改ざんの可能性があります。";
+  }
+  if (result === "UNKNOWN") {
+    return "kid に対応する公開鍵が取得できません。発行元側の鍵ローテーション、または入力値の不整合の可能性があります。";
+  }
+  if (result === "REVOKED") {
+    return "この Proof は発行元により無効化されています（検証自体は実施済みとして扱います）。";
+  }
+  if (result === "OK") {
+    return "検証は成功しました。表示される Proof 情報は発行元DB（または一致した記録）に基づきます。";
+  }
+  return null;
+}, [data, result, q.proofId]);
   const showContact = result === "NG" || result === "UNKNOWN";
 
   const verifyUrl = useMemo(() => {
