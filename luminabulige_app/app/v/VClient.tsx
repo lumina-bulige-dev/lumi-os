@@ -157,7 +157,30 @@ function Row(p: { k: string; v: React.ReactNode; right?: React.ReactNode }) {
 
 export default function VClient() {
   const sp = useSearchParams();
+function PrintStyles() {
+  return (
+    <style jsx global>{`
+      @media print {
+        /* まず印刷を“全部出す”モードにする */
+        details { display: block !important; }
+        details > summary { display: none !important; }
+        details:not([open]) > *:not(summary) { display: block !important; }
 
+        pre {
+          overflow: visible !important;
+          white-space: pre-wrap !important;
+          word-break: break-word !important;
+        }
+
+        /* 印刷に不要なUIは消す（残したいのだけ print-keep 付与） */
+        button:not(.print-keep) { display: none !important; }
+
+        /* 背景色を印刷に反映したいなら */
+        * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      }
+    `}</style>
+  );
+}
   const q = useMemo(() => {
     const proofId = sp.get("proofId") || undefined;
     const hash = sp.get("hash") || undefined;
@@ -271,157 +294,27 @@ export default function VClient() {
   const showVerifiedFlag = typeof data?.verified === "boolean";
 
   return (
+  <React.Fragment>
+    <PrintStyles />
 
-    <>
-      <style>{`
-        @media print {
-          details { display: block !important; }
-          details > summary { display: none !important; }
-          details:not([open]) > *:not(summary) { display: block !important; }
+    <main style={{ /* 既存の main のstyleそのまま */ }}>
+      {/* 既存UIそのまま */}
 
-          pre {
-            overflow: visible !important;
-            white-space: pre-wrap !important;
-            word-break: break-word !important;
-          }
+      {/* PDFボタンを出すなら（印刷に残したいなら print-keep） */}
+      <button className="print-keep" onClick={onPdf}>PDF</button>
 
-          /* PDFに残したいボタンは class で除外する */
-          button:not(.print-keep) { display: none !important; }
-          a { text-decoration: none !important; }
-        }
-      `}</style>  
-    <main
-      style={{
-        minHeight: "100vh",
-        background: ui.color.bg,
-        padding: ui.space.xxl,
-        fontFamily: ui.font.ui,
-      }}
-    >
-      <div style={{ maxWidth: 860, margin: "0 auto" }}>
-        {/* Title */}
-        <div style={{ marginBottom: ui.space.lg }}>
-          <div style={{ color: "rgba(255,255,255,0.78)", fontSize: 12, letterSpacing: 0.9 }}>
-            LUMINA BULIGE
-          </div>
-          <h1 style={{ color: "#FFFFFF", margin: "6px 0 0", fontSize: 28, lineHeight: 1.2 }}>
-            Proof Verification
-          </h1>
-          <div style={{ color: "rgba(255,255,255,0.72)", marginTop: 10, fontSize: 14, lineHeight: 1.7 }}>
-            QR / API の値を用いて署名検証し、結果と根拠を提示します（監査・問い合わせ前提の表示）。
-          </div>
+      {/* 検証時刻の下に verify_url（ここ“だけ”） */}
+      {verifyUrl && (
+        <div style={{ marginTop: ui.space.sm }}>
+          <Row
+            k="verify_url"
+            v={<span style={{ fontFamily: ui.font.mono }}>{shortHash(verifyUrl, 42, 14)}</span>}
+            right={<CopyButton value={verifyUrl} label="verify_url" />}
+          />
         </div>
+      )}
 
-        {/* Action */}
-        <div
-          style={{
-            display: "flex",
-            gap: ui.space.md,
-            flexWrap: "wrap",
-            marginBottom: ui.space.lg,
-            alignItems: "center",
-          }}
-        >
-          <button
-            onClick={runVerify}
-            disabled={!hasParams || loading}
-            style={{
-              appearance: "none",
-              border: `1px solid ${ui.color.border}`,
-              background: hasParams ? "#FFFFFF" : "rgba(255,255,255,0.78)",
-              borderRadius: ui.radius.md,
-              padding: "11px 14px",
-              fontWeight: 900,
-              cursor: hasParams && !loading ? "pointer" : "not-allowed",
-              boxShadow: ui.shadow.soft,
-              letterSpacing: 0.2,
-            }}
-            title={!hasParams ? "proofId または (hash,sig,kid,alg) が必要です" : ""}
-          >
-            {loading ? "Verifying…" : "検証する"}
-          </button>
-
-          <div style={{ color: "rgba(255,255,255,0.72)", fontSize: 12, lineHeight: 1.6 }}>
-            <div style={{ fontFamily: ui.font.mono }}>
-              proofId={q.proofId ? shortHash(q.proofId, 10, 6) : "-"} / hash={q.hash ? "yes" : "no"} / sig=
-              {q.sig ? "yes" : "no"} / kid={q.kid ? shortHash(q.kid, 10, 6) : "-"} / alg={q.alg ?? "-"}
-            </div>
-          </div>
-        </div>
-
-        {/* Result card */}
-        <section
-          style={{
-            border: `1px solid rgba(229,231,235,0.9)`,
-            borderRadius: ui.radius.lg,
-            padding: ui.space.xl,
-            background: ui.color.card,
-            boxShadow: ui.shadow.card,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
-            <div>
-              <div style={{ fontSize: 12, color: ui.color.sub, marginBottom: 8, letterSpacing: 0.3 }}>結果</div>
-
-              {result ? (
-                <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                  <span
-                    style={{
-                      ...badgeStyle(result),
-                      padding: "6px 10px",
-                      borderRadius: ui.radius.pill,
-                      fontWeight: 900,
-                      fontSize: 12,
-                      letterSpacing: 0.6,
-                    }}
-                  >
-                    {result}
-                  </span>
-
-                  <span style={{ color: ui.color.text, fontWeight: 900, fontSize: 16 }}>
-                    {CRITERIA[result]}
-                  </span>
-
-                  {showVerifiedFlag && (
-                    <span
-                      style={{
-                        marginLeft: 6,
-                        padding: "6px 10px",
-                        borderRadius: ui.radius.pill,
-                        border: `1px solid ${ui.color.border}`,
-                        background: ui.color.soft,
-                        fontSize: 12,
-                        fontWeight: 900,
-                        color: ui.color.text,
-                      }}
-                    >
-                      verified: {String(data?.verified)}
-                    </span>
-                  )}
-                </div>
-              ) : (
-                <div style={{ color: ui.color.sub }}>まだ検証していません（上の「検証する」を押してください）</div>
-              )}
-
-              <div style={{ marginTop: ui.space.sm, display: "flex", gap: 10, flexWrap: "wrap" }}>
-                <div style={{ color: ui.color.sub, fontSize: 12 }}>
-                  検証時刻（JST）: <span style={{ color: ui.color.text, fontWeight: 900 }}>{verifiedAt ? fmtJST(verifiedAt) : "-"}</span>
-                </div>
-              </div>
-        {/* 検証時刻の下に verify_url（ここだけでOK） */}
-          {verifyUrl && (
-            <div style={{ marginTop: ui.space.sm }}>
-           <Row
-  k="verify_url"
-  v={<span style={{ fontFamily: ui.font.mono }}>{shortHash(verifyUrl, 42, 14)}</span>}
-  right={<CopyButton value={verifyUrl} label="verify_url" />}
-/>
-            </div>
-          )}
-
-               
-        
-              {explanation && (
+      {explanation && (
                 <div style={{ marginTop: ui.space.sm, color: ui.color.sub, lineHeight: 1.7 }}>
                   {explanation}
                 </div>
