@@ -387,16 +387,18 @@ export default function VClient() {
                   検証時刻（JST）: <span style={{ color: ui.color.text, fontWeight: 900 }}>{verifiedAt ? fmtJST(verifiedAt) : "-"}</span>
                 </div>
               </div>
-{verifyUrl && (
-  <div style={{ marginTop: ui.space.sm }}>
-    <Row
-      k="verify_url"
-      v={<span style={{ fontFamily: ui.font.mono }}>{shortHash(verifyUrl, 42, 14)}</span>}
-      right={<CopyButton value={verifyUrl} label="verify_url" />}
-    />
-  </div>
-)}
-              
+        {/* 検証時刻の下に verify_url（ここだけでOK） */}
+          {verifyUrl && (
+            <div style={{ marginTop: ui.space.sm }}>
+              <Row
+                k="verify_url"
+                v={<span style={{ fontFamily: ui.font.mono }}>{shortHash(verifyUrl, 42, 14)}</span>}
+                right={<CopyButton value={verifyUrl} label="verify_url" />}
+              />
+            </div>
+          )}
+
+               
         
               {explanation && (
                 <div style={{ marginTop: ui.space.sm, color: ui.color.sub, lineHeight: 1.7 }}>
