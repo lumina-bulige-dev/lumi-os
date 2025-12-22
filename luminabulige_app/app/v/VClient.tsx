@@ -250,8 +250,8 @@ export default function VClient() {
   const hasProof = !!data?.proof;
   const showVerifiedFlag = typeof data?.verified === "boolean";
 
-  return ();
-}
+  return (
+
     <>
       <style>{`
         @media print {
@@ -495,15 +495,11 @@ export default function VClient() {
                         {data?.proof?.counts?.DANGER ?? 0} / total {data?.proof?.counts?.total ?? 0}
                       </span>
                     }
-                  />
-
-　　　　　　　　<Row
-　　　　　　　　  k="verify_url"
-　　　　　　　　　  v={<span style={{ fontFamily: ui.font.mono }}>{shortHash(verifyUrl, 42, 14)}</span>}
-　　　　　　　  right={<CopyButton value={verifyUrl} label="verify_url" />}
-　　　　　　　　　　/>
-
-                  
+                  /><Row
+  k="verify_url"
+  v={<span style={{ fontFamily: ui.font.mono }}>{shortHash(verifyUrl, 42, 14)}</span>}
+  right={<CopyButton value={verifyUrl} label="verify_url" />}
+/>
                   <Row
                     k="ruleset_version"
                     v={<span style={{ fontFamily: ui.font.mono }}>{data?.proof?.ruleset_version ?? "-"}</span>}
