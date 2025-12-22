@@ -10,8 +10,6 @@ export const onRequestPost = async (ctx: any) => {
 async function handleVerify(ctx: any, method: "GET" | "POST") {
   const { request, env } = ctx;
 
-
-const ok = await verifySig({ hashB64u, sigB64u, alg, jwk: publicJwk });
   try {
     const url = new URL(request.url);
 
@@ -111,9 +109,14 @@ const publicJwk = await getPublicJwk(env, kid);
     }
 
     // 4) verify
-    const ok = await verifySig({ hashB64u, sigB64u, alg, jwk: publicJwk });
+    // 3) hash/sig/kid/alg を確定した後…
 
-    const result = ok ? "OK" : "NG";
+const publicJwk = await getPublicJwk(env, kid);
+if (!publicJwk) { /* 404 */ }
+
+// ここが唯一の verify 実行場所
+const verifiedOk = await verifySig({ hashB64u, sigB64u, alg, jwk: publicJwk });
+const result = verifiedOk ? "OK" : "NG";
 
     // 5) proofが無いけどhash一致のproofが存在するか検索（QRだけのケースを強化）
     let matchedProof: any | null = proof;
