@@ -301,7 +301,7 @@ body{
   border-color: color-mix(in oklab, var(--danger) 38%, transparent);
   color: var(--danger);
 }
-
+.print-one [data-print="proof"] { display: none !important; }
 @media print {
   pre {
     overflow: visible !important;
