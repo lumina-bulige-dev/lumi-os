@@ -30,6 +30,8 @@ async function sha256Bytes(data: Uint8Array) {
 
 async function createVerifiedPdfFile(payload: any) {
   // 1) 署名対象（固定化）
+  const payloadB64u = bytesToB64u(new TextEncoder().encode(payloadJson));
+// PDFには payloadJson じゃなく payloadB64u を載せる
   const payloadJson = JSON.stringify(payload);
   const payloadBytes = new TextEncoder().encode(payloadJson);
 
@@ -51,7 +53,14 @@ async function createVerifiedPdfFile(payload: any) {
   const page = pdf.addPage([595, 842]); // A4
   const font = await pdf.embedFont(StandardFonts.Helvetica);
 
-  const lines = [
+  function wrapText(s: string, width = 100) {
+  const out: string[] = [];
+  for (let i = 0; i < s.length; i += width) out.push(s.slice(i, i + width));
+  return out;
+}
+
+// lines を作る時に payload は wrap して入れる
+const lines = [
   "LUMI 30-day log (Verified)",
   "",
   `alg: ${alg}  kid: ${kid}`,
@@ -60,8 +69,8 @@ async function createVerifiedPdfFile(payload: any) {
   `hashB64u: ${hashB64u}`,
   `sigB64u : ${sigB64u}`,
   "",
-  "payload:",
-  payloadJson,
+  "payload (json, truncated/wrapped):",
+  ...wrapText(payloadJson, 100).slice(0, 60), // 多すぎ防止
 ];
 
   let y = 800;
@@ -139,9 +148,10 @@ text: `Range: ${range.from}..${range.to}\nSAFE:${sum.safe} / WARNING:${sum.warni
 
       // フォールバック：DL
       downloadFile(file, fileName);
-    } catch (e: any) {
-      alert(`PDF生成に失敗: ${e?.message || e}`);
-    } finally {
+   } catch (e: any) {
+  console.error("PDF_SHARE_FAILED", e);
+  alert(`PDF生成に失敗: ${e?.message || e}`);
+} finally {
       setTimeout(() => setIsSharing(false), 400);
     }
   }, [isSharing, logs, range, sum.safe, sum.warning, sum.danger]);
