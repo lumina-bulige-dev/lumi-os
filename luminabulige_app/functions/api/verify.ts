@@ -9,8 +9,7 @@ export const onRequestPost = async (ctx: any) => {
 
 async function handleVerify(ctx: any, method: "GET" | "POST") {
   const { request, env } = ctx;
-const { hashB64u, sigB64u, alg, kid } = body;
-const publicJwk = await getPublicJwk(env, kid);
+
 
 const ok = await verifySig({ hashB64u, sigB64u, alg, jwk: publicJwk });
   try {
@@ -85,7 +84,8 @@ const ok = await verifySig({ hashB64u, sigB64u, alg, jwk: publicJwk });
         200
       );
     }
-
+const { hashB64u, sigB64u, alg, kid } = body;
+const publicJwk = await getPublicJwk(env, kid);
     // 3) 公開鍵取得（keysテーブル or env.JWKS）
     const publicJwk = await getPublicJwk(env, kid);
     if (!publicJwk) {
