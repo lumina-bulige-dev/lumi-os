@@ -109,78 +109,61 @@ async function handleVerify(ctx: any, method: "GET" | "POST") {
     }
 
     // 4) verify
+// 4) verify
+const verified = await verifySig({ hashB64u, sigB64u, alg, jwk: publicJwk });
+const result: "OK" | "NG" = verified ? "OK" : "NG";
 
+// 5) proofが無いけどhash一致のproofが存在するか検索（QRだけのケースを強化）
+let matchedProof: any | null = proof;
+if (!matchedProof && env.DB) {
+  matchedProof = await env.DB
+    .prepare(
+      `SELECT proof_id, user_id, created_at_ts, range_from, range_to,
+              safe_count, warning_count, danger_count, total_count,
+              ruleset_version, payload_hash_b64u, sig_b64u, kid, alg, sig_ts, status
+         FROM proofs
+        WHERE payload_hash_b64u = ?`
+    )
+    .bind(hashB64u)
+    .first();
+}
 
-// ここが唯一の verify 実行場所
-return json({
-  ok: true,
-  result: verified ? "OK" : "NG",
-  verified,
+await writeVerificationLog(env, {
+  proofId: matchedProof?.proof_id,
+  payloadHashB64u: hashB64u,
+  kid,
+  alg,
+  result,
+  method: input.method || "qr",
+  request,
 });
 
-    // 5) proofが無いけどhash一致のproofが存在するか検索（QRだけのケースを強化）
-    let matchedProof: any | null = proof;
-    if (!matchedProof && env.DB) {
-      matchedProof = await env.DB
-        .prepare(
-          `SELECT proof_id, user_id, created_at_ts, range_from, range_to,
-                  safe_count, warning_count, danger_count, total_count,
-                  ruleset_version, payload_hash_b64u, sig_b64u, kid, alg, sig_ts, status
-             FROM proofs
-            WHERE payload_hash_b64u = ?`
-        )
-        .bind(hashB64u)
-        .first();
-    }
+// 6) Heiankyo（proof.verified）も積む（OK/NGどちらも）
+await appendHeiankyo(env, matchedProof?.user_id, {
+  type: "proof.verified",
+  ts: Date.now(),
+  proof_id: matchedProof?.proof_id,
+  data: {
+    result,
+    payload_hash_b64u: hashB64u,
+    kid,
+    alg,
+  },
+  request,
+});
 
-    await writeVerificationLog(env, {
-      proofId: matchedProof?.proof_id,
-      payloadHashB64u: hashB64u,
-      kid,
-      alg,
-      result,
-      method: input.method || "qr",
-      request,
-    });
-
-    // 6) Heiankyo（proof.verified）も積む（OK/NGどちらも）
-    await appendHeiankyo(env, matchedProof?.user_id, {
-      type: "proof.verified",
-      ts: Date.now(),
-      proof_id: matchedProof?.proof_id,
-      data: {
-        result,
-        payload_hash_b64u: hashB64u,
-        kid,
-        alg,
-      },
-      request,
-    });
-
-    return json(
-      {
-        ok: true,
-        result,
-        verified: ok,
-        proof: matchedProof ? summarizeProof(matchedProof) : null,
-        kid,
-        alg,
-        payload_hash_b64u: hashB64u,
-      },
-      200
-    );
-  } catch (e: any) {
-    return json(
-      {
-        ok: false,
-        result: "NG",
-        error: "exception",
-        message: e?.message || String(e),
-      },
-      500
-    );
-  }
-}
+return json(
+  {
+    ok: true,
+    result,
+    verified,
+    proof: matchedProof ? summarizeProof(matchedProof) : null,
+    kid,
+    alg,
+    payload_hash_b64u: hashB64u,
+  },
+  200
+);
 
 /* -----------------------
  * Crypto helpers
