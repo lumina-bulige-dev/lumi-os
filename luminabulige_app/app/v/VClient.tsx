@@ -496,13 +496,12 @@ export default function VClient() {
                     }
                   />
 
-　　　　　　　　<Row
-　　　　　　　　  k="verify_url"
-　　　　　　　　　  v={<span style={{ fontFamily: ui.font.mono }}>{shortHash(verifyUrl, 42, 14)}</span>}
-　　　　　　　  right={<CopyButton value={verifyUrl} label="verify_url" />}
-　　　　　　　　　　/>
+                  <Row
+                    k="verify_url"
+                    v={<span style={{ fontFamily: ui.font.mono }}>{shortHash(verifyUrl, 42, 14)}</span>}
+                    right={<CopyButton value={verifyUrl} label="verify_url" />}
+                  />
 
-                  
                   <Row
                     k="ruleset_version"
                     v={<span style={{ fontFamily: ui.font.mono }}>{data?.proof?.ruleset_version ?? "-"}</span>}
