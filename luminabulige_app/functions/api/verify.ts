@@ -109,10 +109,9 @@ const publicJwk = await getPublicJwk(env, kid);
     }
 
     // 4) verify
-    // 3) hash/sig/kid/alg を確定した後…
 
-const publicJwk = await getPublicJwk(env, kid);
-if (!publicJwk) { /* 404 */ }
+
+
 
 // ここが唯一の verify 実行場所
 const verifiedOk = await verifySig({ hashB64u, sigB64u, alg, jwk: publicJwk });
