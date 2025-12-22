@@ -61,6 +61,13 @@ function headline(result: VerifyResult) {
   return "検証NG（署名不一致）";
 }
 
+function criteriaLine(result: VerifyResult) {
+  if (result === "OK") return "判定基準：署名が一致しました。";
+  if (result === "NG") return "判定基準：署名が一致しませんでした。";
+  if (result === "REVOKED") return "判定基準：発行元が無効化しています。";
+  return "判定基準：鍵情報が取得できませんでした。"; // UNKNOWN
+}
+
 function explanation(result: VerifyResult, hasProofId: boolean, hasProof: boolean) {
   if (result === "OK") return "この証明は改ざんされていません。";
   if (result === "REVOKED") return "この証明は発行元により失効済みです。現在は有効ではありません。";
@@ -152,6 +159,26 @@ export default function VClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.proofId, params.hash, params.sig, params.kid, params.alg]);
 
+  
+  //メール問い合わせ
+  const mailtoHref = useMemo(() => {
+  const subject = "Proof Verification Issue";
+  const lines = [
+    "Proof verification needs review.",
+    "",
+    `result: ${data?.result ?? "-"}`,
+    `proofId: ${params.proofId ?? "-"}`,
+    `kid: ${params.kid ?? data?.kid ?? "-"}`,
+    `alg: ${params.alg ?? data?.alg ?? "-"}`,
+    `url: ${typeof window !== "undefined" ? window.location.href : "-"}`,
+  ];
+  const body = lines.join("\n");
+  return `mailto:contact@luminabulige.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [data?.result, data?.kid, data?.alg, params.proofId, params.kid, params.alg]);
+  
+  //↑contact メール追加
+  
   const hasProofId = !!params.proofId;
 
   const copyUrl = async () => {
@@ -182,10 +209,15 @@ export default function VClient() {
           <div style={{ marginTop: 10, fontSize: 18, fontWeight: 900 }}>{headline(result)}</div>
         </div>
 
-        <div style={{ display: "flex", gap: 10 }}>
-          <button style={btnStyle()} onClick={copyUrl}>URLをコピー</button>
-          <button style={btnStyle("primary")} onClick={run}>再検証</button>
-        </div>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "flex-end" }}>
+  {(result === "NG" || result === "UNKNOWN") && (
+    <a href={mailtoHref} style={{ textDecoration: "none" }}>
+      <button style={btnStyle()}>発行元に問い合わせ</button>
+    </a>
+  )}
+  <button style={btnStyle()} onClick={copyUrl}>URLをコピー</button>
+  <button style={btnStyle("primary")} onClick={run}>再検証</button>
+</div>
       </div>
 
       {/* Explanation */}
