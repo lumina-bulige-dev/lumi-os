@@ -10,3 +10,8 @@
     "skipLibCheck": true
   }
 }
+{
+  "compilerOptions": {
+    "types": ["@cloudflare/workers-types"]
+  }
+}
