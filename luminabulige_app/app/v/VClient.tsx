@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 type VerifyResult = "OK" | "NG" | "REVOKED" | "UNKNOWN";
@@ -8,270 +8,337 @@ type VerifyResult = "OK" | "NG" | "REVOKED" | "UNKNOWN";
 type ProofSummary = {
   proof_id: string;
   created_at_ts: number;
-  range: { from: string; to: string };
+  range: { from: string | null; to: string | null };
   counts: { SAFE: number; WARNING: number; DANGER: number; total: number };
-  ruleset_version: string;
+  ruleset_version: string | null;
   payload_hash_b64u: string;
   kid: string;
   alg: string;
-  sig_ts?: number;
-  status?: string;
+  sig_ts: number | null;
+  status: string;
 };
 
 type VerifyResponse = {
   ok: boolean;
-  result: VerifyResult;
+  result: VerifyResult | string;
   verified?: boolean;
   proof?: ProofSummary | null;
+  error?: string;
+  message?: string;
   kid?: string;
   alg?: string;
   payload_hash_b64u?: string;
-  error?: string;
-  message?: string;
 };
 
-function fmtJst(ts?: number) {
+function fmtDate(ts?: number | null) {
   if (!ts) return "-";
-  return new Date(ts).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
+  try {
+    return new Date(ts).toLocaleString("ja-JP");
+  } catch {
+    return String(ts);
+  }
 }
 
-function badgeStyle(result: VerifyResult): React.CSSProperties {
+function criteriaLine(result: string) {
+  switch (result) {
+    case "OK":
+      return "署名が一致しました";
+    case "NG":
+      return "署名が一致しませんでした";
+    case "REVOKED":
+      return "発行元が無効化しています";
+    case "UNKNOWN":
+      return "鍵情報が取得できませんでした";
+    default:
+      return "判定情報を取得できませんでした";
+  }
+}
+
+function badgeStyle(result: string): React.CSSProperties {
   const base: React.CSSProperties = {
     display: "inline-flex",
     alignItems: "center",
     gap: 8,
-    padding: "6px 12px",
+    padding: "6px 10px",
     borderRadius: 999,
-    fontSize: 12,
-    fontWeight: 800,
-    border: "1px solid #E5E7EB",
-    background: "#FFFFFF",
-  };
-
-  if (result === "OK") return { ...base, borderColor: "#A7F3D0", color: "#065F46", background: "#ECFDF5" };
-  if (result === "REVOKED") return { ...base, borderColor: "#FCD34D", color: "#7C2D12", background: "#FFFBEB" };
-  if (result === "UNKNOWN") return { ...base, borderColor: "#C7D2FE", color: "#3730A3", background: "#EEF2FF" };
-  return { ...base, borderColor: "#FCA5A5", color: "#7F1D1D", background: "#FEF2F2" }; // NG
-}
-
-function headline(result: VerifyResult) {
-  if (result === "OK") return "検証OK（署名一致）";
-  if (result === "REVOKED") return "失効（発行元が無効化）";
-  if (result === "UNKNOWN") return "不明（鍵情報が見つからない等）";
-  return "検証NG（署名不一致）";
-}
-
-function criteriaLine(result: VerifyResult) {
-  if (result === "OK") return "判定基準：署名が一致しました。";
-  if (result === "NG") return "判定基準：署名が一致しませんでした。";
-  if (result === "REVOKED") return "判定基準：発行元が無効化しています。";
-  return "判定基準：鍵情報が取得できませんでした。"; // UNKNOWN
-}
-
-function explanation(result: VerifyResult, hasProofId: boolean, hasProof: boolean) {
-  if (result === "OK") return "この証明は改ざんされていません。";
-  if (result === "REVOKED") return "この証明は発行元により失効済みです。現在は有効ではありません。";
-  if (result === "UNKNOWN")
-    return "公開鍵（kid）が見つからないため検証できません。発行元側の鍵公開設定（keys/JWKS）をご確認ください。";
-
-  // NG
-  if (hasProofId && hasProof) {
-    return [
-      "この証明（proofId）は発行されていますが、提示された hash/sig が一致しません。",
-      "可能性：①URL/QRが改ざんされた ②別の証明の値と取り違えた ③鍵（kid）の不整合",
-      "対応：発行元から正しいQR/URLを再取得してください。",
-    ].join("\n");
-  }
-  return "署名が一致しません。URL（hash/sig/kid/alg）が正しいか確認してください。";
-}
-
-function chipStyle(): React.CSSProperties {
-  return {
-    display: "inline-flex",
-    alignItems: "center",
-    padding: "4px 10px",
-    borderRadius: 999,
-    border: "1px solid #E5E7EB",
-    background: "#FFFFFF",
     fontSize: 12,
     fontWeight: 700,
+    letterSpacing: 0.3,
+    border: "1px solid #E5E7EB",
+    background: "#F9FAFB",
+    color: "#111827",
   };
-}
 
-function btnStyle(kind: "primary" | "ghost" = "ghost"): React.CSSProperties {
-  const base: React.CSSProperties = {
-    borderRadius: 10,
-    padding: "10px 12px",
-    fontWeight: 800,
-    fontSize: 13,
-    cursor: "pointer",
-  };
-  if (kind === "primary") return { ...base, border: "1px solid #111827", background: "#111827", color: "#FFFFFF" };
-  return { ...base, border: "1px solid #E5E7EB", background: "#FFFFFF", color: "#111827" };
-}
+  if (result === "OK")
+    return { ...base, background: "#ECFDF5", borderColor: "#A7F3D0", color: "#065F46" };
+  if (result === "NG")
+    return { ...base, background: "#FEF2F2", borderColor: "#FECACA", color: "#991B1B" };
+  if (result === "REVOKED")
+    return { ...base, background: "#FFF7ED", borderColor: "#FED7AA", color: "#9A3412" };
+  if (result === "UNKNOWN")
+    return { ...base, background: "#EFF6FF", borderColor: "#BFDBFE", color: "#1E40AF" };
 
-async function fetchVerify(params: { proofId?: string; hash?: string; sig?: string; kid?: string; alg?: string }) {
-  const qs = new URLSearchParams();
-  if (params.proofId) qs.set("proofId", params.proofId);
-  if (params.hash) qs.set("hash", params.hash);
-  if (params.sig) qs.set("sig", params.sig);
-  if (params.kid) qs.set("kid", params.kid);
-  if (params.alg) qs.set("alg", params.alg);
-
-  const res = await fetch(`/api/verify?${qs.toString()}`, { cache: "no-store" });
-  const json = (await res.json()) as VerifyResponse;
-  return { status: res.status, json };
+  return base;
 }
 
 export default function VClient() {
   const sp = useSearchParams();
 
-  const params = useMemo(() => {
-    const proofId = sp.get("proofId") || undefined;
-    const hash = sp.get("hash") || undefined;
-    const sig = sp.get("sig") || undefined;
-    const kid = sp.get("kid") || undefined;
-    const alg = sp.get("alg") || undefined;
-    return { proofId, hash, sig, kid, alg };
+  const q = useMemo(() => {
+    const proofId = sp.get("proofId") || "";
+    const hash = sp.get("hash") || "";
+    const sig = sp.get("sig") || "";
+    const kid = sp.get("kid") || "";
+    const alg = sp.get("alg") || "";
+    const ts = sp.get("ts") || "";
+    return { proofId, hash, sig, kid, alg, ts };
   }, [sp]);
 
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<VerifyResponse | null>(null);
-  const [httpStatus, setHttpStatus] = useState<number | null>(null);
-  const [err, setErr] = useState<string | null>(null);
+  const [err, setErr] = useState<string>("");
 
-  const run = async () => {
-    try {
-      setLoading(true);
-      setErr(null);
-      const r = await fetchVerify(params);
-      setHttpStatus(r.status);
-      setData(r.json);
-    } catch (e: any) {
-      setErr(e?.message || String(e));
-    } finally {
-      setLoading(false);
-    }
-  };
+  const hasEnoughParams = useMemo(() => {
+    // proofId があるならそれだけでOK（DB優先）
+    if (q.proofId) return true;
+    return !!(q.hash && q.sig && q.kid && q.alg);
+  }, [q]);
 
   useEffect(() => {
-    void run();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.proofId, params.hash, params.sig, params.kid, params.alg]);
+    let alive = true;
 
-  
-  //メール問い合わせ
-  const mailtoHref = useMemo(() => {
-  const subject = "Proof Verification Issue";
-  const lines = [
-    "Proof verification needs review.",
-    "",
-    `result: ${data?.result ?? "-"}`,
-    `proofId: ${params.proofId ?? "-"}`,
-    `kid: ${params.kid ?? data?.kid ?? "-"}`,
-    `alg: ${params.alg ?? data?.alg ?? "-"}`,
-    `url: ${typeof window !== "undefined" ? window.location.href : "-"}`,
-  ];
-  const body = lines.join("\n");
-  return `mailto:contact@luminabulige.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [data?.result, data?.kid, data?.alg, params.proofId, params.kid, params.alg]);
-  
-  //↑contact メール追加
-  
-  const hasProofId = !!params.proofId;
+    async function run() {
+      setLoading(true);
+      setErr("");
+      setData(null);
 
-  const copyUrl = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-    } catch {
-      // fallback
-      prompt("コピーしてください", window.location.href);
+      if (!hasEnoughParams) {
+        setLoading(false);
+        setErr("missing_params");
+        return;
+      }
+
+      try {
+        const params = new URLSearchParams();
+        if (q.proofId) params.set("proofId", q.proofId);
+        if (!q.proofId) {
+          params.set("hash", q.hash);
+          params.set("sig", q.sig);
+          params.set("kid", q.kid);
+          params.set("alg", q.alg);
+          if (q.ts) params.set("ts", q.ts);
+        }
+
+        const res = await fetch(`/api/verify?${params.toString()}`, { cache: "no-store" });
+        const json = (await res.json()) as VerifyResponse;
+
+        if (!alive) return;
+        setData(json);
+      } catch (e: any) {
+        if (!alive) return;
+        setErr(e?.message || String(e));
+      } finally {
+        if (!alive) return;
+        setLoading(false);
+      }
     }
-  };
 
-  if (loading) return <div>検証中…</div>;
-  if (err) return <div style={{ whiteSpace: "pre-wrap" }}>エラー: {err}</div>;
-  if (!data) return <div>データなし</div>;
+    run();
+    return () => {
+      alive = false;
+    };
+  }, [q, hasEnoughParams]);
 
-  const result = data.result;
-  const hasProof = !!data.proof;
+  const result = (data?.result || (err ? "NG" : "UNKNOWN")) as string;
+  const showContact = result === "NG" || result === "UNKNOWN";
+
+  const mailto = useMemo(() => {
+    const subject = "Proof Verification Issue";
+    const bodyLines = [
+      "Proof Verification Issue",
+      "",
+      `time: ${new Date().toISOString()}`,
+      `url: ${typeof window !== "undefined" ? window.location.href : ""}`,
+      "",
+      `result: ${result}`,
+      `error: ${data?.error || err || ""}`,
+      "",
+      `proofId: ${q.proofId || ""}`,
+      `hash: ${q.hash || data?.payload_hash_b64u || ""}`,
+      `kid: ${q.kid || data?.kid || ""}`,
+      `alg: ${q.alg || data?.alg || ""}`,
+      "",
+      "response:",
+      JSON.stringify(data ?? {}, null, 2),
+      "",
+    ];
+    const body = bodyLines.join("\n");
+    return `mailto:contact@luminabulige.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  }, [q, result, data, err]);
+
+  const proof = data?.proof || null;
+  const hasProof = !!proof;
 
   return (
-    <section style={{ border: "1px solid #E5E7EB", borderRadius: 18, padding: 18, background: "#FFFFFF" }}>
+    <section
+      style={{
+        maxWidth: 720,
+        margin: "24px auto",
+        padding: 18,
+        borderRadius: 18,
+        border: "1px solid #E5E7EB",
+        background: "#FFFFFF",
+        boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
+      }}
+    >
       {/* Header */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
         <div>
-          <div style={badgeStyle(result)}>
-            <span>{result}</span>
-            {httpStatus ? <span style={{ fontWeight: 700, opacity: 0.7 }}>HTTP {httpStatus}</span> : null}
+          <div style={{ fontSize: 18, fontWeight: 800, color: "#111827" }}>Proof Verification</div>
+          <div style={{ marginTop: 6, fontSize: 12, color: "#6B7280" }}>LUMINA BULIGE / Verify</div>
+        </div>
+        <div style={badgeStyle(result)}>
+          <span style={{ width: 8, height: 8, borderRadius: 999, background: "currentColor", opacity: 0.6 }} />
+          {loading ? "CHECKING" : result}
+        </div>
+      </div>
+
+      <div style={{ marginTop: 14, padding: 12, borderRadius: 14, background: "#F9FAFB", border: "1px solid #E5E7EB" }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>{criteriaLine(result)}</div>
+
+        {/* 説明文：verified=false かつ proofId が存在する */}
+        {!loading && data && data.ok && data.verified === false && !!q.proofId && (
+          <div style={{ marginTop: 6, fontSize: 12, color: "#6B7280" }}>
+            proofId は存在しますが署名不一致です（改ざん、または不一致の可能性）。
           </div>
-          <div style={{ marginTop: 10, fontSize: 18, fontWeight: 900 }}>{headline(result)}</div>
-        <div style={{ marginTop: 6, color: "#6B7280", fontWeight: 800 }}>
-  {criteriaLine(result)}
-　　　　　</div>
+        )}
 
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "flex-end" }}>
-  {(result === "NG" || result === "UNKNOWN") && (
-    <a href={mailtoHref} style={{ textDecoration: "none" }}>
-      <button style={btnStyle()}>発行元に問い合わせ</button>
-    </a>
-  )}
-  <button style={btnStyle()} onClick={copyUrl}>URLをコピー</button>
-  <button style={btnStyle("primary")} onClick={run}>再検証</button>
-</div>
+        {!loading && err && (
+          <div style={{ marginTop: 6, fontSize: 12, color: "#991B1B" }}>
+            error: {err}
+          </div>
+        )}
+        {!loading && data?.error && (
+          <div style={{ marginTop: 6, fontSize: 12, color: "#6B7280" }}>
+            detail: {data.error}{data.message ? ` (${data.message})` : ""}
+          </div>
+        )}
       </div>
 
-      {/* Explanation */}
-      <div style={{ marginTop: 14, whiteSpace: "pre-wrap", color: "#374151", lineHeight: 1.65 }}>
-        {explanation(result, hasProofId, hasProof)}
-      </div>
-
-      {/* Proof summary */}
-      {data.proof && (
-        <div style={{ marginTop: 16, borderTop: "1px solid #F3F4F6", paddingTop: 14 }}>
-          <div style={{ fontWeight: 900, marginBottom: 10 }}>証明サマリ</div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "160px 1fr", rowGap: 10, columnGap: 14 }}>
-            <div style={{ color: "#6B7280", fontWeight: 800 }}>発行日時（JST）</div>
-            <div style={{ fontWeight: 800 }}>{fmtJst(data.proof.created_at_ts)}</div>
-
-            <div style={{ color: "#6B7280", fontWeight: 800 }}>対象期間</div>
-            <div style={{ fontWeight: 800 }}>
-              {data.proof.range?.from} 〜 {data.proof.range?.to}
-            </div>
-
-            <div style={{ color: "#6B7280", fontWeight: 800 }}>カウント</div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-              <span style={chipStyle()}>SAFE {data.proof.counts?.SAFE}</span>
-              <span style={chipStyle()}>WARNING {data.proof.counts?.WARNING}</span>
-              <span style={chipStyle()}>DANGER {data.proof.counts?.DANGER}</span>
-              <span style={chipStyle()}>total {data.proof.counts?.total}</span>
-            </div>
-
-            <div style={{ color: "#6B7280", fontWeight: 800 }}>ruleset</div>
-            <div style={{ fontWeight: 800 }}>{data.proof.ruleset_version}</div>
+      {/* Contact button */}
+      {showContact && !loading && (
+        <div style={{ marginTop: 14 }}>
+          <a
+            href={mailto}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "10px 12px",
+              borderRadius: 12,
+              border: "1px solid #111827",
+              background: "#111827",
+              color: "#FFFFFF",
+              fontSize: 13,
+              fontWeight: 700,
+              textDecoration: "none",
+            }}
+          >
+            発行元に問い合わせ
+          </a>
+          <div style={{ marginTop: 8, fontSize: 12, color: "#6B7280" }}>
+            NG/UNKNOWN の場合は、発行元で状況確認してください。
           </div>
         </div>
       )}
 
-      {/* Details */}
-      <details style={{ marginTop: 14 }}>
-        <summary style={{ cursor: "pointer", fontWeight: 900 }}>技術詳細</summary>
-        <pre style={{ background: "#F9FAFB", padding: 12, borderRadius: 12, overflowX: "auto", marginTop: 10 }}>
-{JSON.stringify(
-  {
-    proof_id: data.proof?.proof_id ?? null,
-    payload_hash_b64u: data.payload_hash_b64u ?? data.proof?.payload_hash_b64u ?? null,
-    kid: data.kid ?? data.proof?.kid ?? null,
-    alg: data.alg ?? data.proof?.alg ?? null,
-    verified: data.verified ?? null,
-    error: data.error ?? null,
-    message: data.message ?? null,
-  },
-  null,
-  2
-)}
+      {/* Proof card */}
+      <div style={{ marginTop: 18 }}>
+        <div style={{ fontSize: 14, fontWeight: 800, color: "#111827" }}>Proof</div>
+
+        {!hasProof && !loading && (
+          <div style={{ marginTop: 10, fontSize: 12, color: "#6B7280" }}>
+            proof 情報は取得できませんでした（proofId 未指定、またはDB未登録の可能性）。
+          </div>
+        )}
+
+        {hasProof && (
+          <div
+            style={{
+              marginTop: 10,
+              padding: 14,
+              borderRadius: 14,
+              border: "1px solid #E5E7EB",
+              background: "#FFFFFF",
+            }}
+          >
+            <div style={{ display: "grid", gridTemplateColumns: "140px 1fr", rowGap: 8, columnGap: 12 }}>
+              <div style={{ fontSize: 12, color: "#6B7280" }}>proof_id</div>
+              <div style={{ fontSize: 12, color: "#111827", fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}>
+                {proof!.proof_id}
+              </div>
+
+              <div style={{ fontSize: 12, color: "#6B7280" }}>created</div>
+              <div style={{ fontSize: 12, color: "#111827" }}>{fmtDate(proof!.created_at_ts)}</div>
+
+              <div style={{ fontSize: 12, color: "#6B7280" }}>range</div>
+              <div style={{ fontSize: 12, color: "#111827" }}>
+                {proof!.range?.from || "-"} 〜 {proof!.range?.to || "-"}
+              </div>
+
+              <div style={{ fontSize: 12, color: "#6B7280" }}>counts</div>
+              <div style={{ fontSize: 12, color: "#111827" }}>
+                SAFE {proof!.counts.SAFE} / WARNING {proof!.counts.WARNING} / DANGER {proof!.counts.DANGER} / total{" "}
+                {proof!.counts.total}
+              </div>
+
+              <div style={{ fontSize: 12, color: "#6B7280" }}>ruleset_version</div>
+              <div style={{ fontSize: 12, color: "#111827" }}>{proof!.ruleset_version || "-"}</div>
+
+              <div style={{ fontSize: 12, color: "#6B7280" }}>kid / alg</div>
+              <div style={{ fontSize: 12, color: "#111827" }}>
+                {proof!.kid} / {proof!.alg}
+              </div>
+
+              <div style={{ fontSize: 12, color: "#6B7280" }}>status</div>
+              <div style={{ fontSize: 12, color: "#111827" }}>{proof!.status}</div>
+            </div>
+
+            <details style={{ marginTop: 12 }}>
+              <summary style={{ cursor: "pointer", fontSize: 12, color: "#1F2937", fontWeight: 700 }}>raw</summary>
+              <pre
+                style={{
+                  marginTop: 10,
+                  padding: 12,
+                  borderRadius: 12,
+                  background: "#0B1020",
+                  color: "#E5E7EB",
+                  overflow: "auto",
+                  fontSize: 11,
+                }}
+              >
+                {JSON.stringify(proof, null, 2)}
+              </pre>
+            </details>
+          </div>
+        )}
+      </div>
+
+      {/* Params / Debug */}
+      <details style={{ marginTop: 18 }}>
+        <summary style={{ cursor: "pointer", fontSize: 12, color: "#6B7280", fontWeight: 700 }}>debug</summary>
+        <pre
+          style={{
+            marginTop: 10,
+            padding: 12,
+            borderRadius: 12,
+            background: "#F3F4F6",
+            color: "#111827",
+            overflow: "auto",
+            fontSize: 11,
+          }}
+        >
+          {JSON.stringify({ query: q, response: data, err }, null, 2)}
         </pre>
       </details>
     </section>
