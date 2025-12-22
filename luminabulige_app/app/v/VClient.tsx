@@ -250,7 +250,7 @@ export default function VClient() {
   const hasProof = !!data?.proof;
   const showVerifiedFlag = typeof data?.verified === "boolean";
 
-  return (
+  return ();
     <>
       <style>{`
         @media print {
