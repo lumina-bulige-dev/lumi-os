@@ -157,7 +157,17 @@ function Row(p: { k: string; v: React.ReactNode; right?: React.ReactNode }) {
 
 export default function VClient() {
   const sp = useSearchParams();
+const onPdf = () => {
+    window.print();
+  };
 
+  return (
+    <main>
+      <button onClick={onPdf}>PDF</button>
+      {/* ... */}
+    </main>
+  );
+}
   const q = useMemo(() => {
     const proofId = sp.get("proofId") || undefined;
     const hash = sp.get("hash") || undefined;
