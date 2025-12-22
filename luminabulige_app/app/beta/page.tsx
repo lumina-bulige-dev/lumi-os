@@ -52,17 +52,17 @@ async function createVerifiedPdfFile(payload: any) {
   const font = await pdf.embedFont(StandardFonts.Helvetica);
 
   const lines = [
-    "LUMI 30日ログ（Verified）",
-    "",
-    `alg: ${alg}  kid: ${kid}`,
-    `ts: ${ts}`,
-    "",
-    `hashB64u: ${hashB64u}`,
-    `sigB64u : ${sigB64u}`,
-    "",
-    "payload:",
-    payloadJson,
-  ];
+  "LUMI 30-day log (Verified)",
+  "",
+  `alg: ${alg}  kid: ${kid}`,
+  `ts: ${ts}`,
+  "",
+  `hashB64u: ${hashB64u}`,
+  `sigB64u : ${sigB64u}`,
+  "",
+  "payload:",
+  payloadJson,
+];
 
   let y = 800;
   for (const line of lines) {
@@ -127,8 +127,8 @@ export default function BetaPage() {
         const nav: any = navigator;
         if (nav.share && (!nav.canShare || nav.canShare({ files: [file] }))) {
           await nav.share({
-            title: "LUMI 30日ログ（Verified）",
-            text: `期間: ${range.from}〜${range.to}\nSAFE:${sum.safe} / WARNING:${sum.warning} / DANGER:${sum.danger}`,
+            title: "LUMI 30-day log (Verified)",
+text: `Range: ${range.from}..${range.to}\nSAFE:${sum.safe} / WARNING:${sum.warning} / DANGER:${sum.danger}`,
             files: [file],
           });
           return;
