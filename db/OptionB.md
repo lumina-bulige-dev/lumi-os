@@ -1,3 +1,20 @@
+# Option B: rollupに last_proof_id を書き込む（簡易・採用）
+
+## 概要
+monthly_rollups / daily_rollups の last_proof_id を、proof発行時に UPDATE で反映する。
+イベント本体(heiankyo_events)には proof_id を必須で埋めない。
+
+## Pros
+- イベントUPDATE不要で軽い
+- 実装が速い（MVP向き）
+
+## Cons
+- event単位でproof追跡したい場合に不足（必要なら後でAへ移行）
+- 「このイベントはどのproofに含まれる？」の厳密性は弱い
+
+## 運用
+- proof作成後に rollup を該当期間だけ UPDATE
+- UIは rollup + proofs を表示の中心にする
 # Option B：マイグレーション標準寄り（中期で強い）
 
 変更履歴を「順番＝真実」に寄せた構成。
