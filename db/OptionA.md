@@ -1,3 +1,19 @@
+# Option A: proof発行時にイベントへproof_idを埋める（推奨）
+
+## 概要
+proofs作成後、対象期間(day_jst/ym_jst範囲)の heiankyo_events に proof_id をUPDATEで埋める。
+
+## Pros
+- 参照が一貫（event→proof が常に追える）
+- 監査・検証の説明がシンプル
+
+## Cons
+- UPDATE対象が多いと書込みが重い
+- 期間範囲の計算と更新が必要
+
+## 運用
+- proof作成時に Workerで範囲UPDATE
+- その後 rollup再計算/部分更新
 # Option A：最小・現実解（今すぐ回る）
 
 Cloudflare縛り（Pages / Workers / D1）で、まず「回る」ことを最優先にした構成。
