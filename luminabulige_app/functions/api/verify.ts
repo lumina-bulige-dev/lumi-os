@@ -164,15 +164,14 @@ return json(
   },
   200
 );
-let verified = false as boolean;
-let result: "OK" | "NG" | "REVOKED" | "UNKNOWN" = "UNKNOWN";
+
 
 // ...途中で
 verified = await verifySig(...);
-result = verified ? "OK" : "NG";
-
-// return は必ず result を使う
-return json({ ok: true, result, verified, ... });
+} catch (e: any) {
+  return json({ ok: false, result: "NG", error: "exception", message: e?.message || String(e) }, 500);
+}
+} // handleVerify end
 /* -----------------------
  * Crypto helpers
  * --------------------- */
