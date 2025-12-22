@@ -1,3 +1,14 @@
+# Option C: rollupを持たず毎回集計（非推奨）
+
+## 概要
+毎回 heiankyo_events を GROUP BY して KPI を生成（VIEWで重くなる）。
+
+## Pros
+- データ冗長が少ない
+
+## Cons
+- 読み取りが重い（UIが遅くなる）
+- スケールしない
 # Option C：最強だが重い（チーム化前提）
 
 DB・API・レポート生成を明確分離する構成。
