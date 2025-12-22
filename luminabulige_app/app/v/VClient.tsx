@@ -179,7 +179,12 @@ export default function VClient() {
     return null;
   }, [data]);
 
-  const showContact = result === "NG" || result === "UNKNOWN";
+    const showContact = result === "NG" || result === "UNKNOWN";
+
+  const verifyUrl = useMemo(() => {
+    if (typeof window === "undefined") return "";
+    return window.location.href; // ここは new URL() すら不要
+  }, [q.proofId, q.hash, q.sig, q.kid, q.alg]);
 
   const contactMailto = useMemo(() => {
     if (!data) return "";
@@ -194,7 +199,7 @@ export default function VClient() {
       `verified: ${typeof data.verified === "boolean" ? String(data.verified) : "-"}`,
       `verifiedAt(JST): ${verifiedAt ? fmtJST(verifiedAt) : "-"}`,
       "",
-      `page_url: ${typeof window !== "undefined" ? window.location.href : "-"}`,
+      `page_url: ${verifyUrl || "-"}`,
       "",
       `kid: ${q.kid ?? data.kid ?? "-"}`,
       `alg: ${q.alg ?? data.alg ?? "-"}`,
@@ -208,19 +213,9 @@ export default function VClient() {
 
     const body = bodyLines.join("\n");
     return `mailto:contact@luminabulige.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  }, [data, q, verifiedAt]);
+  }, [data, q, verifiedAt, verifyUrl]);
 
-  
-  
-  
-const verifyUrl = useMemo(() => {
-  if (typeof window === "undefined") return "";
-  const u = new URL(window.location.href);
-  // 必要パラメータを維持したまま
-  return u.toString();
-}, [q.proofId, q.hash, q.sig, q.kid, q.alg]);
- 
-  
+
   
   async function runVerify() {
     setErrorText(null);
