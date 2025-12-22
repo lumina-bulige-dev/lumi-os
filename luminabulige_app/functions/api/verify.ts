@@ -9,7 +9,10 @@ export const onRequestPost = async (ctx: any) => {
 
 async function handleVerify(ctx: any, method: "GET" | "POST") {
   const { request, env } = ctx;
+const { hashB64u, sigB64u, alg, kid } = body;
+const publicJwk = await getPublicJwk(env, kid);
 
+const ok = await verifySig({ hashB64u, sigB64u, alg, jwk: publicJwk });
   try {
     const url = new URL(request.url);
 
@@ -222,29 +225,20 @@ function u8ToArrayBuffer(u8: Uint8Array): ArrayBuffer {
 }
 
 async function verifySig(params: { hashB64u: string; sigB64u: string; alg: string; jwk: any }) {
-  const ok = await verifySig({ hashB64u, sigB64u, alg, jwk: publicJwk });
-  const msg = b64uToBytes(params.hashB64u);
-  const sig = b64uToBytes(params.sigB64u);
+  const msgU8 = b64uToBytes(params.hashB64u);
+  const sigU8 = b64uToBytes(params.sigB64u);
 
-  // ✅ SharedArrayBuffer疑惑を潰す（TS対策）
-  const msgAB = u8ToArrayBuffer(msg);
-  const sigAB = u8ToArrayBuffer(sig);
+  const msgAB = u8ToArrayBuffer(msgU8);
+  const sigAB = u8ToArrayBuffer(sigU8);
 
   const key = await importPublicKey(params.alg, params.jwk);
 
   if (params.alg === "EdDSA") {
     return await crypto.subtle.verify({ name: "Ed25519" }, key, sigAB, msgAB);
   }
-
   if (params.alg === "ES256") {
-    return await crypto.subtle.verify(
-      { name: "ECDSA", hash: "SHA-256" },
-      key,
-      sigAB,
-      msgAB
-    );
+    return await crypto.subtle.verify({ name: "ECDSA", hash: "SHA-256" }, key, sigAB, msgAB);
   }
-
   return false;
 }
 
