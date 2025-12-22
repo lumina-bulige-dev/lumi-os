@@ -162,14 +162,14 @@ return json(
     alg,
     payload_hash_b64u: hashB64u,
   },
-  200
-);
-return json({ ok: true, result, verified, proof: matchedProof ? summarizeProof(matchedProof) : null, kid, alg, payload_hash_b64u: hashB64u }, 200);
+  return json({ ok: true, result, verified, proof: matchedProof ? summarizeProof(matchedProof) : null, kid, alg, payload_hash_b64u: hashB64u }, 200);
 
   } catch (e: any) {
     return json({ ok: false, result: "NG", error: "exception", message: e?.message || String(e) }, 500);
   }
 } // handleVerify end
+);
+
 /* -----------------------
  * Crypto helpers
  * --------------------- */
