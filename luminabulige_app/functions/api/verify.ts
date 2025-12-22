@@ -222,6 +222,7 @@ function u8ToArrayBuffer(u8: Uint8Array): ArrayBuffer {
 }
 
 async function verifySig(params: { hashB64u: string; sigB64u: string; alg: string; jwk: any }) {
+  const ok = await verifySig({ hashB64u, sigB64u, alg, jwk: publicJwk });
   const msg = b64uToBytes(params.hashB64u);
   const sig = b64uToBytes(params.sigB64u);
 
