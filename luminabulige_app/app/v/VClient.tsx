@@ -251,6 +251,7 @@ export default function VClient() {
   const showVerifiedFlag = typeof data?.verified === "boolean";
 
   return ();
+}
     <>
       <style>{`
         @media print {
