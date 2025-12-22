@@ -108,7 +108,7 @@ async function handleVerify(ctx: any, method: "GET" | "POST") {
     }
 
     // 4) verify
-    const ok = await verifySig({ hashB64u, sigB64u, alg, publicJwk });
+    const ok = await verifySig({ hashB64u, sigB64u, alg, jwk: publicJwk });
 
     const result = ok ? "OK" : "NG";
 
