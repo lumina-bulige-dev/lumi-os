@@ -111,13 +111,11 @@ async function handleVerify(ctx: any, method: "GET" | "POST") {
     // 4) verify
 
 
-
-
 // ここが唯一の verify 実行場所
 return json({
   ok: true,
-  result,
-  verified, // ←これにする
+  result: verified ? "OK" : "NG",
+  verified,
 });
 
     // 5) proofが無いけどhash一致のproofが存在するか検索（QRだけのケースを強化）
