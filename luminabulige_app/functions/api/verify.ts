@@ -114,8 +114,11 @@ async function handleVerify(ctx: any, method: "GET" | "POST") {
 
 
 // ここが唯一の verify 実行場所
-const verifiedOk = await verifySig({ hashB64u, sigB64u, alg, jwk: publicJwk });
-const result = verifiedOk ? "OK" : "NG";
+return json({
+  ok: true,
+  result,
+  verified, // ←これにする
+});
 
     // 5) proofが無いけどhash一致のproofが存在するか検索（QRだけのケースを強化）
     let matchedProof: any | null = proof;
