@@ -215,19 +215,33 @@ async function importPublicKey(alg: string, jwk: any): Promise<CryptoKey> {
 
   throw new Error(`unsupported_alg:${alg}`);
 }
+function u8ToArrayBuffer(u8: Uint8Array): ArrayBuffer {
+  const ab = new ArrayBuffer(u8.byteLength);
+  new Uint8Array(ab).set(u8);
+  return ab;
+}
 
-async function verifySig(params: { hashB64u: string; sigB64u: string; alg: string; publicJwk: any }) {
-  const msg = b64uToBytes(params.hashB64u); // ← hash bytes（32 bytes）
+async function verifySig(params: { hashB64u: string; sigB64u: string; alg: string; jwk: any }) {
+  const msg = b64uToBytes(params.hashB64u);
   const sig = b64uToBytes(params.sigB64u);
 
-  const key = await importPublicKey(params.alg, params.publicJwk);
+  // ✅ SharedArrayBuffer疑惑を潰す（TS対策）
+  const msgAB = u8ToArrayBuffer(msg);
+  const sigAB = u8ToArrayBuffer(sig);
+
+  const key = await importPublicKey(params.alg, params.jwk);
 
   if (params.alg === "EdDSA") {
-    return await crypto.subtle.verify({ name: "Ed25519" }, key, sig, msg);
+    return await crypto.subtle.verify({ name: "Ed25519" }, key, sigAB, msgAB);
   }
 
   if (params.alg === "ES256") {
-    return await crypto.subtle.verify({ name: "ECDSA", hash: "SHA-256" }, key, sig, msg);
+    return await crypto.subtle.verify(
+      { name: "ECDSA", hash: "SHA-256" },
+      key,
+      sigAB,
+      msgAB
+    );
   }
 
   return false;
