@@ -108,7 +108,7 @@ async function handleVerify(ctx: any, method: "GET" | "POST") {
       );
     }
 
-    // 4) verify
+ 
 // 4) verify
 const verified = await verifySig({ hashB64u, sigB64u, alg, jwk: publicJwk });
 const result: "OK" | "NG" = verified ? "OK" : "NG";
@@ -164,7 +164,15 @@ return json(
   },
   200
 );
+let verified = false as boolean;
+let result: "OK" | "NG" | "REVOKED" | "UNKNOWN" = "UNKNOWN";
 
+// ...途中で
+verified = await verifySig(...);
+result = verified ? "OK" : "NG";
+
+// return は必ず result を使う
+return json({ ok: true, result, verified, ... });
 /* -----------------------
  * Crypto helpers
  * --------------------- */
