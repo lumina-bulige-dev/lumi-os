@@ -1,24 +1,33 @@
-// app/api/proofs/route.ts
-import { NextResponse } from "next/server";
+// functions/api/proofs.ts
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*", // 必要なら特定ドメインに絞る
+const cors = {
+  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
 
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
+function json(data: unknown, init: ResponseInit = {}) {
+  return new Response(JSON.stringify(data), {
+    ...init,
+    headers: {
+      "content-type": "application/json; charset=utf-8",
+      ...cors,
+      ...(init.headers ?? {}),
+    },
+  });
+}
+
+export const onRequestOptions = async () => {
+  return new Response(null, { status: 204, headers: cors });
+};
+
+export const onRequestGet = async ({ request }: { request: Request }) => {
+  const { searchParams } = new URL(request.url);
   const proofId = searchParams.get("proofId");
+  return json({ ok: true, proofId });
+};
 
-  return NextResponse.json({ ok: true, proofId }, { headers: corsHeaders });
-}
-
-export async function POST(req: Request) {
-  const body = await req.json().catch(() => null);
-  return NextResponse.json({ ok: true, body }, { headers: corsHeaders });
-}
-
-export async function OPTIONS() {
-  return new Response(null, { status: 204, headers: corsHeaders });
-}
+export const onRequestPost = async ({ request }: { request: Request }) => {
+  const body = await request.json().catch(() => null);
+  return json({ ok: true, body });
+};
