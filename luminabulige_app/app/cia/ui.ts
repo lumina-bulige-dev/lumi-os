@@ -1,13 +1,16 @@
 export const ui = {
-  color: {
+    color: {
     border: "rgba(255,255,255,0.16)",
     text: "rgba(234,242,255,0.92)",
     weak: "rgba(234,242,255,0.62)",
-    sub:  "rgba(234,242,255,0.62)", // 追加（＝ weak と同値でOK）
+    sub: "rgba(234,242,255,0.62)",
     soft: "rgba(255,255,255,0.06)",
     ok: "#0B5FFF",
     okBg: "rgba(11,95,255,0.14)",
-  },
+
+    // 追加
+    link: "#46B6FF",
+  }
  font: {
     mono:
       'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
