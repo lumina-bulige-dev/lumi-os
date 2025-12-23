@@ -11,6 +11,17 @@ export const ui = {
   okBg: "rgba(11,95,255,0.14)",
   link: "#46B6FF",
 },
+    // ここを追加
+  space: {
+    xs: 8,
+    sm: 12,
+    md: 16,
+    lg: 24,
+    xl: 32,
+    xxl: 40, // VClient.tsx が要求してるのはこれ
+  },
+
+
  font: {
     mono:
       'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
