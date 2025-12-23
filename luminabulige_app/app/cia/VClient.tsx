@@ -376,7 +376,13 @@ const LS = {
 };
 export default function VClient() {
   const sp = useSearchParams();
+const [catChildren, setCatChildren] = useState<CategoryChild[]>(
+  () => loadJSON(LS.categories, DEFAULT_CHILDREN)
+);
 
+useEffect(() => {
+  saveJSON(LS.categories, catChildren);
+}, [catChildren]);
   const userId = useMemo(() => sp.get("userId") || "test-user", [sp]);
   const apiBase = useMemo(() => sp.get("apiBase") || "/api/cia", [sp]);
   const verifyUrlBase = useMemo(() => sp.get("verifyBase") || "/v", [sp]); // 例: /v?proofId=...
