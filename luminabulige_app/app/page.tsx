@@ -1,5 +1,6 @@
-import ComparePage from "./compare/page";
+// luminabulige_app/app/page.tsx
+import { redirect } from "next/navigation";
 
-export default function Page() {
-  return <ComparePage />;
+export default function Home() {
+  redirect("/cia");
 }
