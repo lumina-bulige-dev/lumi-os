@@ -605,7 +605,7 @@ const [ymd, setYmd] = useState(() => new Date().toISOString().slice(0, 10)); // 
       whiteSpace: "nowrap",
     }}
   >
-    追加</div
+    追加</div>
   </button>
 </div>
             <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
