@@ -8,7 +8,11 @@ export const ui = {
     ok: "#0B5FFF",
     okBg: "rgba(11,95,255,0.14)",
   },
-
+ font: {
+    mono:
+      'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+  },
+  // ...
   shadow: {
     soft: "0 10px 30px rgba(0,0,0,0.35)",
     card: "0 10px 30px rgba(0,0,0,0.35)", // もし card 参照があるならついでに
