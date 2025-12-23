@@ -385,16 +385,24 @@ const [childId, setChildId] = useState<string>(() => {
   return first?.id ?? "";
 });
 const [newChildLabel, setNewChildLabel] = useState("");
-useEffect(() => {
+
+  
+  useEffect(() => {
+  saveJSON(LS.categories, catChildren);
+}, [catChildren]);
   const list = childrenOf(catChildren, parentId);
   const stillValid = list.some((c) => c.id === childId);
   if (!stillValid) setChildId(list[0]?.id ?? "");
 }, [parentId, catChildren, childId]);
+
+  
   const userId = useMemo(() => sp.get("userId") || "test-user", [sp]);
   const apiBase = useMemo(() => sp.get("apiBase") || "/api/cia", [sp]);
   const verifyUrlBase = useMemo(() => sp.get("verifyBase") || "/v", [sp]); // 例: /v?proofId=...
 const [ymd, setYmd] = useState(() => new Date().toISOString().slice(0, 10)); // YYYY-MM-DD
   const [loading, setLoading] = useState(false);
+
+  
   const [data, setData] = useState<CIAResponse | null>(null);
   const [errorText, setErrorText] = useState<string | null>(null);
 
