@@ -379,10 +379,16 @@ export default function VClient() {
 const [catChildren, setCatChildren] = useState<CategoryChild[]>(
   () => loadJSON(LS.categories, DEFAULT_CHILDREN)
 );
-
+const [parentId, setParentId] = useState<string>(PARENTS[0].id);
+const [childId, setChildId] = useState<string>(() => {
+  const first = childrenOf(loadJSON(LS.categories, DEFAULT_CHILDREN), PARENTS[0].id)[0];
+  return first?.id ?? "";
+});
+const [newChildLabel, setNewChildLabel] = useState("");
 useEffect(() => {
-  saveJSON(LS.categories, catChildren);
-}, [catChildren]);
+  const list = childrenOf(catChildren, parentId);
+  setChildId(list[0]?.id ?? "");
+}, [parentId, catChildren]);
   const userId = useMemo(() => sp.get("userId") || "test-user", [sp]);
   const apiBase = useMemo(() => sp.get("apiBase") || "/api/cia", [sp]);
   const verifyUrlBase = useMemo(() => sp.get("verifyBase") || "/v", [sp]); // 例: /v?proofId=...
@@ -513,6 +519,93 @@ useEffect(() => {
               boxShadow: ui.shadow.card,
             }}
           >
+            {/* 親カテゴリ（14固定・必須） */}
+<div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 10 }}>
+  <div style={{ width: 110, fontSize: 12, color: ui.color.sub }}>親カテゴリ</div>
+  <select
+    value={parentId}
+    onChange={(e) => setParentId(e.target.value)}
+    style={{
+      flex: 1,
+      padding: "10px 12px",
+      borderRadius: ui.radius.md,
+      border: `1px solid ${ui.color.border}`,
+      background: "#fff",
+      fontWeight: 900,
+    }}
+  >
+    {PARENTS.map((p) => (
+      <option key={p.id} value={p.id}>
+        {p.label}
+      </option>
+    ))}
+  </select>
+</div>
+
+{/* 子カテゴリ（ユーザー追加可・端末保存） */}
+<div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 10 }}>
+  <div style={{ width: 110, fontSize: 12, color: ui.color.sub }}>子カテゴリ</div>
+  <select
+    value={childId}
+    onChange={(e) => setChildId(e.target.value)}
+    style={{
+      flex: 1,
+      padding: "10px 12px",
+      borderRadius: ui.radius.md,
+      border: `1px solid ${ui.color.border}`,
+      background: "#fff",
+      fontWeight: 900,
+    }}
+  >
+    {childrenOf(catChildren, parentId).map((c) => (
+      <option key={c.id} value={c.id}>
+        {c.label}
+      </option>
+    ))}
+  </select>
+</div>
+
+{/* 子カテゴリの追加 */}
+<div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 10 }}>
+  <div style={{ width: 110, fontSize: 12, color: ui.color.sub }}>追加</div>
+  <input
+    value={newChildLabel}
+    onChange={(e) => setNewChildLabel(e.target.value)}
+    placeholder="例: カフェ / 交際費 / 書籍 など"
+    style={{
+      flex: 1,
+      padding: "10px 12px",
+      borderRadius: ui.radius.md,
+      border: `1px solid ${ui.color.border}`,
+      background: "#fff",
+      fontWeight: 900,
+    }}
+  />
+  <button
+    type="button"
+    onClick={() => {
+      const label = newChildLabel.trim();
+      if (!label) return;
+      const id = uid("child");
+      const next = [...catChildren, { id, parentId, label }];
+      setCatChildren(next);
+      setNewChildLabel("");
+      setChildId(id);
+    }}
+    style={{
+      padding: "10px 12px",
+      borderRadius: ui.radius.md,
+      border: `1px solid ${ui.color.border}`,
+      background: ui.color.okBg,
+      color: ui.color.ok,
+      fontWeight: 1000,
+      cursor: "pointer",
+      whiteSpace: "nowrap",
+    }}
+  >
+    追加
+  </button>
+</div>
             <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
               <div>
                 <div style={{ fontSize: 12, color: ui.color.sub, marginBottom: 8, letterSpacing: 0.3 }}>
