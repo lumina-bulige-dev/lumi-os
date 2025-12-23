@@ -393,7 +393,7 @@ useEffect(() => {
   const userId = useMemo(() => sp.get("userId") || "test-user", [sp]);
   const apiBase = useMemo(() => sp.get("apiBase") || "/api/cia", [sp]);
   const verifyUrlBase = useMemo(() => sp.get("verifyBase") || "/v", [sp]); // 例: /v?proofId=...
-
+const [ymd, setYmd] = useState(() => new Date().toISOString().slice(0, 10)); // YYYY-MM-DD
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<CIAResponse | null>(null);
   const [errorText, setErrorText] = useState<string | null>(null);
