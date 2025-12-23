@@ -4,7 +4,8 @@ import React, { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { Tx, ActionLog, Snapshot } from "./model";
 import { loadJSON, saveJSON, uid, todayYMD } from "./storage";
-
+import { PARENTS, DEFAULT_CHILDREN, childrenOf } from "./categories";
+import type { CategoryChild } from "./model";
 /** ===== Types (DB Views) =====
  * v_cia_customer:
  *  user_id, ym_jst, headline_ja, highlight_ja, safe_rate_pct, trust_flag, institutional_score,
