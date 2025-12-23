@@ -1,6 +1,4 @@
-// luminabulige_app_/app/cia/page.tsx
-import VClient from "./VClient";
-
-export default function Page() {
-  return <VClient />;
-}
+export const CIA_TITLES = {
+  customer: "CIA Report (Customer)",
+  institutional: "CIA Appendix (Institutional Audit)",
+} as const;
