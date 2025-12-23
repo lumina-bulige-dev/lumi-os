@@ -1,42 +1,19 @@
-import { NextResponse } from "next/server";
+// luminabulige_app/app/api/cia/route.ts
+import { getRequestContext } from "@cloudflare/next-on-pages";
 
-type Row = Record<string, any>;
+export const runtime = "edge";
 
-/** 環境差が出るので、ここだけあなたの next-on-pages 実装に合わせて調整 */
-function getDB(ctx: any) {
-  // next-on-pages / Pages Functions では context.env.DB 等になるケースがある
-  // ここはあなたの現状に合わせて差し替えてOK
-  return (ctx as any)?.env?.DB || (globalThis as any)?.DB;
-}
-
-export async function GET(req: Request, ctx: any) {
+export async function GET(req: Request) {
+  const { env } = getRequestContext();
   const url = new URL(req.url);
-  const userId = url.searchParams.get("userId") || "";
-  const limit = Math.min(Number(url.searchParams.get("limit") || "12"), 36);
+  const userId = url.searchParams.get("user_id") ?? "test-user";
 
-  if (!userId) {
-    return NextResponse.json({ error: "userId is required" }, { status: 400 });
-  }
+  const rows = await env.DB
+    .prepare(
+      "SELECT ym_jst, safe_rate_pct, trust_flag, strength_score, institutional_score, total_count, danger_count, risk_count, last_proof_id FROM v_cia_customer WHERE user_id=? ORDER BY ym_jst DESC LIMIT 12"
+    )
+    .bind(userId)
+    .all();
 
-  const DB = getDB(ctx);
-  if (!DB) {
-    return NextResponse.json({ error: "DB binding not found" }, { status: 500 });
-  }
-
-  // v_cia_customer
-  const reportRes = await DB.prepare(
-    "SELECT * FROM v_cia_customer WHERE user_id=? ORDER BY ym_jst DESC LIMIT ?"
-  ).bind(userId, limit).all<Row>();
-
-  // v_cia_institutional
-  const appendixRes = await DB.prepare(
-    "SELECT * FROM v_cia_institutional WHERE user_id=? ORDER BY ym_jst DESC LIMIT ?"
-  ).bind(userId, limit).all<Row>();
-
-  return NextResponse.json({
-    userId,
-    report: reportRes.results ?? [],
-    appendix: appendixRes.results ?? [],
-    meta: { generated_at_ts: Math.floor(Date.now() / 1000) },
-  });
+  return Response.json({ ok: true, rows: rows.results });
 }
