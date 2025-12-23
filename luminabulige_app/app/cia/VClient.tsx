@@ -580,6 +580,7 @@ useEffect(() => {
 {/* 子カテゴリの追加 */}
 <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 10 }}>
   <div style={{ width: 110, fontSize: 12, color: ui.color.sub }}>追加</div>
+
   <input
     value={newChildLabel}
     onChange={(e) => setNewChildLabel(e.target.value)}
@@ -593,6 +594,7 @@ useEffect(() => {
       fontWeight: 900,
     }}
   />
+
   <button
     type="button"
     onClick={() => {
@@ -615,14 +617,9 @@ useEffect(() => {
       whiteSpace: "nowrap",
     }}
   >
-   </div> {/* ← これを忘れない */}
-
-{/* ここからは印刷にも出したい本体 */}
-<div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
-  追加
-</button>
+    追加
+  </button>
 </div>
-
 
             <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
               <div>
