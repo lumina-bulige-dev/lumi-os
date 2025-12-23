@@ -1,16 +1,24 @@
 // app/api/proofs/route.ts
 import { NextResponse } from "next/server";
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*", // 必要なら特定ドメインに絞る
+  "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+
 export async function GET(req: Request) {
-  // 例: query 取得
   const { searchParams } = new URL(req.url);
   const proofId = searchParams.get("proofId");
 
+  return NextResponse.json({ ok: true, proofId }, { headers: corsHeaders });
+}
 
 export async function POST(req: Request) {
-  const body = await req.json();
-  return NextResponse.json({ ok: true, body });
+  const body = await req.json().catch(() => null);
+  return NextResponse.json({ ok: true, body }, { headers: corsHeaders });
 }
-  // TODO: 本来の処理に置き換え
-  return NextResponse.json({ ok: true, proofId });
+
+export async function OPTIONS() {
+  return new Response(null, { status: 204, headers: corsHeaders });
 }
