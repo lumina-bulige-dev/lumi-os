@@ -11,8 +11,12 @@ export const ui = {
   },
   shadow: {
     soft: "0 10px 30px rgba(0,0,0,0.35)",
+    card: "0 10px 30px rgba(0,0,0,0.35)", // もし card 参照があるならついでに
   },
+
   radius: {
+    lg: 16,     // 追加（VClient.tsx:223 が参照）
     pill: 999,
   },
+  
 } as const;
