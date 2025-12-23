@@ -387,8 +387,9 @@ const [childId, setChildId] = useState<string>(() => {
 const [newChildLabel, setNewChildLabel] = useState("");
 useEffect(() => {
   const list = childrenOf(catChildren, parentId);
-  setChildId(list[0]?.id ?? "");
-}, [parentId, catChildren]);
+  const stillValid = list.some((c) => c.id === childId);
+  if (!stillValid) setChildId(list[0]?.id ?? "");
+}, [parentId, catChildren, childId]);
   const userId = useMemo(() => sp.get("userId") || "test-user", [sp]);
   const apiBase = useMemo(() => sp.get("apiBase") || "/api/cia", [sp]);
   const verifyUrlBase = useMemo(() => sp.get("verifyBase") || "/v", [sp]); // 例: /v?proofId=...
@@ -519,6 +520,7 @@ useEffect(() => {
               boxShadow: ui.shadow.card,
             }}
           >
+            <div className="no-print">
             {/* 親カテゴリ（14固定・必須） */}
 <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 10 }}>
   <div style={{ width: 110, fontSize: 12, color: ui.color.sub }}>親カテゴリ</div>
@@ -603,7 +605,7 @@ useEffect(() => {
       whiteSpace: "nowrap",
     }}
   >
-    追加
+    追加</div
   </button>
 </div>
             <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
