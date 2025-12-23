@@ -390,6 +390,8 @@ const [newChildLabel, setNewChildLabel] = useState("");
   useEffect(() => {
   saveJSON(LS.categories, catChildren);
 }, [catChildren]);
+
+useEffect(() => {
   const list = childrenOf(catChildren, parentId);
   const stillValid = list.some((c) => c.id === childId);
   if (!stillValid) setChildId(list[0]?.id ?? "");
