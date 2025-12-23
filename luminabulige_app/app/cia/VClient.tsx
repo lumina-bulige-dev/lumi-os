@@ -615,7 +615,10 @@ useEffect(() => {
       whiteSpace: "nowrap",
     }}
   >
-   
+   </div> {/* ← これを忘れない */}
+
+{/* ここからは印刷にも出したい本体 */}
+<div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
   追加
 </button>
 </div>
