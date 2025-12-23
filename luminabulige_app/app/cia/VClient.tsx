@@ -1,9 +1,7 @@
 "use client";
-import { ui } from "./ui";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import type { Tx, ActionLog, Snapshot } from "./model";
-import { loadJSON, saveJSON, uid, todayYMD } from "./storage";
+import { loadJSON, saveJSON, uid } from "./storage";
 import { PARENTS, DEFAULT_CHILDREN, childrenOf } from "./categories";
 import type { CategoryChild } from "./model";
 /** ===== Types (DB Views) =====
@@ -393,9 +391,9 @@ const [newChildLabel, setNewChildLabel] = useState("");
 
 useEffect(() => {
   const list = childrenOf(catChildren, parentId);
-  const stillValid = list.some((c) => c.id === childId);
-  if (!stillValid) setChildId(list[0]?.id ?? "");
-}, [parentId, catChildren, childId]);
+  const nextId = list.some((c) => c.id === childId) ? childId : (list[0]?.id ?? "");
+  if (nextId !== childId) setChildId(nextId);
+}, [parentId, catChildren]); // childId外す
 
   
   const userId = useMemo(() => sp.get("userId") || "test-user", [sp]);
