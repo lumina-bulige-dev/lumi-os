@@ -370,6 +370,10 @@ function AppendixTable(p: { rows: CIAAppendixRow[]; verifyUrlBase: string }) {
   );
 }
 
+
+const LS = {
+  categories: "cia.categories.v1",
+};
 export default function VClient() {
   const sp = useSearchParams();
 
