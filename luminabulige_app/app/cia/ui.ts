@@ -10,7 +10,7 @@ export const ui = {
 
     // 追加
     link: "#46B6FF",
-  }
+  },
  font: {
     mono:
       'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
