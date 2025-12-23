@@ -615,8 +615,10 @@ useEffect(() => {
       whiteSpace: "nowrap",
     }}
   >
-    追加</div>
-  </button>
+    <button ...>
+  追加
+</button>
+
 </div>
             <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
               <div>
