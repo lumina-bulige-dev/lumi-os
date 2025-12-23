@@ -1,6 +1,6 @@
 "use client";
 import { ui } from "./ui";
-import React, { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { Tx, ActionLog, Snapshot } from "./model";
 import { loadJSON, saveJSON, uid, todayYMD } from "./storage";
