@@ -33,8 +33,9 @@ export const ui = {
   },
 
   radius: {
-    lg: 16,     // 追加（VClient.tsx:223 が参照）
-    pill: 999,
-  },
+  md: 12,
+  lg: 16,
+  pill: 999,
+},
   
 } as const;
