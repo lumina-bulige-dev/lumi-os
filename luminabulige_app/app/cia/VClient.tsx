@@ -457,8 +457,8 @@ useEffect(() => {
 
   
   const userId = useMemo(() => sp.get("userId") || "test-user", [sp]);
-  const apiBase = useMemo(() => sp.get("apiBase") || "/api/cia", [sp]);
-  const verifyUrlBase = useMemo(() => sp.get("verifyBase") || "/v", [sp]); // 例: /v?proofId=...
+  const apiBase = useMemo(() => (sp.get("apiBase") || "/api/cia").trim(), [sp]);
+const verifyUrlBase = useMemo(() => (sp.get("verifyBase") || "/v").trim(), [sp]);
 
   const [loading, setLoading] = useState(false);
 
@@ -467,21 +467,41 @@ useEffect(() => {
   const [errorText, setErrorText] = useState<string | null>(null);
 
   async function loadCIA() {
-    setLoading(true);
-    setErrorText(null);
+  setLoading(true);
+  setErrorText(null);
+
+  try {
+    const base = new URL(apiBase.trim(), window.location.origin);
+    base.searchParams.set("userId", userId);
+    base.searchParams.set("limit", "12");
+
+    const res = await fetch(base.toString(), {
+      method: "GET",
+      headers: { accept: "application/json" },
+    });
+
+    // JSONじゃない(404 HTMLなど)も原因が見えるようにする
+    const text = await res.text();
+    let json: any = null;
     try {
-      const url = `${apiBase}?userId=${encodeURIComponent(userId)}&limit=12`;
-      const res = await fetch(url, { method: "GET" });
-      const json = (await res.json()) as CIAResponse;
-      if (!res.ok) throw new Error((json as any)?.error || `HTTP ${res.status}`);
-      setData(json);
-    } catch (e: any) {
-      setErrorText(e?.message || String(e));
-      setData(null);
-    } finally {
-      setLoading(false);
+      json = JSON.parse(text);
+    } catch {}
+
+    if (!res.ok) {
+      throw new Error(json?.error || `HTTP ${res.status}: ${text.slice(0, 120)}`);
     }
+    if (!json) {
+      throw new Error(`Non-JSON response: ${text.slice(0, 120)}`);
+    }
+
+    setData(json as CIAResponse);
+  } catch (e: any) {
+    setErrorText(e?.message || String(e));
+    setData(null);
+  } finally {
+    setLoading(false);
   }
+}
 
   const onPdf = () => window.print();
 
