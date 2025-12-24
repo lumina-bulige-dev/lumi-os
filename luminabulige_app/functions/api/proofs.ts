@@ -11,7 +11,13 @@ export type ProofRow = {
 };
 
 type Env = {
-  PROOFS?: KVNamespace; // Cloudflare KV を後でバインドできるように
+  PROOFS?: KVNamespace;
+
+  // 追加（必須）
+  PROOF_HMAC_SECRET?: string; // 長めのランダム文字列
+
+  // 任意（無ければデフォルト）
+  PROOF_KID?: string; // 例: "k1"
 };
 
 const ALLOW_ORIGINS = new Set([
