@@ -1,3 +1,15 @@
+import { MOCK_HOME_STATE } from "./mocks/home_state";
+
+if (req.method === "GET" && url.pathname === "/api/v1/core/home_state") {
+  const mock = url.searchParams.get("mock"); // safe/warning/danger
+
+  if (mock === "warning") return Response.json(MOCK_HOME_STATE.warning);
+  if (mock === "danger") return Response.json(MOCK_HOME_STATE.danger);
+  if (mock === "safe") return Response.json(MOCK_HOME_STATE.safe);
+
+  // mock指定なしのデフォルト（今のMVP方針でOK）
+  return Response.json(MOCK_HOME_STATE.safe);
+}
 export interface Env {
   PROOFS: KVNamespace;
   PROOF_HMAC_SECRET: string;
