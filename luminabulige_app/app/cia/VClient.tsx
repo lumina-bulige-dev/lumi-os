@@ -230,7 +230,9 @@ function Badge(p: { trust: number }) {
 
 function ReportCard(p: { row: CIAReportRow; verifyUrlBase: string }) {
   const r = p.row;
-  const verifyUrl = r.last_proof_id ? `${p.verifyUrlBase}?proofId=${encodeURIComponent(r.last_proof_id)}` : "";
+  const verifyUrl = r.last_proof_id
+    ? `${p.verifyUrlBase}?proofId=${encodeURIComponent(r.last_proof_id)}`
+    : "";
 
   return (
     <div
@@ -276,59 +278,67 @@ function ReportCard(p: { row: CIAReportRow; verifyUrlBase: string }) {
         </div>
       </div>
 
+      {/* proof row */}
       <div style={{ marginTop: 12, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
         <div style={{ fontSize: 12, color: ui.color.sub }}>
-          proof_id: <span className="mono" style={{ fontFamily: ui.font.mono, color: ui.color.text }}>{shortHash(r.last_proof_id)}</span>
+          proof_id:{" "}
+          <span className="mono" style={{ fontFamily: ui.font.mono, color: ui.color.text }}>
+            {shortHash(r.last_proof_id)}
+          </span>
         </div>
-      {verifyUrl ? (
-  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-    <a
-      className="no-print"
-      href={verifyUrl}
-      style={{ color: ui.color.link, fontWeight: 1000, textDecoration: "none", fontSize: 12 }}
-    >
-      改ざん検証へ
-    </a>
-    <CopyButton value={verifyUrl} label="verify_url" />
-  </div>
-) : (
-  <div className="no-print" style={{ display: "flex", gap: 8, alignItems: "center" }}>
-    <div style={{ fontSize: 12, color: ui.color.weak }}>proof未発行</div>
 
-    <button
-      onClick={() =>
-        generateProof({
-          kind: "cia_monthly",
-          user_id: r.user_id,
-          ym_jst: r.ym_jst,
-          headline_ja: r.headline_ja,
-          highlight_ja: r.highlight_ja,
-          safe_rate_pct: r.safe_rate_pct,
-          institutional_score: r.institutional_score,
-          total_count: r.total_count,
-          danger_count: r.danger_count,
-          risk_count: r.risk_count,
-        })
-      }
-      style={{
-        appearance: "none",
-        border: `1px solid ${ui.color.border}`,
-        background: ui.color.okBg,
-        color: ui.color.ok,
-        borderRadius: ui.radius.md,
-        padding: "8px 10px",
-        fontWeight: 1000,
-        cursor: "pointer",
-        boxShadow: ui.shadow.soft,
-        fontSize: 12,
-        whiteSpace: "nowrap",
-      }}
-      title="proofを生成して /v に飛びます"
-    >
-      proof生成
-    </button>
-  </div>
-)}
+        {verifyUrl ? (
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <a
+              className="no-print"
+              href={verifyUrl}
+              style={{ color: ui.color.link, fontWeight: 1000, textDecoration: "none", fontSize: 12 }}
+            >
+              改ざん検証へ
+            </a>
+            <CopyButton value={verifyUrl} label="verify_url" />
+          </div>
+        ) : (
+          <div className="no-print" style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <div style={{ fontSize: 12, color: ui.color.weak }}>proof未発行</div>
+
+            <button
+              onClick={() =>
+                generateProof({
+                  kind: "cia_monthly",
+                  user_id: r.user_id,
+                  ym_jst: r.ym_jst,
+                  headline_ja: r.headline_ja,
+                  highlight_ja: r.highlight_ja,
+                  safe_rate_pct: r.safe_rate_pct,
+                  institutional_score: r.institutional_score,
+                  total_count: r.total_count,
+                  danger_count: r.danger_count,
+                  risk_count: r.risk_count,
+                })
+              }
+              style={{
+                appearance: "none",
+                border: `1px solid ${ui.color.border}`,
+                background: ui.color.okBg,
+                color: ui.color.ok,
+                borderRadius: ui.radius.md,
+                padding: "8px 10px",
+                fontWeight: 1000,
+                cursor: "pointer",
+                boxShadow: ui.shadow.soft,
+                fontSize: 12,
+                whiteSpace: "nowrap",
+              }}
+              title="proofを生成して /v に飛びます"
+            >
+              proof生成
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 function AppendixTable(p: { rows: CIAAppendixRow[]; verifyUrlBase: string }) {
