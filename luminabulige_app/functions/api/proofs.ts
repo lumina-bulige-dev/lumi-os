@@ -59,12 +59,6 @@ function json(req: Request, data: unknown, status = 200) {
   });
 }
 
-function b64u(bytes: Uint8Array) {
-  let bin = "";
-  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-  const b64 = btoa(bin);
-  return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
-}
 
 function b64uEncodeUtf8(str: string) {
   return b64u(new TextEncoder().encode(str));
