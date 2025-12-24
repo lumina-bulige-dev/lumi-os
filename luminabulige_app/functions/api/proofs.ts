@@ -148,6 +148,44 @@ function b64u(bytes: ArrayBuffer | Uint8Array) {
   for (const b of u8) s += String.fromCharCode(b);
   return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
+
+async function hmacSign(secret: string, msg: string) {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    te.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const sig = await crypto.subtle.sign("HMAC", key, te.encode(msg));
+  return b64u(sig);
+}
+
+export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+  // payload を受ける
+  const body = await request.json();
+  const payload = body?.payload;
+
+  const alg = "HS256";
+  const kid = env.PROOF_KID || "k1";
+  const ts = Date.now();
+
+  const payloadB64u = b64u(te.encode(JSON.stringify(payload)));
+  const hashBuf = await crypto.subtle.digest("SHA-256", te.encode(payloadB64u));
+  const hashB64u = b64u(hashBuf);
+
+  if (!env.PROOF_HMAC_SECRET) {
+    return new Response(JSON.stringify({ ok: false, error: "PROOF_HMAC_SECRET missing" }), { status: 500 });
+  }
+
+  const signingInput = `v1.${alg}.${kid}.${ts}.${hashB64u}.${payloadB64u}`;
+  const sigB64u = await hmacSign(env.PROOF_HMAC_SECRET, signingInput);
+
+  // ここでKV保存…（既存ロジックに合わせて）
+  // row = { proofId, alg, kid, ts, hashB64u, sigB64u, payloadB64u, version:"v1" }
+
+  return new Response(JSON.stringify({ ok: true /* ... */ }), { headers: { "content-type": "application/json" } });
+};
 const alg = "HS256";
 const kid = env.PROOF_KID || "k1";
 const ts = Date.now();
