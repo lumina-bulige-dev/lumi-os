@@ -1,175 +1,142 @@
 // functions/api/proofs.ts
-// Cloudflare Pages Functions: /api/proofs
-// - GET  : ?proofId=... で proof を返す（現状はモック/後でDB接続）
-// - POST : payload を受け取り proof を生成して返す（現状は簡易proof生成）
-// CORS込み（preflight/OPTIONS対応）
-
-export interface ProofRecord {
+export type ProofRow = {
   proofId: string;
-  // verification meta
-  alg: string;       // 例: "Ed25519" / "RS256" / etc
-  kid: string;       // key id
-  ts: number;        // epoch ms
-
-  // material
-  payloadB64u: string;
+  alg: string;
+  kid: string;
+  ts: number;
   hashB64u: string;
   sigB64u: string;
-
-  // optional: human/debug
+  payloadB64u: string;
   version?: string;
-}
-
-// ===== CORS =====
-const CORS_HEADERS: Record<string, string> = {
-  "access-control-allow-origin": "*",
-  "access-control-allow-methods": "GET,POST,OPTIONS",
-  "access-control-allow-headers": "content-type,authorization",
-  "access-control-max-age": "86400",
 };
 
-function json(
-  data: unknown,
-  init?: ResponseInit & { headers?: Record<string, string> }
-) {
-  const headers = {
-    "content-type": "application/json; charset=utf-8",
-    ...CORS_HEADERS,
-    ...(init?.headers ?? {}),
+type Env = {
+  PROOFS?: KVNamespace; // Cloudflare KV を後でバインドできるように
+};
+
+const ALLOW_ORIGINS = new Set([
+  "https://app.luminabulige.com",
+  "https://luminabulige.com",
+]);
+
+function corsHeaders(req: Request) {
+  const origin = req.headers.get("origin");
+  const allowed = origin && ALLOW_ORIGINS.has(origin);
+
+  // credentials を使わないなら true を付けないのが最強に安全
+  // （現状は不要なはず）
+  const h: Record<string, string> = {
+    "access-control-allow-methods": "GET,POST,OPTIONS",
+    "access-control-allow-headers": "content-type,authorization",
+    "access-control-max-age": "86400",
+    "cache-control": "no-store",
+    "vary": "Origin",
   };
-  return new Response(JSON.stringify(data), { ...init, headers });
+
+  if (allowed) {
+    h["access-control-allow-origin"] = origin!;
+    // cookie を使う時だけON（今はOFF推奨）
+    // h["access-control-allow-credentials"] = "true";
+  } else {
+    // Originヘッダが無い(curl/同一オリジン)ケース向けに * を返すのはOK
+    // ブラウザCORS用途では allowlist 以外には付かない
+    h["access-control-allow-origin"] = "*";
+  }
+
+  return h;
+}
+
+function json(req: Request, data: unknown, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { ...corsHeaders(req), "content-type": "application/json; charset=utf-8" },
+  });
+}
+
+function b64u(bytes: Uint8Array) {
+  let bin = "";
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  const b64 = btoa(bin);
+  return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
 
 function b64uEncodeUtf8(str: string) {
-  // Text -> base64url
-  const bytes = new TextEncoder().encode(str);
-  let bin = "";
-  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-  const b64 = btoa(bin);
-  return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+  return b64u(new TextEncoder().encode(str));
 }
 
-async function sha256B64u(payloadB64u: string) {
-  const data = new TextEncoder().encode(payloadB64u);
-  const digest = await crypto.subtle.digest("SHA-256", data);
-  const bytes = new Uint8Array(digest);
-  let bin = "";
-  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-  const b64 = btoa(bin);
-  return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+async function sha256B64u(inputB64u: string) {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(inputB64u));
+  return b64u(new Uint8Array(digest));
 }
 
 function uid(prefix = "proof") {
-  // 依存なしで雑に一意っぽく（後でDB側のIDに置換推奨）
   const r = crypto.getRandomValues(new Uint8Array(16));
   const hex = [...r].map((b) => b.toString(16).padStart(2, "0")).join("");
   return `${prefix}_${hex}`;
 }
 
-// ===== TODO: DB接続に差し替えるまでの in-memory モック =====
-// Pages Functions は永続を保証しないので、これは「動作確認用」。
-// 本番は D1/KV/R2/Supabase/Postgres に必ず置換すること。
-const mem = new Map<string, ProofRecord>();
-
-function normalizeProofId(s: string | null) {
-  if (!s) return null;
+function normalizeProofId(s: unknown) {
+  if (typeof s !== "string") return null;
   const v = s.trim();
   if (!v) return null;
-  // 変な文字を弾く（URL/ログ汚染対策の最低ライン）
   if (!/^[a-zA-Z0-9._:-]{3,256}$/.test(v)) return null;
   return v;
 }
 
-// ===== Handlers =====
-export const onRequestOptions: PagesFunction = async () => {
-  return new Response(null, { status: 204, headers: CORS_HEADERS });
+// 暫定メモリ（KV未導入でも一応動く）
+const mem = new Map<string, ProofRow>();
+
+export const onRequestOptions: PagesFunction<Env> = async ({ request }) => {
+  return new Response(null, { status: 204, headers: corsHeaders(request) });
 };
 
-export const onRequestGet: PagesFunction = async (ctx) => {
-  const url = new URL(ctx.request.url);
+export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
+  const url = new URL(request.url);
   const proofId = normalizeProofId(url.searchParams.get("proofId"));
 
-  if (!proofId) {
-    return json(
-      { ok: false, error: "proofId is required (query param)" },
-      { status: 400 }
-    );
+  if (!proofId) return json(request, { ok: false, error: "proofId required" }, 400);
+
+  // KV → mem の順
+  let rec: ProofRow | null = null;
+
+  if (env.PROOFS) {
+    rec = await env.PROOFS.get(proofId, "json") as ProofRow | null;
   }
+  if (!rec) rec = mem.get(proofId) ?? null;
 
-  // --- ここをDB読み取りに置換 ---
-  const rec = mem.get(proofId);
-
-  // デバッグ用：proofが無い場合でも、疎通確認ができるように最低限返す
   if (!rec) {
-    return json(
-      {
-        ok: true,
-        found: false,
-        proofId,
-        // A方式では /v は proofIdだけで来て、ここから全部揃うのが理想
-        // まだ未生成なら「未生成」を明確に返す
-        message: "proof not found (not generated yet)",
-      },
-      { status: 200 }
-    );
+    return json(request, { ok: true, found: false, proofId, message: "proof not found" }, 200);
   }
-
-  return json({ ok: true, found: true, proof: rec }, { status: 200 });
+  return json(request, { ok: true, found: true, proof: rec }, 200);
 };
 
-export const onRequestPost: PagesFunction = async (ctx) => {
-  let body: any = null;
-  try {
-    body = await ctx.request.json();
-  } catch {
-    body = null;
-  }
+export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+  const body = await request.json().catch(() => null);
 
-  // 期待する入力（最小）：
-  // - payload: object | string
-  // - proofId?: string (任意。指定があればそれを使う。無ければ新規生成)
-  const inputProofId = normalizeProofId(body?.proofId ?? null);
   const payload = body?.payload;
+  if (payload === undefined) return json(request, { ok: false, error: "payload is required" }, 400);
 
-  if (payload === undefined) {
-    return json(
-      { ok: false, error: "payload is required in JSON body" },
-      { status: 400 }
-    );
-  }
-
+  const inputProofId = normalizeProofId(body?.proofId);
   const proofId = inputProofId ?? uid("proof");
+
   const ts = Date.now();
+  const alg = typeof body?.alg === "string" ? body.alg : "MOCK";
+  const kid = typeof body?.kid === "string" ? body.kid : "mock_kid";
 
-  // payload を base64url に固定化（署名前の canonical も後でここに入れる）
-  const payloadStr =
-    typeof payload === "string" ? payload : JSON.stringify(payload);
+  const payloadStr = typeof payload === "string" ? payload : JSON.stringify(payload);
   const payloadB64u = b64uEncodeUtf8(payloadStr);
-
-  // hash は payloadB64u を入力に取る（あなたの表示と揃えるため）
   const hashB64u = await sha256B64u(payloadB64u);
 
-  // 署名は現状モック（ここを本物の署名に置換する）
-  // 本番：秘密鍵で sign(hash or canonical payload) → sigB64u
-  const alg = body?.alg ?? "MOCK";
-  const kid = body?.kid ?? "mock_kid";
-  const sigB64u =
-    body?.sigB64u ??
-    b64uEncodeUtf8(`mock-signature:${kid}:${alg}:${hashB64u}`);
+  // 本番は秘密鍵署名へ差し替え
+  const sigB64u = b64uEncodeUtf8(`mock-signature:${kid}:${alg}:${hashB64u}`);
 
-  const rec: ProofRecord = {
-    proofId,
-    alg,
-    kid,
-    ts,
-    payloadB64u,
-    hashB64u,
-    sigB64u,
-    version: "v1",
-  };
+  const rec: ProofRow = { proofId, alg, kid, ts, payloadB64u, hashB64u, sigB64u, version: "v1" };
 
-  // --- ここをDB upsertに置換 ---
-  mem.set(proofId, rec);
+  if (env.PROOFS) {
+    await env.PROOFS.put(proofId, JSON.stringify(rec));
+  } else {
+    mem.set(proofId, rec);
+  }
 
-  return json({ ok: true, proof: rec }, { status: 200 });
+  return json(request, { ok: true, proof: rec }, 200);
 };
