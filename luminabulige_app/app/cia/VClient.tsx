@@ -131,6 +131,23 @@ function fmtPct(x: number) {
   return `${x.toFixed(4)}%`;
 }
 
+async function generateProof(payload: any) {
+  const res = await fetch("/api/proofs", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ payload }),
+  });
+  const json = await res.json().catch(() => null);
+
+  if (!res.ok || !json?.ok) throw new Error(json?.error ?? "proof create failed");
+
+  const proofId = json.proof?.proofId ?? json.proofId;
+  if (!proofId) throw new Error("proofId missing");
+
+  window.location.href = `/v?proofId=${encodeURIComponent(proofId)}`;
+}
+
+
 async function copyToClipboard(text: string) {
   if (!text) return false;
   try {
