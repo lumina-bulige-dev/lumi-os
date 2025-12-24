@@ -110,21 +110,6 @@ async function copyToClipboard(text: string) {
   }
 }
 
-async function generateProof(payload: any) {
-  const res = await fetch("/api/proofs", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ payload }),
-  });
-  const json = await res.json().catch(() => null);
-
-  if (!res.ok || !json?.ok) throw new Error(json?.error ?? "proof create failed");
-
-  const proofId = json.proof?.proofId ?? json.proofId;
-  if (!proofId) throw new Error("proofId missing");
-
-  window.location.href = `/v?proofId=${encodeURIComponent(proofId)}`;
-}
 
 function CopyButton(p: { value?: string | null; label?: string }) {
   const [copied, setCopied] = useState(false);
