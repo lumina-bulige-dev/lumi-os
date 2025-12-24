@@ -678,7 +678,7 @@ useEffect(() => {
     追加
   </button>
 </div>
-              </div>  {/* ← これを追加：no-print を*/}
+ </div>  {/* ← これを追加：no-print を閉じる*/}
 
             <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
               <div>
