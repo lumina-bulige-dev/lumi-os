@@ -637,7 +637,44 @@ useEffect(() => {
   </button>
 </div>
               </div>  {/* ← これを追加：no-print を閉じる */}
+) : (
+  <div className="no-print" style={{ display: "flex", gap: 8, alignItems: "center" }}>
+    <div style={{ fontSize: 12, color: ui.color.weak }}>proof未発行</div>
 
+    <button
+      onClick={async () => {
+        await generateProof({
+          kind: "cia_monthly",
+          user_id: r.user_id,
+          ym_jst: r.ym_jst,
+          headline_ja: r.headline_ja,
+          highlight_ja: r.highlight_ja,
+          safe_rate_pct: r.safe_rate_pct,
+          institutional_score: r.institutional_score,
+          total_count: r.total_count,
+          danger_count: r.danger_count,
+          risk_count: r.risk_count,
+        });
+      }}
+      style={{
+        appearance: "none",
+        border: `1px solid ${ui.color.border}`,
+        background: ui.color.okBg,
+        color: ui.color.ok,
+        borderRadius: ui.radius.md,
+        padding: "8px 10px",
+        fontWeight: 1000,
+        cursor: "pointer",
+        boxShadow: ui.shadow.soft,
+        fontSize: 12,
+        whiteSpace: "nowrap",
+      }}
+      title="proofを生成して /v に飛びます"
+    >
+      proof生成
+    </button>
+  </div>
+)}
 
 
             <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
