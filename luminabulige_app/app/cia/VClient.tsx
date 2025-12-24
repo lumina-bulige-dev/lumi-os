@@ -681,11 +681,19 @@ useEffect(() => {
               </div>  {/* ← これを追加：no-print を閉じる */}
 ) : (
   <div className="no-print" style={{ display: "flex", gap: 8, alignItems: "center" }}>
+    {verifyUrl ? (
+  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+    <a className="no-print" href={verifyUrl} style={{ color: ui.color.link, fontWeight: 1000, textDecoration: "none", fontSize: 12 }}>
+      改ざん検証へ
+    </a>
+    <CopyButton value={verifyUrl} label="verify_url" />
+  </div>
+) : (
+  <div className="no-print" style={{ display: "flex", gap: 8, alignItems: "center" }}>
     <div style={{ fontSize: 12, color: ui.color.weak }}>proof未発行</div>
-
     <button
-      onClick={async () => {
-        await generateProof({
+      onClick={() =>
+        generateProof({
           kind: "cia_monthly",
           user_id: r.user_id,
           ym_jst: r.ym_jst,
@@ -696,22 +704,8 @@ useEffect(() => {
           total_count: r.total_count,
           danger_count: r.danger_count,
           risk_count: r.risk_count,
-        });
-      }}
-      style={{
-        appearance: "none",
-        border: `1px solid ${ui.color.border}`,
-        background: ui.color.okBg,
-        color: ui.color.ok,
-        borderRadius: ui.radius.md,
-        padding: "8px 10px",
-        fontWeight: 1000,
-        cursor: "pointer",
-        boxShadow: ui.shadow.soft,
-        fontSize: 12,
-        whiteSpace: "nowrap",
-      }}
-      title="proofを生成して /v に飛びます"
+        })
+      }
     >
       proof生成
     </button>
