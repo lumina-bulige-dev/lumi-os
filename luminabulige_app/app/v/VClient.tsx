@@ -315,9 +315,12 @@ export default function VClient() {
     return () => window.removeEventListener("afterprint", onAfter);
   }, []);
 
-  const onPdfOne = () => {
+    const onPdfOne = () => {
     setPrintOne(true);
-    setTimeout(() => window.print(), 60);
+-   setTimeout(() => window.print(), 60);
++   requestAnimationFrame(() => {
++     requestAnimationFrame(() => window.print());
++   });
   };
 
   return (
@@ -515,15 +518,7 @@ export default function VClient() {
               <div style={{ background: ui.color.soft, border: `1px solid ${ui.color.border}`, borderRadius: ui.radius.md, padding: ui.space.lg }}>
                 {hasProof ? (
                   <div style={{ display: "grid", gap: 10 }}>
-                    <Row
-  k="payload_hash_b64u"
-  v={
-    <span className="mono" style={{ fontFamily: ui.font.mono }}
-      title={(data?.proof?.payload_hash_b64u ?? data?.payload_hash_b64u) ?? ""}>
-      {shortHash((data?.proof?.payload_hash_b64u ?? data?.payload_hash_b64u) ?? "-", 22, 12)}
-    </span>
-  }
-/>
+                 
                     <Row
                       k="proof_id"
                       v={<span className="mono" style={{ fontFamily: ui.font.mono }} title={data?.proof?.proof_id ?? ""}>{shortHash(data?.proof?.proof_id ?? "-", 18, 10)}</span>}
