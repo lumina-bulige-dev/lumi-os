@@ -130,7 +130,7 @@ async function hmacSignB64u(secret: string, msg: string) {
   const sig = await crypto.subtle.sign("HMAC", key, te.encode(msg));
   return b64uFromBytes(sig);
 }
-const keyData = spki as unknown as BufferSource;
+
 const keyData = spkiBytes as unknown as BufferSource;
 function normalizeProofId(s: unknown) {
   if (typeof s !== "string") return null;
