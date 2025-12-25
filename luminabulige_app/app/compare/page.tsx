@@ -1,5 +1,5 @@
 // app/compare/page.tsx
-// import { getDefaultRules } from "../lib/lumiRules";
+import { getDefaultRules } from "../lib/lumiRules";
 // import { lumiLoad } from "../lib/lumiStorage";
 
 const V = 480_000; // 年間ボリューム仮置き
