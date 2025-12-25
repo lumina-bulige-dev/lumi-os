@@ -5,14 +5,15 @@
 // @ts-nocheck
 
 // Cloudflare Pages Functions 用：/api/verify を core-api にプロキシするだけ
-export const onRequest = async (context) => {
+// luminabulige_app/functions/api/verify.ts
+// @ts-nocheck
+
+// Cloudflare Pages Functions 用：/api/verify → core-api へプロキシ
+export const onRequest = async (context: any) => {
   const url = new URL(context.request.url);
 
-  // core-api 側のホストに付け替え
-  url.hostname = ""exclude": [
-  "node_modules",
-  "luminabulige_app/functions"
-]";
+  // core-api 側のホストに差し替え（実運用時に api.luminabulige.com にする）
+  url.hostname = "api.luminabulige.com";
 
   // シンプルに fetch で中継
   return fetch(url.toString(), {
