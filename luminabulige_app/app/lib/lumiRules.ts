@@ -3,11 +3,9 @@
 
 export type LumiRuleLevel = "SAFE" | "WARNING" | "DANGER";
 
-
-// これを追加（古いコードとの橋渡し用）
-import type { Level } from "./lumiRules";
-import { calcLevel } from "./lumiRules";
+// 古いコードとの橋渡し用
 export type Level = LumiRuleLevel;
+
 export type LumiRule = {
   id: string;
   level: LumiRuleLevel;
@@ -56,4 +54,33 @@ export function getDefaultRules(): LumiRuleset {
       },
     ],
   };
+}
+
+/**
+ * 年間ボリュームから SAFE / WARNING / DANGER を決めるモック関数。
+ * - 今は annualVolumeMax ベースだけ見ている
+ * - 将来はルールエンジンで差し替え予定
+ */
+export function calcLevel(
+  annualVolume: number,
+  ruleset?: LumiRuleset
+): Level {
+  const rs = ruleset ?? getDefaultRules();
+
+  // annualVolumeMax が設定されているものを小さい順に見ていく
+  const sorted = [...rs.rules].sort((a, b) => {
+    const ax = a.annualVolumeMax ?? Infinity;
+    const bx = b.annualVolumeMax ?? Infinity;
+    return ax - bx;
+  });
+
+  for (const rule of sorted) {
+    const max = rule.annualVolumeMax ?? Infinity;
+    if (annualVolume <= max) {
+      return rule.level;
+    }
+  }
+
+  // 全部すり抜けたら一番厳しい判定に倒す
+  return "DANGER";
 }
