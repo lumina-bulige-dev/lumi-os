@@ -9,7 +9,10 @@ export const onRequest = async (context) => {
   const url = new URL(context.request.url);
 
   // core-api 側のホストに付け替え
-  url.hostname = "api.luminabulige.com";
+  url.hostname = ""exclude": [
+  "node_modules",
+  "luminabulige_app/functions"
+]";
 
   // シンプルに fetch で中継
   return fetch(url.toString(), {
