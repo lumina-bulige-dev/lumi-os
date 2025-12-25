@@ -151,9 +151,10 @@ async function importRsaPublicKeyFromPem(pem: string) {
   // spki を「とにかく BufferSource として扱う」キャストを挟む
 const keyData = spki as unknown as BufferSource;
 
+// spki（または実際の変数名）が見えているスコープ内で：
 return crypto.subtle.importKey(
   "spki",
-  keyData,
+  spki as unknown as BufferSource, // ← 実際の変数名にあわせる
   { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
   false,
   ["verify"],
