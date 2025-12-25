@@ -147,7 +147,7 @@ async function importRsaPublicKeyFromPem(pem: string) {
     .replace(/-----BEGIN PUBLIC KEY-----/g, "")
     .replace(/-----END PUBLIC KEY-----/g, "")
     .replace(/\s+/g, "");
-
+const keyData = spkiBytes as unknown as BufferSource;
   // spki を「とにかく BufferSource として扱う」キャストを挟む
 const keyData = spki as unknown as BufferSource;
 
