@@ -146,23 +146,26 @@ function normalizeProofId(s: unknown) {
 /* =========================
  *  Wise webhook signature verify
  * ========================= */
-async function importRsaPublicKeyFromPem(pem: string) {
+async function importRsaPublicKeyFromPem(pem: string): Promise<CryptoKey> {
   const clean = pem
     .replace(/-----BEGIN PUBLIC KEY-----/g, "")
     .replace(/-----END PUBLIC KEY-----/g, "")
     .replace(/\s+/g, "");
 
-  // spki を「とにかく BufferSource として扱う」キャストを挟む
+  // PEM の中身（base64）を SPKI バイト列に変換
+  const spkiBytes = b64ToBytes(clean);
 
-// spki（または実際の変数名）が見えているスコープ内で：
-return crypto.subtle.importKey(
-  "spki",
-  pem as unknown as BufferSource, // ← ここだけキャスト
-  { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
-  false,
-  ["verify"],
-);
+  // Workers の型との相性で怒られないように、BufferSource にキャスト
+  const keyData = spkiBytes as unknown as BufferSource;
 
+  return crypto.subtle.importKey(
+    "spki",
+    keyData,
+    { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
+    false,
+    ["verify"],
+  );
+}
 async function saveWiseEvent(env: Env, payload: any, raw: ArrayBuffer) {
   if (!env.DB) return; // DB binding 없으면保存スキップ
 
