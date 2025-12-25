@@ -1,7 +1,10 @@
 {
   "private": true,
-  "scripts": {
-    "build": "next build"
+   "dev": "next dev",
+    // ここを差し替え
+    "build": "next build && npx @cloudflare/next-on-pages@1",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
     "@pdf-lib/fontkit": "^1.1.1",
