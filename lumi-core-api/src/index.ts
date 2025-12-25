@@ -148,15 +148,16 @@ async function importRsaPublicKeyFromPem(pem: string) {
     .replace(/-----END PUBLIC KEY-----/g, "")
     .replace(/\s+/g, "");
 
-  const spki = b64ToBytes(clean);
-  return crypto.subtle.importKey(
-    "spki",
-    spki,
-    { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
-    false,
-    ["verify"]
-  );
-}
+  // spki を「とにかく BufferSource として扱う」キャストを挟む
+const keyData = spki as unknown as BufferSource;
+
+return crypto.subtle.importKey(
+  "spki",
+  keyData,
+  { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
+  false,
+  ["verify"],
+);
 
 async function saveWiseEvent(env: Env, payload: any, raw: ArrayBuffer) {
   if (!env.DB) return; // DB binding 없으면保存スキップ
