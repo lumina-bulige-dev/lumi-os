@@ -1,0 +1,20 @@
+name = "lumi-core-api"
+main = "src/index.ts"
+compatibility_date = "2025-12-12"
+
+# 本番はダッシュボードで api.luminabulige.com を紐付けてるなら routes は無理に書かない
+# routes = [{ pattern = "api.luminabulige.com/*", zone_name = "luminabulige.com" }]
+
+[vars]
+PROOF_KID = "k1"
+
+[[kv_namespaces]]
+binding = "PROOFS"
+id = "REPLACE_WITH_PROD_KV_ID"
+preview_id = "REPLACE_WITH_PREVIEW_KV_ID"
+
+# もし D1 を使うなら（Wise webhook保存など）
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "lumi-core"
+# database_id = "REPLACE_WITH_D1_ID"
