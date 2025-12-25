@@ -1,8 +1,8 @@
 // @ts-nocheck
+// src/index.ts
 
-/* ここから元のコード */
-import { /* ... */ } from "...";// src/index.ts
 import { MOCK_HOME_STATE } from "./mocks/home_state";
+
 
 export interface Env {
   // Proofs (KV)
