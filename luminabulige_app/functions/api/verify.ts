@@ -1,21 +1,23 @@
 // functions/api/verify.ts  （Pages Functions）
 // luminabulige_app/functions/api/verify.ts
 // Pages Functions 経由で core-api に中継するだけの薄いプロキシ
+// luminabulige_app/functions/api/verify.ts
+// @ts-nocheck
 
-export const onRequest = async (ctx: any) => {
-  const url = new URL(ctx.request.url);
+// Cloudflare Pages Functions 用：/api/verify を core-api にプロキシするだけ
+export const onRequest = async (context) => {
+  const url = new URL(context.request.url);
 
-  // 例: 既存の core-api Worker に中継するだけ
+  // core-api 側のホストに付け替え
   url.hostname = "api.luminabulige.com";
 
-  // 必要最小限だけコピー（雑に全部流してもいい）
+  // シンプルに fetch で中継
   return fetch(url.toString(), {
-    method: ctx.request.method,
-    headers: ctx.request.headers,
-    body: ctx.request.body,
+    method: context.request.method,
+    headers: context.request.headers,
+    body: context.request.body,
   });
 };
-
 /*export const onRequest: PagesFunction = async (ctx) => {
   const url = new URL(ctx.request.url);
   // 例: 既存の core-api Worker に中継するだけ
