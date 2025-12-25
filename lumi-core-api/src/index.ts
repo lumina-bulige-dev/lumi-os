@@ -131,7 +131,7 @@ async function hmacSignB64u(secret: string, msg: string) {
   return b64uFromBytes(sig);
 }
 
-const keyData = spkiBytes as unknown as BufferSource;
+
 function normalizeProofId(s: unknown) {
   if (typeof s !== "string") return null;
   const v = s.trim();
@@ -154,7 +154,7 @@ async function importRsaPublicKeyFromPem(pem: string) {
 // spki（または実際の変数名）が見えているスコープ内で：
 return crypto.subtle.importKey(
   "spki",
-  spki as unknown as BufferSource, // ← 実際の変数名にあわせる
+      spkiBytes as unknown as BufferSource, // ← ここだけキャスト
   { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
   false,
   ["verify"],
