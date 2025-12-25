@@ -318,9 +318,9 @@ export default function VClient() {
     const onPdfOne = () => {
     setPrintOne(true);
 -   setTimeout(() => window.print(), 60);
-+   requestAnimationFrame(() => {
-+     requestAnimationFrame(() => window.print());
-+   });
+//+   requestAnimationFrame(() => {
+//+     requestAnimationFrame(() => window.print());
+//+   });
   };
 
   return (
