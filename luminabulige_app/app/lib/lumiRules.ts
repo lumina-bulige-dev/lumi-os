@@ -5,6 +5,8 @@ export type LumiRuleLevel = "SAFE" | "WARNING" | "DANGER";
 
 
 // これを追加（古いコードとの橋渡し用）
+//import type { Level } from "./lumiRules";
+import { calcLevel } from "./lumiRules";
 export type Level = LumiRuleLevel;
 export type LumiRule = {
   id: string;
