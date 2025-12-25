@@ -344,4 +344,5 @@ export default {
 
     return notFound(req);
   },
+}
 };
