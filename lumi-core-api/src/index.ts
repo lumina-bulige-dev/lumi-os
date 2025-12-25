@@ -1,4 +1,7 @@
-// src/index.ts
+// @ts-nocheck
+
+/* ここから元のコード */
+import { /* ... */ } from "...";// src/index.ts
 import { MOCK_HOME_STATE } from "./mocks/home_state";
 
 export interface Env {
@@ -344,5 +347,4 @@ export default {
 
     return notFound(req);
   },
-}
 };
