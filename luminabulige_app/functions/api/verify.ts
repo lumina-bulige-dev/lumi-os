@@ -8,24 +8,20 @@
 // luminabulige_app/functions/api/verify.ts
 // @ts-nocheck
 
-// Cloudflare Pages Functions 用：/api/verify → core-api へプロキシ
-export const onRequest = async (context: any) => {
-  const url = new URL(context.request.url);
+// luminabulige_app/functions/api/verify.ts
+// Cloudflare Pages Functions 用のプレースホルダ。
+// 今は Next.js 側から直接 core-api の /verify を叩く想定なので、
+// この Functions は「将来用のメモ」としてだけ残しておく。
 
-  // core-api 側のホストに差し替え（実運用時に api.luminabulige.com にする）
-  url.hostname = "api.luminabulige.com";
-
-  // シンプルに fetch で中継
-  return fetch(url.toString(), {
-    method: context.request.method,
-    headers: context.request.headers,
-    body: context.request.body,
-  });
-};
-/*export const onRequest: PagesFunction = async (ctx) => {
+/*
+export const onRequest = async (ctx: any) => {
   const url = new URL(ctx.request.url);
-  // 例: 既存の core-api Worker に中継するだけ
   url.hostname = "api.luminabulige.com";
   url.pathname = "/verify"; // 既存エンドポイントに合わせる
-  return fetch(new Request(url.toString(), ctx.request));*/
+
+  return fetch(new Request(url.toString(), ctx.request));
 };
+*/
+
+// TS に「このファイルはちゃんとモジュールだよ」と知らせるためのダミー export
+export {};
