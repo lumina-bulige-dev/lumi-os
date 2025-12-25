@@ -1,8 +1,8 @@
 // app/compare/page.tsx
 // app/beta/page.tsx
 // app/compare/page.tsx
-import { getDefaultRules } from "../../lib/lumiRules";
-import { lumiLoad } from "../../lib/lumiStorage";
+import { getDefaultRules } from "../lib/lumiRules";
+import { lumiLoad } from "../lib/lumiStorage";
 const V = 480_000; // 年間取引額
 
 export default function ComparePage() {
