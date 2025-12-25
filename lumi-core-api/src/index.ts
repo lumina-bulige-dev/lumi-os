@@ -143,7 +143,7 @@ function normalizeProofId(s: unknown) {
 /* =========================
  *  Wise webhook signature verify
  * ========================= */
-async function importRsaPublicKeyFromPem(pemspki: string) {
+async function importRsaPublicKeyFromPem(pem: string) {
   const clean = pem
     .replace(/-----BEGIN PUBLIC KEY-----/g, "")
     .replace(/-----END PUBLIC KEY-----/g, "")
@@ -154,7 +154,7 @@ async function importRsaPublicKeyFromPem(pemspki: string) {
 // spki（または実際の変数名）が見えているスコープ内で：
 return crypto.subtle.importKey(
   "spki",
-  pemspki as unknown as BufferSource, // ← ここだけキャスト
+  pem as unknown as BufferSource, // ← ここだけキャスト
   { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
   false,
   ["verify"],
