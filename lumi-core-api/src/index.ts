@@ -1,6 +1,6 @@
 // @ts-nocheck
 // src/index.ts
-
+import { /* ... */ } from "...";// src/index.ts
 import { MOCK_HOME_STATE } from "./mocks/home_state";
 
 
