@@ -1,4 +1,4 @@
-POST /v1/responses
+[POST /v1/responses
 curl https://api.openai.com/v1/responses \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
@@ -19,3 +19,4 @@ description:
 # My Agent
 
 Describe what your agent does here...
+](https://platform.openai.com/agent-builder/edit)
