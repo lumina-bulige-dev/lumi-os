@@ -1,4 +1,6 @@
 // app/beta/page.tsx
+// app/beta/page.tsx
+import { lumiLoad } from "../../lib/lumiStorage";
 export default function BetaPage() {
   return (
     <section className="space-y-4">
