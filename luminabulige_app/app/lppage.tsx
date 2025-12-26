@@ -90,21 +90,18 @@ const lumipalla_svg = (
 export default function LPPage() {
   return (
     <main>
-      <section id="hero">
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-[1.05] tracking-[0.06em] text-slate-100">
-  お金と仲直りするための並行世界ウォレット
-  <span className="block mt-3 text-2xl sm:text-3xl md:text-4xl tracking-[0.12em]">
+      <section className="lp-hero">
+  <h1>
+    お金と仲直りするための並行世界ウォレット
+    <br />
     LUMINA CIA / oKYC β
-  </span>
-</h1>
+  </h1>
 
-        <p>
-          ただの家計簿で終わらせない。
-          <br />
-          行動ログ × oKYC × 改ざん検知で、
-          <br />
-          「お金との関係をやり直した軌跡」を、あなた自身の信用の素材に変える。
-        </p>
+  <p className="lead">
+    ただの家計簿で終わらせない。行動ログ × oKYC × 改ざん検知で、
+    「お金との関係をやり直した軌跡」を信用の素材に変える。
+  </p>
+</section>
 
         <div className="hero-cta">
           <Link href="/beta" className="primary-cta">
