@@ -428,3 +428,5 @@ body{
 .lp-hero{
   text-wrap: balance; /* 対応ブラウザでいい感じに */
 }
+
+html{ scroll-behavior:smooth; }
