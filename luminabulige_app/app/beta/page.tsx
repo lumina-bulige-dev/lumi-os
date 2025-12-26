@@ -44,7 +44,7 @@ export default function BetaPage() {
         <h2 style={{ fontSize: 22, marginBottom: 8 }}>開発ステータス</h2>
         <p style={{ fontSize: 14, opacity: 0.85, lineHeight: 1.7 }}>
           現在は一部機能のみ公開している <strong>開発者プレビュー / β版</strong> です。
-          正式募集（一般ユーザー・企業向け）は <strong>202x 年 Qx</strong> ごろの公開を予定しています。
+          正式募集（一般ユーザー・企業向け）は <strong>2026年9月頃</strong> ごろの公開を予定しています。
           仕様・表示内容は、検証の結果に応じて変更される可能性があります。
         </p>
       </section>
