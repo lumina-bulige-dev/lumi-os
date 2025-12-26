@@ -440,4 +440,23 @@ color: rgba(234,242,255,.92);
   text-wrap: balance; /* 対応ブラウザでいい感じに */
 }
 
+.lumi-footer{
+  max-width: 56rem; /* max-w-4xl 相当 */
+  margin: 0 auto;
+  padding: 20px 16px 28px;
+  font-size: 12px;
+  color: rgba(234,242,255,.70);
+  border-top: 1px solid rgba(255,255,255,.10);
+}
+
+.lumi-footer a{
+  color: rgba(234,242,255,.75);
+  text-decoration: none;
+}
+
+.lumi-footer a:hover{
+  color: rgba(255,255,255,.95);
+  text-decoration: underline;
+}
+
 html{ scroll-behavior:smooth; }
