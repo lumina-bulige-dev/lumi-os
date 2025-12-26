@@ -1,19 +1,21 @@
-type Props = {
-  balance: number;
-};
+// app/HomeClient.tsx
+"use client";
 
-export default function HomeStateUi({ balance }: Props) {
+import HomeStateUi from "./HomeStateUi";
+
+export default function HomeClient() {
+  // ここでは固定のデモ残高を表示
+  const demoBalance = 123456;
+
   return (
-    <section className="space-y-2 text-sm text-slate-100">
-      <p className="text-xs text-slate-400">
-        ※ この画面はデモ用です。実際のお金・口座情報は一切扱いません。
+    <main className="p-4 space-y-4">
+      <h1 className="text-2xl font-semibold">LUMI β デモ</h1>
+      <p className="text-sm text-slate-300">
+        行動ログから「どのくらい安全っぽいか」をざっくり眺めるためのテスト画面です。
+        ここではダミーの残高だけを表示します。
       </p>
-      <div className="rounded-lg border border-slate-700 bg-slate-900/60 p-3">
-        <div className="text-xs text-slate-400 mb-1">サンプル残高</div>
-        <div className="text-xl font-semibold">
-          ¥{balance.toLocaleString()}
-        </div>
-      </div>
-    </section>
+
+      <HomeStateUi balance={demoBalance} />
+    </main>
   );
 }
