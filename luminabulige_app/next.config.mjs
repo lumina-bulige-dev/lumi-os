@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "export", // これを追加
+  // 必要なら設定ここに
+  // Cloudflare Pages で静的書き出ししてるので、とりあえずこれくらいでOK
+  output: "export",
 };
 
-module.exports = nextConfig;
+export default nextConfig;
