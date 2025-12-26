@@ -90,31 +90,25 @@ const lumipalla_svg = (
 export default function LPPage() {
   return (
     <main>
-       {/* Hero  */}
-
-      <section className="lp-hero">
-    {/* ... */}
-
+      {/* HERO */}
+      <section id="hero" className="lp-hero">
         <h1>
-    お金と仲直りするための並行世界ウォレット
-    <br />
-    LUMINA CIA / oKYC β
-  </h1>
-  
-  {/* SECTION 1 */}
+          お金と仲直りするための並行世界ウォレット
+          <br />
+          LUMINA CIA / oKYC β
+        </h1>
 
-  <p className="lead">
-    ただの家計簿で終わらせない。行動ログ × oKYC × 改ざん検知で、
-    「お金との関係をやり直した軌跡」を信用の素材に変える。
-  </p>
-</section>
-      {/* ... */}
+        <p className="lead">
+          ただの家計簿で終わらせない。行動ログ × oKYC × 改ざん検知で、
+          「お金との関係をやり直した軌跡」を信用の素材に変える。
+        </p>
 
-
-      <div className="hero-cta">
+        <div className="hero-cta">
           <Link href="/beta" className="primary-cta">
             β版を触ってみる
           </Link>
+
+          {/* 同一ページ内スクロールなら Link でもOK */}
           <a href="#concept" className="secondary-cta">
             Worldコンセプト
           </a>
@@ -124,10 +118,9 @@ export default function LPPage() {
           招待制 β版 / OpenAI 月3,000円から始まった個人発 Fintech 実験
         </p>
       </section>
-{/* SECTION 2 */}
-      <section id="problem">
-            {/* ... */}
 
+      {/* PROBLEM */}
+      <section id="problem">
         <h2>「ちゃんとしてるのに、信用で詰む人」が多すぎる。</h2>
         <p>
           在日外国人、海外在住日本人、転職や移住の多い人たち。
@@ -137,21 +130,31 @@ export default function LPPage() {
           家、クレジットカード、契約のスタートラインにすら立てないことがあります。
         </p>
       </section>
-{/* SECTION 3 */}
+
+      {/* CONCEPT */}
       <section id="parallel-world">
-        {/* SECTION 3 */}
         <h2 id="concept">もうひとつの並行世界で、「やり直した信用」を育てる。</h2>
-        <div style={{ marginTop: 16, marginBottom: 8 }}>{lumipalla_svg}</div>
-        <p className="concept-line">LUMINA は、🌍から🌎へジャンプするためのポータルです。</p>
+
+        <div className="lp-diagram">{lumipalla_svg}</div>
+
+        <p className="concept-line">
+          LUMINA は、🌍から🌎へジャンプするためのポータルです。
+        </p>
       </section>
-{/* SECTION 4*/}
+
+      {/* BETA CTA */}
       <section id="beta">
-        {/* SECTION 4 */}
         <h2>今はまだ β版です。</h2>
         <div className="hero-cta">
-          <Link href="/cia" className="secondary-cta">CIA</Link>
-          <Link href="/beta" className="primary-cta">Beta</Link>
-          <Link href="/compare" className="secondary-cta">Compare</Link>
+          <Link href="/cia" className="secondary-cta">
+            CIA
+          </Link>
+          <Link href="/beta" className="primary-cta">
+            Beta
+          </Link>
+          <Link href="/compare" className="secondary-cta">
+            Compare
+          </Link>
         </div>
       </section>
     </main>
