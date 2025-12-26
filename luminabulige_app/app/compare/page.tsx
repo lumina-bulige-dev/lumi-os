@@ -18,12 +18,13 @@ type ChildKey = string;
 
 type LogItem = {
   id: string;
-  date: string; // YYYY-MM-DD
+  occurredAt: number; // 実際の発生時刻（ms）
+  createdAt: number;  // 入力時刻（ms）
+  tz?: string;        // "Asia/Tokyo" など（任意）
   parent: ParentKey;
   child: ChildKey;
-  amount: number; // JPY
+  amount: number;
   memo?: string;
-  createdAt: number;
 };
 
 const STORAGE_KEY = "lumi.moneyStabilizer.v1";
