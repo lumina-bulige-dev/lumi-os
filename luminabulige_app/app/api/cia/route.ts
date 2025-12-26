@@ -1,46 +1,52 @@
-// luminabulige_app/app/api/cia/route.ts
-import { NextResponse } from "next/server";
+// app/api/cia/route.ts
+import { NextRequest } from "next/server";
 
-export const runtime = "edge";
+const CORE_ENDPOINT = process.env.LUMI_CORE_VERIFY_URL;
+// 例: https://app.luminabulige.com/api/verify みたいなURLを
+// Cloudflare Pages の環境変数に設定しておく
 
-export type KycRecord = {
-  userId: string;
-  displayName: string;
-  kycVendor: string;
-  kycStatus: string;
-  kycLevel: string;
-  kycReferenceId: string;
-  kycVerifiedAt: number; // UNIX秒
-};
+export async function POST(req: NextRequest) {
+  try {
+    const { payload } = await req.json();
 
-type ApiResponse = {
-  ok: boolean;
-  user: KycRecord | null;
-  error?: string;
-};
+    if (!payload) {
+      return Response.json(
+        { ok: false, message: "payload が空です。" },
+        { status: 400 }
+      );
+    }
 
-// いまは D1 ではなく、固定モック
-const MOCK_KYC: KycRecord = {
-  userId: "demo-user-001",
-  displayName: "デモ太郎",
-  kycVendor: "TrastDock",
-  kycStatus: "VERIFIED",
-  kycLevel: "LEVEL_2",
-  kycReferenceId: "TDK-REF-0001",
-  kycVerifiedAt: 1766708172,
-};
+    if (!CORE_ENDPOINT) {
+      // まずはローカルダミー結果でもOK
+      return Response.json({
+        ok: true,
+        result: "SAFE",
+        message: "ダミー検証（CORE_ENDPOINT 未設定）",
+      });
+    }
 
-export async function GET(req: Request) {
-  const url = new URL(req.url);
-  const userId = url.searchParams.get("userId") ?? "demo-user-001";
+    const coreRes = await fetch(CORE_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ payload }),
+    });
 
-  // いまは userId を見ても常に同じモックを返す
-  const record = { ...MOCK_KYC, userId };
+    const data = await coreRes.json();
 
-  const body: ApiResponse = {
-    ok: true,
-    user: record,
-  };
-
-  return NextResponse.json(body);
+    return Response.json(
+      {
+        ok: coreRes.ok,
+        result: data.result ?? "UNKNOWN",
+        message: data.message ?? null,
+        raw: data,
+      },
+      { status: coreRes.status }
+    );
+  } catch (e) {
+    console.error(e);
+    return Response.json(
+      { ok: false, message: "サーバ側でエラーが発生しました。" },
+      { status: 500 }
+    );
+  }
 }
