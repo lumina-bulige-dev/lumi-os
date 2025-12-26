@@ -15,7 +15,9 @@ export default function TopNav() {
 
   return (
     <header className="lumi-header">
-      <Link href="/" className="lumi-logo">LUMINA</Link>
+      <Link href="/" className="text-lg font-semibold tracking-[0.18em] text-white">
+  LUMINA
+</Link>
 
       <nav className="lumi-nav" aria-label="Primary">
         {items.map((it) => {
