@@ -1,8 +1,10 @@
 {
+  "name": "luminabulige-app",
+  "version": "1.0.0",
   "private": true,
-   "dev": "next dev",
-    // ここを差し替え
-    "build": "next build && npx @cloudflare/next-on-pages@1",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
