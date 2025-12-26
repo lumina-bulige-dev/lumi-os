@@ -1,17 +1,21 @@
-// app/compare/page.tsx
-import MoneyLogForm from "@/app/components/MoneyLogForm";
+// app/components/BalanceBlock.tsx
+"use client";
 
-export default function ComparePage() {
+export default function BalanceBlock() {
+  // 例：どこかで startBalance, incomesTotal, expensesTotal を持ってる想定
+  const balance = startBalance + incomesTotal - expensesTotal;
+
   return (
-    <main className="mx-auto max-w-4xl px-4 py-8">
-      <h1 className="text-2xl font-semibold">Compare（Money Stabilizer）</h1>
-      <p className="mt-2 text-slate-300">
-        ここは説明。入力と計算はフォーム側に分離。
-      </p>
+    <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+      <div className="text-sm text-slate-300">現在残高</div>
+      <div className="mt-1 text-2xl font-semibold">{balance.toLocaleString()} 円</div>
 
-      <div className="mt-6">
-        <MoneyLogForm />
-      </div>
-    </main>
+      {/* 👇ここに置く（残高の直下） */}
+      {balance < 0 && (
+        <div className="mt-3 rounded-md border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">
+          ⚠️ 残高がマイナスです（床が抜けました）。入金 or 開始残高を確認してね。
+        </div>
+      )}
+    </div>
   );
 }
