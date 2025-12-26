@@ -108,7 +108,7 @@ export default function LPPage() {
             β版を触ってみる
           </Link>
           <a href="#concept" className="secondary-cta">
-            コンセプトを読む
+            Worldコンセプト
           </a>
         </div>
 
