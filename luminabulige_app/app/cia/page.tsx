@@ -149,6 +149,10 @@ export default function CiaPage() {
             )}
           </div>
         )}
+        <p style={{ marginTop: 16, fontSize: 12, opacity: 0.75 }}>
+  正式版では、署名付きCIAレスポンスのみ検証可能です。
+  改ざんされたJSONは自動的に検知・拒否されます。
+</p>
       </section>
 
       <section>
