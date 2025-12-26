@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-
+import BalanceBlock from "./BalanceBlock";     // 1
+import LogEntryForm from "./LogEntryForm";     // 2 (内部で 3,4 を使う)
+import LogList from "./LogList"; 
 export default function MoneyLogForm() {
   // ここが「状態の置き場」(3)
   const [openingBalance, setOpeningBalance] = useState<number>(0);
