@@ -1,20 +1,8 @@
-name = "https://api.luminabulige.com/api/v1"
-main = "src/index.ts"
-compatibility_date = "2025-12-12"
+name = "lumi-core-api"
 
-# 本番はダッシュボードで api.luminabulige.com を紐付けてるなら routes は無理に書かない
-# routes = [{ pattern = "api.luminabulige.com/*", zone_name = "luminabulige.com" }]
+main = "src/index.ts"         # ← Worker のエントリーファイルに合わせて
+compatibility_date = "2024-12-26"
 
-[vars]
-PROOF_KID = "k1"
-
-[[kv_namespaces]]
-binding = "PROOFS"
-id = "REPLACE_WITH_PROD_KV_ID"
-preview_id = "REPLACE_WITH_PREVIEW_KV_ID"
-
-# もし D1 を使うなら（Wise webhook保存など）
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "lumi-core"
-# database_id = "REPLACE_WITH_D1_ID"
+# node:buffer / node:async_hooks みたいな Node 組み込みを使う場合
+# （前に Pages では nodejs_compat つけてって警告出てたやつ）
+compatibility_flags = ["nodejs_compat"]
