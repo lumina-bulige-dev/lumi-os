@@ -1,14 +1,18 @@
-import HomeStateUi from "./HomeStateUi";
-
+// app/beta/page.tsx
 export default function BetaPage() {
   return (
-    <main className="p-4 space-y-4">
-      <h1 className="text-2xl font-semibold">LUMI β デモ</h1>
+    <section className="space-y-4">
+      <h1 className="text-2xl font-semibold">LUMI / β版ラボ</h1>
       <p className="text-sm text-slate-300">
-        行動ログから「どのくらい安全っぽいか」をざっくり眺めるためのテスト画面です。
-        ここではダミーの残高だけを表示します。
+        ここでは、行動ログや残高のサマリをテスト表示していきます。
       </p>
-      <HomeStateUi balance={123456} />
-    </main>
+
+      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 text-sm">
+        <p className="text-slate-200">
+          （モック）直近30日サマリや、支出のSAFE / WARNING / DANGER分布を
+          ここに出していく予定。
+        </p>
+      </div>
+    </section>
   );
 }
