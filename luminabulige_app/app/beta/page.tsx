@@ -50,20 +50,31 @@ export default function BetaPage() {
       </section>
 
       <section style={{ marginBottom: 32 }}>
-        <h2 style={{ fontSize: 22, marginBottom: 8 }}>待機リストのご案内</h2>
-        <p style={{ fontSize: 14, opacity: 0.85, lineHeight: 1.7 }}>
-          正式リリース時に案内を受け取りたい方は、メールアドレスをご登録ください。
-          β版・パートナー募集・本番リリースの順で、更新情報をお送りします。
-          <br />
-          登録フォームは現在準備中です。開発進捗にあわせて順次公開します。
-        </p>
-      </section>
+  <h2 style={{ fontSize: 22, marginBottom: 8 }}>…</h2>
+  <p style={{ fontSize: 14, opacity: 0.8 }}>
+    正式リリース時に案内を受け取りたい方は、メールなどでお知らせ予定です。<br />
+    β版・パートナー募集・本番リリースの順で、更新情報を共有します。<br />
+    登録フォームは現在準備中です。開発進捗にあわせて公開します。
+  </p>
+</section>
 
-      <p style={{ fontSize: 12, opacity: 0.65, lineHeight: 1.6 }}>
-        ※本ページおよび関連画面は、開発中のデモ・β版を前提とした情報です。
-        <br />
-        ※ここで表示される指標は、法的な与信判断・雇用判断・入居審査その他の決定を直接保証するものではありません。
-      </p>
+<section style={{ fontSize: 12, opacity: 0.65, lineHeight: 1.7 }}>
+  <p>
+    ※本ページおよび関連画面は、開発中のデモ／β版を前提としています。
+    仕様は予告なく変更される場合があります。
+  </p>
+  <p>
+    ※ここで表示される指標は、法的な与信判断・雇用判断などの唯一の根拠とすることを
+    意図したものではありません。
+  </p>
+  <p className="mt-2 text-xs text-slate-400">
+    問い合わせ返信は、当面{" "}
+    <span className="font-mono break-all">luminabulige@gmail.com</span>{" "}
+    から行います。
+  </p>
+</section>
+
+</main>
     </main>
   );
 }
