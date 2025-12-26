@@ -1,19 +1,4 @@
-{
-  "name": "luminabulige-app",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
-  },
-  "dependencies": {
-    "next": "14.3.0",
-    "react": "18.3.1",
-    "react-dom": "18.3.1"
-  },
-  "devDependencies": {
-    "typescript": "^5.7.0",
-    "@cloudflare/next-on-pages": "^1.13.16"
-  }
+"devDependencies": {
+  "@cloudflare/next-on-pages": "^1.13.16", // ← これ
+  ...
 }
