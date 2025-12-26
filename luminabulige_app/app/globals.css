@@ -313,4 +313,54 @@ body{
     max-height: none !important;
   }
 }
+/* =========
+   Layout
+   ========= */
+.lumi-header {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
+.lumi-logo {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-decoration: none;
+  color: #e5e7eb;
+}
+
+.lumi-main {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 24px 16px 40px;
+}
+
+/* =========
+   Nav buttons
+   ========= */
+.lumi-nav {
+  display: flex;
+  gap: 8px;              /* ← ここでボタンの間隔を確保 */
+}
+
+.lumi-nav-item {
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 9999px; /* pill 形のボタン */
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  background: rgba(15, 23, 42, 0.9);
+  color: #cbd5f5;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.lumi-nav-item:hover {
+  background: rgba(30, 64, 175, 0.9);
+  border-color: #fbbf24;
+  color: #f9fafb;
+}
