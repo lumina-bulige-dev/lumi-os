@@ -27,7 +27,7 @@ export default function BetaPage() {
           改ざん検知付きの JSON / PDF 出力（TrastPatey 連携）を前提とした設計です。
         </p>
 
-        <h3 style={{ fontSize: 18, marginTop: 12, marginBottom: 4 }}>oKYC（owner KYC）</h3>
+        <h3 style={{ fontSize: 18, marginTop: 12, marginBottom: 4 }}>oKYC（Own KYC）</h3>
         <p style={{ fontSize: 14, opacity: 0.85, lineHeight: 1.7 }}>
           既存の KYC に加えて、「本人が自分の履歴を提示する」ための補助レイヤー。
           国境やクレジットヒストリーに縛られにくい設計を目指しています。
