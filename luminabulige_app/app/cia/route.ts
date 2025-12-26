@@ -95,4 +95,4 @@ export async function GET(req: Request) {
   };
 
   return NextResponse.json(body);
-}*\
+}*/  // ← 最後の行
