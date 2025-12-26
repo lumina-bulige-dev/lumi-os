@@ -340,19 +340,41 @@ body{
 }
 
 .lumi-logo{
-  font-size: 22px;          /* まずはこれ。今より上げる */
-  font-weight: 800;
-  letter-spacing: .14em;    /* 企業味 */
-  text-decoration: none;    /* 下線消す */
-  color: rgba(234,242,255,.92);
-  text-transform: uppercase;
-  line-height: 1;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;   
+color: rgba(234,242,255,.92);
+  text-decoration: none;
+
 }
-.lumi-logo:visited{ color: rgba(234,242,255,.92); }
+
+.lumi-logo::before{
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(70,182,255,.95);      /* アクセント */
+  box-shadow:
+    0 0 0 2px rgba(70,182,255,.20),
+    0 0 16px rgba(70,182,255,.35);
+  flex: 0 0 auto;
+}
+
+.lumi-logo:visited{
+  color: rgba(234,242,255,.92); /* ← これなら害はない（実質固定） */
+}
+
 .lumi-logo:hover{
   color: rgba(255,255,255,.98);
   text-shadow: 0 0 18px rgba(70,182,255,.25);
 }
+
+.lumi-logo:active{
+  transform: translateY(1px);
+  opacity: .95;
+}
+
 
 @media (max-width: 420px){
   .lumi-logo{ font-size: 24px; }   /* スマホで“ロゴ勝ち” */
