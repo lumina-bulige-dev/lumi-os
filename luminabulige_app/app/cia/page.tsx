@@ -1,148 +1,166 @@
+// app/cia/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
 
-type KycRecord = {
-  userId: string;
-  displayName: string;
-  kycVendor: string | null;
-  kycStatus: string | null;
-  kycLevel: string | null;
-  kycReferenceId: string | null;
-  kycVerifiedAt: number | null;
-};
+type Result = "SAFE" | "WARNING" | "DANGER" | "UNKNOWN";
 
-type CiaResponse = {
+type VerifyResponse = {
   ok: boolean;
-  userId: string;
-  kyc?: KycRecord | null;
-  error?: string;
+  result?: Result;
+  message?: string;
+  raw?: any;
 };
-
-function formatUnixToJst(ts: number | null) {
-  if (!ts) return "-";
-  return new Date(ts * 1000).toLocaleString("ja-JP", {
-    timeZone: "Asia/Tokyo",
-  });
-}
 
 export default function CiaPage() {
-  const [data, setData] = useState<CiaResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [jsonText, setJsonText] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [resp, setResp] = useState<VerifyResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const userId = "demo-user-001";
+  async function handleVerify() {
+    setError(null);
+    setResp(null);
 
-    (async () => {
-      try {
-        const res = await fetch(`/api/cia?userId=${encodeURIComponent(userId)}`);
-        const json: CiaResponse = await res.json();
+    let payload: any;
+    try {
+      payload = JSON.parse(jsonText);
+    } catch {
+      setError("JSON が壊れてます。まずは正しい JSON に直して。");
+      return;
+    }
 
-        if (!res.ok || !json.ok) {
-          throw new Error(json.error || `HTTP ${res.status}`);
-        }
+    setLoading(true);
+    try {
+      const res = await fetch("/api/cia", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ payload }),
+      });
 
-        setData(json);
-      } catch (err) {
-        console.error("CIA fetch error", err);
-        setErrorMsg("KYC / CIA 情報の取得に失敗しました。");
-      } finally {
-        setLoading(false);
+      const data = (await res.json()) as VerifyResponse;
+      setResp(data);
+      if (!data.ok && !data.message) {
+        setError("検証に失敗しました。（サーバ側でエラー）");
       }
-    })();
-  }, []);
+    } catch (e) {
+      console.error(e);
+      setError("ネットワークエラーです。もう一度ためして。");
+    } finally {
+      setLoading(false);
+    }
+  }
 
-  const kyc = data?.kyc || null;
+  function badgeColor(result?: Result) {
+    switch (result) {
+      case "SAFE":
+        return "#22c55e";
+      case "WARNING":
+        return "#eab308";
+      case "DANGER":
+        return "#ef4444";
+      default:
+        return "#64748b";
+    }
+  }
 
   return (
-    <section className="space-y-6">
-      {/* ヘッダ */}
-      <header className="space-y-2">
-        <h1 className="text-2xl font-semibold">LUMI CIA Center</h1>
-        <p className="text-sm text-slate-300">
-          行動ログ・改ざん検証・本人確認（KYC）をまとめて扱う
-          「監査ビュー」レイヤーです。
-        </p>
-      </header>
+    <main style={{ padding: "24px", maxWidth: 800, margin: "0 auto" }}>
+      <h1 style={{ fontSize: 32, marginBottom: 8 }}>LUMI CIA Center</h1>
+      <p style={{ marginBottom: 24, opacity: 0.8 }}>
+        行動ログ・改ざん検証・本人確認（KYC）をまとめて扱う「監査ビュー」レイヤーです。
+      </p>
 
-      {/* カード1: Verify（プレースホルダのまま） */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 text-sm space-y-2">
-        <h2 className="text-base font-medium text-slate-50">
-          改ざん検証（Verify）
-        </h2>
-        <p className="text-slate-400">
-          ここに <code>VerifyPanel</code> を差し込む予定。
-          <br />
-          ひとまず JSON 貼り付け → 検証 → SAFE / WARNING / DANGER 表示。
+      <section style={{ marginBottom: 32 }}>
+        <h2 style={{ fontSize: 24, marginBottom: 12 }}>改ざん検証（Verify）</h2>
+        <p style={{ marginBottom: 8, fontSize: 14, opacity: 0.8 }}>
+          ここに CIA JSON を貼り付けて検証します。β版・テスト専用です。
         </p>
-      </div>
 
-      {/* カード2: KYC / TrastDock ステータス（DBから取得） */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 text-sm space-y-3">
-        <h2 className="text-base font-medium text-slate-50">
+        <textarea
+          value={jsonText}
+          onChange={(e) => setJsonText(e.target.value)}
+          placeholder='ここに CIA JSON をペースト'
+          style={{
+            width: "100%",
+            minHeight: 200,
+            padding: 12,
+            borderRadius: 8,
+            border: "1px solid #1f2937",
+            background: "#020617",
+            color: "#e5e7eb",
+            fontFamily: "monospace",
+            fontSize: 12,
+            marginBottom: 12,
+          }}
+        />
+
+        <button
+          onClick={handleVerify}
+          disabled={loading}
+          style={{
+            padding: "8px 16px",
+            borderRadius: 999,
+            border: "none",
+            background: loading ? "#4b5563" : "#3b82f6",
+            color: "white",
+            fontWeight: 600,
+            cursor: loading ? "default" : "pointer",
+          }}
+        >
+          {loading ? "検証中..." : "検証する"}
+        </button>
+
+        {error && (
+          <p style={{ marginTop: 12, color: "#f97316", fontSize: 13 }}>{error}</p>
+        )}
+
+        {resp && (
+          <div
+            style={{
+              marginTop: 20,
+              padding: 16,
+              borderRadius: 12,
+              background: "#020617",
+              border: "1px solid #1f2937",
+            }}
+          >
+            <div style={{ marginBottom: 8, fontSize: 13, opacity: 0.8 }}>
+              検証結果
+            </div>
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "4px 10px",
+                borderRadius: 999,
+                background: badgeColor(resp.result),
+              }}
+            >
+              <span style={{ fontSize: 12, fontWeight: 700, color: "#0b1120" }}>
+                {resp.result ?? "UNKNOWN"}
+              </span>
+            </div>
+            {resp.message && (
+              <p style={{ marginTop: 8, fontSize: 13, opacity: 0.9 }}>
+                {resp.message}
+              </p>
+            )}
+          </div>
+        )}
+      </section>
+
+      <section>
+        <h2 style={{ fontSize: 24, marginBottom: 12 }}>
           KYC ステータス（TrastDock）
         </h2>
-
-        {loading && (
-          <p className="text-xs text-slate-400">読み込み中…</p>
-        )}
-
-        {errorMsg && !loading && (
-          <p className="text-xs text-red-400">{errorMsg}</p>
-        )}
-
-        {!loading && !errorMsg && kyc && (
-          <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
-            <div>
-              <dt className="text-slate-500">ユーザーID</dt>
-              <dd className="text-slate-100">{kyc.userId}</dd>
-            </div>
-            <div>
-              <dt className="text-slate-500">表示名</dt>
-              <dd className="text-slate-100">{kyc.displayName}</dd>
-            </div>
-
-            <div>
-              <dt className="text-slate-500">KYCベンダー</dt>
-              <dd className="text-slate-100">{kyc.kycVendor}</dd>
-            </div>
-            <div>
-              <dt className="text-slate-500">KYCステータス</dt>
-              <dd className="text-emerald-300 font-medium">
-                {kyc.kycStatus}
-              </dd>
-            </div>
-
-            <div>
-              <dt className="text-slate-500">レベル</dt>
-              <dd className="text-slate-100">{kyc.kycLevel}</dd>
-            </div>
-            <div>
-              <dt className="text-slate-500">参照ID</dt>
-              <dd className="text-slate-100">{kyc.kycReferenceId}</dd>
-            </div>
-
-            <div className="col-span-2">
-              <dt className="text-slate-500">確認日時（JST）</dt>
-              <dd className="text-slate-100">
-                {formatUnixToJst(kyc.kycVerifiedAt)}
-              </dd>
-            </div>
-          </dl>
-        )}
-
-        {!loading && !errorMsg && !kyc && (
-          <p className="text-xs text-slate-400">
-            該当ユーザーの KYC レコードが見つかりませんでした。
-          </p>
-        )}
-      </div>
-
-      <p className="text-[11px] text-slate-500">
-        CIA レイヤーは、「この人にどこまで任せていいか？」を
-        行動ログ・KYC・レポートで一体化して説明するためのハブです。
-      </p>
-    </section>
+        <p style={{ fontSize: 14, opacity: 0.8 }}>
+          現在、KYC / CIA 連携モジュールは準備中です。
+          <br />
+          β版では「CIA レポート改ざん検証ツール」のみを提供しています。
+        </p>
+      </section>
+    </main>
   );
 }
