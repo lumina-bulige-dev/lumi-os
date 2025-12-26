@@ -339,12 +339,26 @@ body{
   padding: 24px 16px 40px;
 }
 
+.lumi-logo{
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  font-size: 18px;
+  text-decoration: none;
+  text-transform: uppercase;
+  text-shadow: 0 0 12px rgba(255,255,255,.18);
+}
+
+@media (min-width: 768px){
+  .lumi-logo{ font-size: 20px; }
+}
+
 /* =========
    Nav buttons
    ========= */
-.lumi-nav {
-  display: flex;
-  gap: 8px;              /* ← ここでボタンの間隔を確保 */
+.lumi-nav{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
 }
 
 .lumi-nav-item {
@@ -364,6 +378,15 @@ body{
   border-color: #fbbf24;
   color: #f9fafb;
 }
+
+.lumi-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+
 
 /* Hero */
 .lp-hero h1{
