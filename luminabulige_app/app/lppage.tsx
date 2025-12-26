@@ -91,11 +91,12 @@ export default function LPPage() {
   return (
     <main>
       <section id="hero">
-        <h1>
-          お金と仲直りするための並行世界ウォレット
-          <br />
-          LUMINA CIA / oKYC β
-        </h1>
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-[1.05] tracking-[0.06em] text-slate-100">
+  お金と仲直りするための並行世界ウォレット
+  <span className="block mt-3 text-2xl sm:text-3xl md:text-4xl tracking-[0.12em]">
+    LUMINA CIA / oKYC β
+  </span>
+</h1>
 
         <p>
           ただの家計簿で終わらせない。
