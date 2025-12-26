@@ -1,7 +1,7 @@
 // app/layout.tsx
 import "./globals.css";
 import type { ReactNode } from "react";
-import { TopNav } from "./TopNav"; // 追加（パスは置いた場所に合わせて）
+import { TopNav } from "./components/TopNav"; // ← ここを変更
 
 export const metadata = {
   title: "LUMINA",
