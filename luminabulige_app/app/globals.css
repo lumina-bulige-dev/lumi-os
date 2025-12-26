@@ -361,9 +361,6 @@ color: rgba(234,242,255,.92);
   flex: 0 0 auto;
 }
 
-.lumi-logo:visited{
-  color: rgba(234,242,255,.92); /* ← これなら害はない（実質固定） */
-}
 
 .lumi-logo:hover{
   color: rgba(255,255,255,.98);
