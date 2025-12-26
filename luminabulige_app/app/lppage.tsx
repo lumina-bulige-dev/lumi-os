@@ -52,7 +52,7 @@ const lumipalla_svg = (
       お金と仲の悪い現実世界から、“改善の軌跡が信用になる”並行世界へジャンプするポータルが LUMINA。
     </text>
 
-    <g transform="translate(40,60)">
+  <g transform="translate(40,60)">
       <rect className="box" width="260" height="200" rx="14" ry="14" />
       <text className="title" x="20" y="30">🌍 World A：現実のお金レイヤー</text>
       <text className="body" x="20" y="60">・給料が入る → 気づけば消えている</text>
