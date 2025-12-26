@@ -1,12 +1,6 @@
-// app/layout.tsx
 import "./globals.css";
 import type { ReactNode } from "react";
-import { TopNav } from "./components/TopNav"; // ← ここを変更
-
-export const metadata = {
-  title: "LUMINA",
-  description: "LUMINA / Cross-border fees made visible.",
-};
+import TopNav from "./components/TopNav"; // ← {} 外す
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
