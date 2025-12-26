@@ -1,5 +1,5 @@
 // app/api/cia/route.ts
-import { NextResponse } from "next/server";
+/*import { NextResponse } from "next/server";
 
 type CIAReportRow = {
   user_id: string;
@@ -95,4 +95,4 @@ export async function GET(req: Request) {
   };
 
   return NextResponse.json(body);
-}
+}*\
