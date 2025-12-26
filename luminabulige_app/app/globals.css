@@ -364,3 +364,23 @@ body{
   border-color: #fbbf24;
   color: #f9fafb;
 }
+
+/* Hero */
+.lp-hero h1{
+  font-size: clamp(34px, 6vw, 56px);
+  line-height: 1.08;
+  letter-spacing: 0.02em;
+  margin: 0 0 12px;
+}
+
+.lp-hero p.lead{
+  font-size: clamp(15px, 2.2vw, 18px);
+  line-height: 1.7;
+  opacity: .85;
+  margin: 0 0 18px;
+}
+
+/* 文字の“詰まり”を少し緩和（日本語にも効く） */
+.lp-hero{
+  text-wrap: balance; /* 対応ブラウザでいい感じに */
+}
