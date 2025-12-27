@@ -1,6 +1,6 @@
 // luminabulige_app/functions/api/cia.ts
-//export 
-  const onRequest: PagesFunction = async ({ request }) => {
+
+export const onRequest = async ({ request }: { request: Request }) => {
   const cors = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
@@ -8,18 +8,23 @@
   };
 
   if (request.method === "OPTIONS") {
-    return new Response(null, { headers: cors });
+    return new Response(null, { status: 204, headers: cors });
   }
 
+  // 例：GETだけ返す（必要に応じてPOSTも）
   if (request.method === "GET") {
-    return new Response(JSON.stringify({ status: "ok", service: "cia" }), {
-      headers: { "content-type": "application/json; charset=utf-8", ...cors },
-    });
+    return new Response(
+      JSON.stringify({
+        status: "ok",
+        service: "cia",
+        ts: new Date().toISOString(),
+      }),
+      { status: 200, headers: { "Content-Type": "application/json", ...cors } }
+    );
   }
 
-  // POST例
-  const body = await request.json().catch(() => ({}));
-  return new Response(JSON.stringify({ ok: true, received: body }), {
-    headers: { "content-type": "application/json; charset=utf-8", ...cors },
-  });
+  return new Response(
+    JSON.stringify({ status: "ng", error: "Method Not Allowed" }),
+    { status: 405, headers: { "Content-Type": "application/json", ...cors } }
+  );
 };
