@@ -1,6 +1,6 @@
 type Env = {
   ADMIN_KEY: string;      // 発行権限（管理者トークン）
-  INVITE_SECRET: string;  // 招待トークン署名用（HMAC）
+  INVITE_SIGNING_KEY: string;  // 招待トークン署名用（HMAC）
 };
 
 const ALLOWED_ORIGINS = new Set([
