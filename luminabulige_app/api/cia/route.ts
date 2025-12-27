@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-
+export const runtime = "edge";
 const cors = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
