@@ -1,38 +1,24 @@
-// functions/api/cia.ts
-export async function onRequestPost({ request }: { request: Request }) {
-  try {
-    const body = await request.json();
+// luminabulige_app/functions/api/cia.ts
+export const onRequest: PagesFunction = async ({ request }) => {
+  const cors = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  };
 
-    return new Response(
-      JSON.stringify({ ok: true, received: body }),
-      {
-        headers: {
-          "content-type": "application/json; charset=utf-8",
-          "access-control-allow-origin": "*",
-        },
-      }
-    );
-  } catch (e: any) {
-    return new Response(
-      JSON.stringify({ ok: false, error: "invalid_json" }),
-      {
-        status: 400,
-        headers: {
-          "content-type": "application/json; charset=utf-8",
-          "access-control-allow-origin": "*",
-        },
-      }
-    );
+  if (request.method === "OPTIONS") {
+    return new Response(null, { headers: cors });
   }
-}
 
-// （念のため）OPTIONSも返すとCORSで詰みにくい
-export async function onRequestOptions() {
-  return new Response(null, {
-    headers: {
-      "access-control-allow-origin": "*",
-      "access-control-allow-methods": "POST, OPTIONS",
-      "access-control-allow-headers": "content-type",
-    },
+  if (request.method === "GET") {
+    return new Response(JSON.stringify({ status: "ok", service: "cia" }), {
+      headers: { "content-type": "application/json; charset=utf-8", ...cors },
+    });
+  }
+
+  // POST例
+  const body = await request.json().catch(() => ({}));
+  return new Response(JSON.stringify({ ok: true, received: body }), {
+    headers: { "content-type": "application/json; charset=utf-8", ...cors },
   });
-}
+};
