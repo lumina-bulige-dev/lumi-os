@@ -156,7 +156,21 @@ export default function MoneyStabilizer() {
             入金
           </button>
         </div>
-
+<div className="flex items-center justify-between rounded-lg border border-white/10 bg-slate-950/40 px-3 py-2">
+  <div className="text-sm text-slate-200">
+    モード：
+    <span
+      className={`ml-2 inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ${
+        kind === "INCOME"
+          ? "bg-emerald-400/20 text-emerald-200 border border-emerald-400/30"
+          : "bg-rose-400/20 text-rose-200 border border-rose-400/30"
+      }`}
+    >
+      {kind === "INCOME" ? "入金（+）" : "支出（-）"}
+    </span>
+  </div>
+  <div className="text-xs text-slate-400">追加前に必ず確認</div>
+</div>
         <div className="grid gap-3 md:grid-cols-5">
           <div className="md:col-span-1">
             <label className="text-xs text-slate-300">親カテゴリ</label>
