@@ -1,5 +1,6 @@
 // app/compare/page.tsx
-import MoneyLogForm from "@/app/components/MoneyLogForm";
+// app/compare/page.tsx
+import MoneyLogForm from "../components/MoneyLogForm"; // ← これにする（@ を捨てる）
 
 export default function ComparePage() {
   return (
