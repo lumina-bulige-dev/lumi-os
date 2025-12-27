@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+/*<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -36,4 +36,4 @@
     Plotly.newPlot('graph', [trace], layout);
   </script>
 </body>
-</html>
+</html>*\
