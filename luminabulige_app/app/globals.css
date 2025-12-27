@@ -355,24 +355,22 @@ body{
 
 .lumi-logo{
   position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;   
-color: rgba(234,242,255,.92);
-  text-decoration: none;
-
+  padding-left: 14px; /* ドット分の余白 */
+  font-weight: 800;
+  letter-spacing: .08em;
 }
 
 .lumi-logo::before{
-  content: "";
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  background: rgba(70,182,255,.95);      /* アクセント */
-  box-shadow:
-    0 0 0 2px rgba(70,182,255,.20),
-    0 0 16px rgba(70,182,255,.35);
-  flex: 0 0 auto;
+  content:"";
+  position:absolute;
+  left:0;
+  top:50%;
+  width:7px;
+  height:7px;
+  border-radius:9999px;
+  background: var(--accent);
+  transform: translateY(-50%);
+  box-shadow: 0 0 14px rgba(70,182,255,.45);
 }
 
 
