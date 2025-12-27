@@ -458,5 +458,8 @@ color: rgba(234,242,255,.92);
   color: rgba(255,255,255,.95);
   text-decoration: underline;
 }
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 html{ scroll-behavior:smooth; }
