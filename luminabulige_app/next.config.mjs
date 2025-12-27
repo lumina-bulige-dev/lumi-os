@@ -2,7 +2,7 @@
 const nextConfig = {
   // 必要なら設定ここに
   // Cloudflare Pages で静的書き出ししてるので、とりあえずこれくらいでOK
-  output: "export",
+ // output: "export",
 };
 
 export default nextConfig;
