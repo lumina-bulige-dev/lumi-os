@@ -125,7 +125,7 @@ const expenseSeries = useMemo(() => {
   const points: { ts: number; v: number }[] = [];
 
   for (const x of sorted) {
-    if (x.kind !== "EXPENSE") continue; // 支出だけで線を作る
+    if (x.kind !== "EXPENSE") continue;
     cumExpense += x.amount;
     points.push({ ts: x.occurredAt, v: cumExpense });
   }
@@ -133,8 +133,6 @@ const expenseSeries = useMemo(() => {
   if (points.length === 0) points.push({ ts: Date.now(), v: 0 });
   return points;
 }, [logs]);
-
-return (
  
     <div className="space-y-4">
       <header className="space-y-1">
