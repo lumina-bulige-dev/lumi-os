@@ -119,12 +119,14 @@ export default function MoneyStabilizer() {
 }, [logs, openingBalance]);
 
 const expenseSeries = useMemo(() => {
-  const sorted = [...logs].sort((a, b) => a.occurredAt - b.occurredAt); // 古→新
+  const sorted = [...logs].sort((a, b) => a.occurredAt - b.occurredAt);
+
   let cumExpense = 0;
   const points: { ts: number; v: number }[] = [];
 
   for (const x of sorted) {
-    if (x.kind === "EXPENSE") cumExpense += x.amount;
+    if (x.kind !== "EXPENSE") continue; // 支出だけで線を作る
+    cumExpense += x.amount;
     points.push({ ts: x.occurredAt, v: cumExpense });
   }
 
@@ -133,11 +135,7 @@ const expenseSeries = useMemo(() => {
 }, [logs]);
 
 return (
-  // JSX...
-);
-  }, [logs, openingBalance]);
-
-  return (
+ 
     <div className="space-y-4">
       <header className="space-y-1">
         <h1 className="text-2xl font-bold">Compare / Money Stabilizer（β）</h1>
