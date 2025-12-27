@@ -111,38 +111,36 @@ export default function MoneyStabilizer() {
     setMemo("");
   }
 
-  const summary = useMemo(() => {
-  const incomesTotal = logs.filter((x) => x.kind === "INCOME").reduce((s, x) => s + x.amount, 0);
-  const expensesTotal = logs.filter((x) => x.kind === "EXPENSE").reduce((s, x) => s + x.amount, 0);
-  const balance = openingBalance + incomesTotal - expensesTotal;
-  return { incomesTotal, expensesTotal, balance };
-}, [logs, openingBalance]);
-
-const expenseSeries = useMemo(() => {
+  const expenseSeries = useMemo(() => {
   const sorted = [...logs].sort((a, b) => a.occurredAt - b.occurredAt);
 
   let cumExpense = 0;
   const points: { ts: number; v: number }[] = [];
 
   for (const x of sorted) {
-    if (x.kind !== "EXPENSE") continue;
-    cumExpense += x.amount;
+    if (x.kind === "EXPENSE") cumExpense += x.amount;
     points.push({ ts: x.occurredAt, v: cumExpense });
   }
 
   if (points.length === 0) points.push({ ts: Date.now(), v: 0 });
   return points;
 }, [logs]);
- 
-// ✅ ここが必要（←これが無いから div でコケてる）
-  };
-return (
 
-    <div className="space-y-4">
-      <header className="space-y-1">
-        <h1 className="text-2xl font-bold">Compare / Money Stabilizer（β）</h1>
-        <p className="text-slate-300 text-sm">開始残高 + 入金/支出ログで「床」を管理する。</p>
-      </header>
+const summary = useMemo(() => {
+  const incomesTotal = logs.filter((x) => x.kind === "INCOME").reduce((s, x) => s + x.amount, 0);
+  const expensesTotal = logs.filter((x) => x.kind === "EXPENSE").reduce((s, x) => s + x.amount, 0);
+  const balance = openingBalance + incomesTotal - expensesTotal;
+  return { incomesTotal, expensesTotal, balance };
+}, [logs, openingBalance]);
+
+return (
+  <div className="space-y-4">
+    <header className="space-y-1">
+      <h1 className="text-2xl font-bold">Compare / Money Stabilizer（β）</h1>
+      <p className="text-slate-300 text-sm">開始残高 + 入金/支出ログで「床」を管理する。</p>
+    </header>
+
+ 
 
       <section className="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
         <label className="text-xs text-slate-300 block">
