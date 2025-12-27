@@ -1,6 +1,6 @@
 type Env = {
-  ADMIN_KEY: string;      // 発行権限（管理者トークン）
-  INVITE_SIGNING_KEY: string;  // 招待トークン署名用（HMAC）
+  ADMIN_KEY: string;             // 発行権限（管理者トークン）
+  INVITE_SIGNING_KEY: string;    // 招待トークン署名用（HMAC）
 };
 
 const ALLOWED_ORIGINS = new Set([
@@ -104,6 +104,8 @@ export default {
 
       const payload = { v: 1, iat: now, exp, rnd };
       const payloadB64 = b64u(new TextEncoder().encode(JSON.stringify(payload)));
+
+      // ★ ここが INVITE_SIGNING_KEY
       const sig = await hmacSha256(env.INVITE_SIGNING_KEY, payloadB64);
       const token = `${payloadB64}.${b64u(sig)}`;
 
@@ -124,6 +126,8 @@ export default {
       if (!invite.includes(".")) return bad(req, "invalid invite");
 
       const [payloadB64, sigB64] = invite.split(".", 2);
+
+      // ★ ここが INVITE_SIGNING_KEY
       const expected = await hmacSha256(env.INVITE_SIGNING_KEY, payloadB64);
 
       // timing-safe っぽく
