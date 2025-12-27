@@ -1,10 +1,10 @@
 export const runtime = "edge";
 
-
 const cors = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Access-Control-Max-Age": "86400",
 };
 
 export async function OPTIONS() {
@@ -13,23 +13,27 @@ export async function OPTIONS() {
 
 export async function GET() {
   return Response.json(
-    { status: "ok", service: "cia-api", ts: Date.now() },
+    { ok: true, service: "cia", ts: Date.now() },
     { headers: cors }
   );
 }
 
-export async function POST(req: Request) {
+export async function POST(request: Request) {
   try {
-    const body = await req.json();
+    const body = await request.json().catch(() => null);
+    if (!body) {
+      return Response.json(
+        { ok: false, error: "invalid_json" },
+        { status: 400, headers: cors }
+      );
+    }
 
-    // 例：lumi-core-api に中継する（EdgeでOKなやつ）
-    // const r = await fetch("https://app.luminabulige.com/cia", { ... })
-
+    // TODO: verify / proxy / 署名チェックなど
     return Response.json({ ok: true, received: body }, { headers: cors });
   } catch (e: any) {
     return Response.json(
-      { ok: false, error: e?.message ?? "unknown" },
-      { status: 400, headers: cors }
+      { ok: false, error: String(e?.message ?? e) },
+      { status: 500, headers: cors }
     );
   }
 }
