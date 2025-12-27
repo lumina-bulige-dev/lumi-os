@@ -141,6 +141,33 @@ export default function MoneyStabilizer() {
     return points;
   }, [logs]);
 
+    const expensePath = useMemo(() => {
+    if (!expenseSeries.length) return "";
+
+    const xs = expenseSeries.map((p) => p.ts);
+    const ys = expenseSeries.map((p) => p.v);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = 0;
+    const maxY = Math.max(...ys);
+
+    const width = 300;
+    const height = 80;
+
+    const points = expenseSeries.map((p) => {
+      const x =
+        maxX === minX ? 0 : ((p.ts - minX) / (maxX - minX || 1)) * width;
+      const y =
+        maxY === minY
+          ? height
+          : height - ((p.v - minY) / (maxY - minY || 1)) * height;
+      return { x, y };
+    });
+
+    return points
+      .map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`)
+      .join(" ");
+  }, [expenseSeries]);
   // 残高・合計
   const summary = useMemo(() => {
     const incomesTotal = logs
