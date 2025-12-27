@@ -1,5 +1,7 @@
+export const runtime = 'edge';
+export const dynamic = 'force-dynamic';
 import { NextResponse } from "next/server";
-export const runtime = "edge";
+
 const cors = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
