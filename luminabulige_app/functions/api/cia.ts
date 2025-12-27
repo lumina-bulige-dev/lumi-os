@@ -1,8 +1,5 @@
-export const onRequestGet: PagesFunction = async () => {
-  return Response.json({ ok: true, service: "cia-api", ts: Date.now() });
-};
-
-export const onRequestPost: PagesFunction = async ({ request }) => {
+export const onRequestGet = async () => Response.json({ ok: true });
+export const onRequestPost = async ({ request }: any) => {
   const body = await request.json().catch(() => null);
-  return Response.json({ ok: true, received: body, ts: Date.now() });
+  return Response.json({ ok: true, received: body });
 };
