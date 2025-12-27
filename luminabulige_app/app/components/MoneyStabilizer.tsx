@@ -190,14 +190,58 @@ export default function MoneyStabilizer() {
         </p>
       </header>
 
-      {/* 📈 累積支出のデバッグ表示（あとで折れ線グラフに差し替え） */}
-      <section className="rounded-xl border border-white/10 bg-white/5 p-4">
-        <div className="text-sm text-slate-200 font-semibold">
-          累積支出（デバッグ表示）
+           <section className="rounded-xl border border-white/10 bg-white/5 p-4">
+        <div className="flex items-baseline justify-between mb-2">
+          <div className="text-sm text-slate-200 font-semibold">
+            累積支出グラフ
+          </div>
+          <div className="text-xs text-slate-400">
+            最新：¥{" "}
+            {formatJPY(
+              expenseSeries[expenseSeries.length - 1]?.v ?? 0
+            )}
+          </div>
         </div>
-        <pre className="mt-2 text-xs text-slate-400 overflow-auto max-h-40">
-          {JSON.stringify(expenseSeries.slice(-8), null, 2)}
-        </pre>
+
+        <svg
+          viewBox="0 0 300 80"
+          className="w-full h-24"
+          preserveAspectRatio="none"
+        >
+          <defs>
+            <linearGradient id="expenseFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.6" />
+              <stop offset="100%" stopColor="#38bdf8" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+
+          {/* 床ライン（横線） */}
+          <line
+            x1="0"
+            y1="79"
+            x2="300"
+            y2="79"
+            stroke="rgba(148,163,184,0.4)"
+            strokeWidth="0.5"
+          />
+
+          {expensePath && (
+            <>
+              {/* 下を塗るエリア */}
+              <path
+                d={`${expensePath} L300,80 L0,80 Z`}
+                fill="url(#expenseFill)"
+              />
+              {/* 折れ線本体 */}
+              <path
+                d={expensePath}
+                fill="none"
+                stroke="#38bdf8"
+                strokeWidth="2"
+              />
+            </>
+          )}
+        </svg>
       </section>
 
       {/* 入力・サマリ */}
