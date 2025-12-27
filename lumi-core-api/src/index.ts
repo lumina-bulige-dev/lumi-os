@@ -104,7 +104,7 @@ export default {
 
       const payload = { v: 1, iat: now, exp, rnd };
       const payloadB64 = b64u(new TextEncoder().encode(JSON.stringify(payload)));
-      const sig = await hmacSha256(env.INVITE_SECRET, payloadB64);
+      const sig = await hmacSha256(env.INVITE_SIGNING_KEY, payloadB64);
       const token = `${payloadB64}.${b64u(sig)}`;
 
       return json({ ok: true, invite: token, exp, ttlDays }, 200, corsHeaders(req));
@@ -124,7 +124,7 @@ export default {
       if (!invite.includes(".")) return bad(req, "invalid invite");
 
       const [payloadB64, sigB64] = invite.split(".", 2);
-      const expected = await hmacSha256(env.INVITE_SECRET, payloadB64);
+      const expected = await hmacSha256(env.INVITE_SIGNING_KEY, payloadB64);
 
       // timing-safe っぽく
       const got = b64uToBytes(sigB64);
