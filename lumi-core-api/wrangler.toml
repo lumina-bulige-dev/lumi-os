@@ -1,8 +1,11 @@
 name = "lumi-core-api"
+main = "src/index.ts"
+compatibility_date = "2025-03-01"
 
-main = "src/index.ts"         # ← Worker のエントリーファイルに合わせて
-compatibility_date = "2024-12-26"
+kv_namespaces = [
+  { binding = "INVITES", id = "xxxxx" }
+]
 
-# node:buffer / node:async_hooks みたいな Node 組み込みを使う場合
-# （前に Pages では nodejs_compat つけてって警告出てたやつ）
-compatibility_flags = ["nodejs_compat"]
+[vars]
+# ADMIN_KEYはここに直書きしない（漏れる）
+# wrangler secret put ADMIN_KEY で入れる
