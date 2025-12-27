@@ -136,7 +136,7 @@ const expenseSeries = useMemo(() => {
  
 // ✅ ここが必要（←これが無いから div でコケてる）
 return (
- 
+  };
     <div className="space-y-4">
       <header className="space-y-1">
         <h1 className="text-2xl font-bold">Compare / Money Stabilizer（β）</h1>
