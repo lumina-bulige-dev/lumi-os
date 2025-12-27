@@ -1,7 +1,6 @@
 "use client";
-
 import React, { useEffect, useMemo, useState } from "react";
-//import BalanceLineChart from "@/app/components/BalanceLineChart";
+
 type ParentKey = "FIXED" | "LIFE" | "WORK" | "FUN" | "OTHER";
 type LogKind = "INCOME" | "EXPENSE";
 
@@ -28,7 +27,9 @@ const CHILDREN: Record<ParentKey, string[]> = {
 };
 
 function uuid() {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
   return `id_${Math.random().toString(16).slice(2)}_${Date.now()}`;
 }
 
@@ -49,20 +50,20 @@ function formatJPY(n: number) {
 }
 
 export default function MoneyStabilizer() {
-  // ✅ Hook は全部ここ（コンポーネント内）
+  // ====== state ======
   const [logs, setLogs] = useState<LogItem[]>([]);
   const [openingBalance, setOpeningBalance] = useState<number>(0);
-
   const [kind, setKind] = useState<LogKind>("EXPENSE");
   const [parent, setParent] = useState<ParentKey>("LIFE");
   const [child, setChild] = useState<string>(CHILDREN.LIFE[0]);
-
   const [amount, setAmount] = useState<string>("");
   const [memo, setMemo] = useState<string>("");
   const [placeTag, setPlaceTag] = useState<LogItem["placeTag"]>("home");
-  const [occurredAtInput, setOccurredAtInput] = useState<string>(() => toDatetimeLocal(Date.now()));
+  const [occurredAtInput, setOccurredAtInput] = useState<string>(() =>
+    toDatetimeLocal(Date.now())
+  );
 
-  // parent変更で child追従
+  // 親カテゴリ変更 → 子カテゴリ追従
   useEffect(() => {
     setChild(CHILDREN[parent]?.[0] ?? "その他");
   }, [parent]);
@@ -74,17 +75,25 @@ export default function MoneyStabilizer() {
       if (!raw) return;
       const parsed = JSON.parse(raw);
       if (parsed && typeof parsed === "object") {
-        if (typeof parsed.openingBalance === "number") setOpeningBalance(parsed.openingBalance);
-        if (Array.isArray(parsed.logs)) setLogs(parsed.logs);
+        if (typeof parsed.openingBalance === "number") {
+          setOpeningBalance(parsed.openingBalance);
+        }
+        if (Array.isArray(parsed.logs)) {
+          setLogs(parsed.logs);
+        }
       }
-    } catch {}
+    } catch {
+      // 失敗は無視（β）
+    }
   }, []);
 
   // Save
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ openingBalance, logs }));
-    } catch {}
+    } catch {
+      // storage一杯などは無視
+    }
   }, [openingBalance, logs]);
 
   function addLog() {
@@ -106,42 +115,65 @@ export default function MoneyStabilizer() {
       placeTag,
     };
 
-    setLogs((prev) => [item, ...prev].sort((a, b) => b.occurredAt - a.occurredAt));
+    setLogs((prev) =>
+      [item, ...prev].sort((a, b) => b.occurredAt - a.occurredAt)
+    );
     setAmount("");
     setMemo("");
   }
 
+  // ✅ 累積支出の時系列（折れ線グラフの元データ）
   const expenseSeries = useMemo(() => {
-  const sorted = [...logs].sort((a, b) => a.occurredAt - b.occurredAt);
+    const sorted = [...logs].sort((a, b) => a.occurredAt - b.occurredAt);
 
-  let cumExpense = 0;
-  const points: { ts: number; v: number }[] = [];
+    let cumExpense = 0;
+    const points: { ts: number; v: number }[] = [];
 
-  for (const x of sorted) {
-    if (x.kind === "EXPENSE") cumExpense += x.amount;
-    points.push({ ts: x.occurredAt, v: cumExpense });
-  }
+    for (const x of sorted) {
+      if (x.kind === "EXPENSE") cumExpense += x.amount;
+      points.push({ ts: x.occurredAt, v: cumExpense });
+    }
 
-  if (points.length === 0) points.push({ ts: Date.now(), v: 0 });
-  return points;
-}, [logs]);
+    if (points.length === 0) {
+      points.push({ ts: Date.now(), v: 0 });
+    }
 
-const summary = useMemo(() => {
-  const incomesTotal = logs.filter((x) => x.kind === "INCOME").reduce((s, x) => s + x.amount, 0);
-  const expensesTotal = logs.filter((x) => x.kind === "EXPENSE").reduce((s, x) => s + x.amount, 0);
-  const balance = openingBalance + incomesTotal - expensesTotal;
-  return { incomesTotal, expensesTotal, balance };
-}, [logs, openingBalance]);
+    return points;
+  }, [logs]);
 
-return (
-  <div className="space-y-4">
-    <header className="space-y-1">
-      <h1 className="text-2xl font-bold">Compare / Money Stabilizer（β）</h1>
-      <p className="text-slate-300 text-sm">開始残高 + 入金/支出ログで「床」を管理する。</p>
-    </header>
+  // 残高・合計
+  const summary = useMemo(() => {
+    const incomesTotal = logs
+      .filter((x) => x.kind === "INCOME")
+      .reduce((s, x) => s + x.amount, 0);
+    const expensesTotal = logs
+      .filter((x) => x.kind === "EXPENSE")
+      .reduce((s, x) => s + x.amount, 0);
+    const balance = openingBalance + incomesTotal - expensesTotal;
+    return { incomesTotal, expensesTotal, balance };
+  }, [logs, openingBalance]);
 
- 
+  // ====== JSX（ここから下は必ずこの return の中）======
+  return (
+    <div className="space-y-4">
+      <header className="space-y-1">
+        <h1 className="text-2xl font-bold">Compare / Money Stabilizer（β）</h1>
+        <p className="text-slate-300 text-sm">
+          開始残高 + 入金/支出ログで「床」を管理する。
+        </p>
+      </header>
 
+      {/* 📈 累積支出のデバッグ表示（あとで折れ線グラフに差し替え） */}
+      <section className="rounded-xl border border-white/10 bg-white/5 p-4">
+        <div className="text-sm text-slate-200 font-semibold">
+          累積支出（デバッグ表示）
+        </div>
+        <pre className="mt-2 text-xs text-slate-400 overflow-auto max-h-40">
+          {JSON.stringify(expenseSeries.slice(-8), null, 2)}
+        </pre>
+      </section>
+
+      {/* 入力・サマリ */}
       <section className="rounded-xl border border-white/10 bg-white/5 p-4 space-y-3">
         <label className="text-xs text-slate-300 block">
           開始残高（必須）
@@ -158,7 +190,9 @@ return (
             type="button"
             onClick={() => setKind("EXPENSE")}
             className={`rounded-lg px-3 py-2 text-sm border ${
-              kind === "EXPENSE" ? "bg-white text-slate-950" : "border-white/15 bg-white/5 text-slate-200"
+              kind === "EXPENSE"
+                ? "bg-white text-slate-950"
+                : "border-white/15 bg-white/5 text-slate-200"
             }`}
           >
             支出
@@ -167,27 +201,15 @@ return (
             type="button"
             onClick={() => setKind("INCOME")}
             className={`rounded-lg px-3 py-2 text-sm border ${
-              kind === "INCOME" ? "bg-white text-slate-950" : "border-white/15 bg-white/5 text-slate-200"
+              kind === "INCOME"
+                ? "bg-white text-slate-950"
+                : "border-white/15 bg-white/5 text-slate-200"
             }`}
           >
             入金
           </button>
         </div>
-<div className="flex items-center justify-between rounded-lg border border-white/10 bg-slate-950/40 px-3 py-2">
-  <div className="text-sm text-slate-200">
-    モード：
-    <span
-      className={`ml-2 inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ${
-        kind === "INCOME"
-          ? "bg-emerald-400/20 text-emerald-200 border border-emerald-400/30"
-          : "bg-rose-400/20 text-rose-200 border border-rose-400/30"
-      }`}
-    >
-      {kind === "INCOME" ? "入金（+）" : "支出（-）"}
-    </span>
-  </div>
-  <div className="text-xs text-slate-400">追加前に必ず確認</div>
-</div>
+
         <div className="grid gap-3 md:grid-cols-5">
           <div className="md:col-span-1">
             <label className="text-xs text-slate-300">親カテゴリ</label>
@@ -197,7 +219,9 @@ return (
               onChange={(e) => setParent(e.target.value as ParentKey)}
             >
               {(["FIXED", "LIFE", "WORK", "FUN", "OTHER"] as const).map((k) => (
-                <option key={k} value={k}>{k}</option>
+                <option key={k} value={k}>
+                  {k}
+                </option>
               ))}
             </select>
           </div>
@@ -210,7 +234,9 @@ return (
               onChange={(e) => setChild(e.target.value)}
             >
               {CHILDREN[parent].map((c) => (
-                <option key={c} value={c}>{c}</option>
+                <option key={c} value={c}>
+                  {c}
+                </option>
               ))}
             </select>
           </div>
@@ -251,7 +277,6 @@ return (
               onChange={(e) => setOccurredAtInput(e.target.value)}
             />
           </div>
-
           <div className="md:col-span-1">
             <button
               className="w-full rounded-lg border border-white/15 bg-white/10 px-3 py-2 hover:bg-white/15"
@@ -261,7 +286,6 @@ return (
               今
             </button>
           </div>
-
           <div className="md:col-span-2">
             <label className="text-xs text-slate-300">メモ（任意）</label>
             <input
@@ -274,21 +298,26 @@ return (
         </div>
 
         <div className="flex gap-2 items-center">
-          <button className="rounded-lg bg-white text-slate-950 px-4 py-2 font-semibold" onClick={addLog} type="button">
+          <button
+            className="rounded-lg bg-white text-slate-950 px-4 py-2 font-semibold"
+            onClick={addLog}
+            type="button"
+          >
             追加
           </button>
           <div className="ml-auto text-sm text-slate-200">
-            残高：<span className="font-mono">¥ {formatJPY(summary.balance)}</span>
+            残高：
+            <span className="font-mono">¥ {formatJPY(summary.balance)}</span>
           </div>
         </div>
 
         {summary.balance < 0 && (
-          <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">
+          <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200 mt-2">
             ⚠️ 残高がマイナスです（床が抜けました）。入金 or 開始残高を確認してね。
           </div>
         )}
 
-        <div className="grid gap-2 md:grid-cols-3 text-sm">
+        <div className="grid gap-2 md:grid-cols-3 text-sm mt-3">
           <div className="rounded-lg border border-white/10 bg-slate-950/40 p-3">
             <div className="text-xs text-slate-300">開始残高</div>
             <div className="font-semibold">¥ {formatJPY(openingBalance)}</div>
@@ -304,9 +333,9 @@ return (
         </div>
       </section>
 
-            <section className="rounded-xl border border-white/10 bg-white/5 p-4">
+      {/* ログ一覧 */}
+      <section className="rounded-xl border border-white/10 bg-white/5 p-4">
         <h2 className="font-semibold mb-3">ログ</h2>
-
         {logs.length === 0 ? (
           <p className="text-slate-300 text-sm">
             まだログがない。まず1件、現実世界から拾ってこい🫳🌍
@@ -324,19 +353,19 @@ return (
                     {new Date(x.occurredAt).toLocaleString("ja-JP")}
                   </div>
                 </div>
-
                 <div className="flex-1">
                   <div className="font-semibold">
                     {x.parent} / {x.child}
                     {x.placeTag ? (
-                      <span className="ml-2 text-xs text-slate-400">({x.placeTag})</span>
+                      <span className="ml-2 text-xs text-slate-400">
+                        ({x.placeTag})
+                      </span>
                     ) : null}
                   </div>
                   {x.memo ? (
                     <div className="text-xs text-slate-300 mt-1">{x.memo}</div>
                   ) : null}
                 </div>
-
                 <div className="text-right">
                   <div className="font-bold">¥ {formatJPY(x.amount)}</div>
                 </div>
@@ -345,3 +374,6 @@ return (
           </div>
         )}
       </section>
+    </div>
+  );
+}
