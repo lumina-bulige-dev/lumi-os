@@ -1,5 +1,6 @@
 // luminabulige_app/functions/api/cia.ts
-export const onRequest: PagesFunction = async ({ request }) => {
+//export 
+  const onRequest: PagesFunction = async ({ request }) => {
   const cors = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
