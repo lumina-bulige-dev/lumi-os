@@ -302,25 +302,39 @@ const expenseSeries = useMemo(() => {
         </div>
       </section>
 
-      <section className="rounded-xl border border-white/10 bg-white/5 p-4">
+            <section className="rounded-xl border border-white/10 bg-white/5 p-4">
         <h2 className="font-semibold mb-3">ログ</h2>
+
         {logs.length === 0 ? (
-          <p className="text-slate-300 text-sm">まだログがない。まず1件、現実世界から拾ってこい🫳🌍</p>
+          <p className="text-slate-300 text-sm">
+            まだログがない。まず1件、現実世界から拾ってこい🫳🌍
+          </p>
         ) : (
           <div className="space-y-2">
             {logs.map((x) => (
-              <div key={x.id} className="rounded-lg border border-white/10 bg-slate-950/40 p-3 flex items-center gap-3">
+              <div
+                key={x.id}
+                className="rounded-lg border border-white/10 bg-slate-950/40 p-3 flex items-center gap-3"
+              >
                 <div className="min-w-[100px] text-xs text-slate-300">
                   {x.kind}
-                  <div className="text-slate-400">{new Date(x.occurredAt).toLocaleString("ja-JP")}</div>
+                  <div className="text-slate-400">
+                    {new Date(x.occurredAt).toLocaleString("ja-JP")}
+                  </div>
                 </div>
+
                 <div className="flex-1">
                   <div className="font-semibold">
                     {x.parent} / {x.child}
-                    {x.placeTag ? <span className="ml-2 text-xs text-slate-400">({x.placeTag})</span> : null}
+                    {x.placeTag ? (
+                      <span className="ml-2 text-xs text-slate-400">({x.placeTag})</span>
+                    ) : null}
                   </div>
-                  {x.memo ? <div className="text-xs text-slate-300 mt-1">{x.memo}</div> : null}
+                  {x.memo ? (
+                    <div className="text-xs text-slate-300 mt-1">{x.memo}</div>
+                  ) : null}
                 </div>
+
                 <div className="text-right">
                   <div className="font-bold">¥ {formatJPY(x.amount)}</div>
                 </div>
@@ -329,6 +343,3 @@ const expenseSeries = useMemo(() => {
           </div>
         )}
       </section>
-    </div>
-  );
-}
