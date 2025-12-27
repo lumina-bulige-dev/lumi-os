@@ -112,10 +112,29 @@ export default function MoneyStabilizer() {
   }
 
   const summary = useMemo(() => {
-    const incomesTotal = logs.filter((x) => x.kind === "INCOME").reduce((s, x) => s + x.amount, 0);
-    const expensesTotal = logs.filter((x) => x.kind === "EXPENSE").reduce((s, x) => s + x.amount, 0);
-    const balance = openingBalance + incomesTotal - expensesTotal;
-    return { incomesTotal, expensesTotal, balance };
+  const incomesTotal = logs.filter((x) => x.kind === "INCOME").reduce((s, x) => s + x.amount, 0);
+  const expensesTotal = logs.filter((x) => x.kind === "EXPENSE").reduce((s, x) => s + x.amount, 0);
+  const balance = openingBalance + incomesTotal - expensesTotal;
+  return { incomesTotal, expensesTotal, balance };
+}, [logs, openingBalance]);
+
+const expenseSeries = useMemo(() => {
+  const sorted = [...logs].sort((a, b) => a.occurredAt - b.occurredAt); // 古→新
+  let cumExpense = 0;
+  const points: { ts: number; v: number }[] = [];
+
+  for (const x of sorted) {
+    if (x.kind === "EXPENSE") cumExpense += x.amount;
+    points.push({ ts: x.occurredAt, v: cumExpense });
+  }
+
+  if (points.length === 0) points.push({ ts: Date.now(), v: 0 });
+  return points;
+}, [logs]);
+
+return (
+  // JSX...
+);
   }, [logs, openingBalance]);
 
   return (
