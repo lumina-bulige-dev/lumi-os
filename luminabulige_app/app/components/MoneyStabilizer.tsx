@@ -120,48 +120,7 @@ function safeKind(v: any): LogKind {
   return v === "INCOME" ? "INCOME" : "EXPENSE";
 }
 
-async function importLogsFromJson(file: File) {
-  const text = await file.text();
 
-  let parsed: any;
-  try {
-    parsed = JSON.parse(text);
-  } catch {
-    throw new Error("JSONが壊れてる（パース失敗）");
-  }
-
-  const incoming = Array.isArray(parsed) ? parsed : parsed?.logs;
-  if (!Array.isArray(incoming)) throw new Error("JSON形式が違う（logs配列がない）");
-
-  const cleaned: LogItem[] = incoming
-    .filter((x) => x && typeof x === "object")
-    .map((x) => {
-      const occurredAt = toMs(x.occurredAt ?? Date.now());
-      const createdAt = toMs(x.createdAt ?? Date.now());
-      const amount = Math.max(0, Math.round(Number(String(x.amount ?? 0).replace(/,/g, ""))));
-
-      const item: LogItem = {
-        id: String(x.id ?? uuid()),
-        occurredAt,
-        createdAt,
-        kind: safeKind(x.kind),
-        parent: safeParent(x.parent),
-        child: String(x.child ?? "不明"),
-        amount,
-        memo: x.memo ? String(x.memo) : undefined,
-        placeTag: safePlace(x.placeTag),
-      };
-      return item;
-    })
-    .filter((x) => Number.isFinite(x.occurredAt) && Number.isFinite(x.amount) && x.amount > 0);
-
-  // ✅ ここが超大事：重複排除してマージ
-  setLogs((prev) => {
-    const seen = new Set(prev.map((p) => p.id));
-    const unique = cleaned.filter((x) => !seen.has(x.id));
-    return [...unique, ...prev].sort((a, b) => b.occurredAt - a.occurredAt);
-  });
-}
   
   function addLog() {
     const amt = Number(amount);
