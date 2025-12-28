@@ -78,9 +78,19 @@ export default {
         corsHeaders(req)
       );
     }
+// invite/issue (管理者のみ)  ※一時: GET も許可
+if (path === "/invite/issue" && (req.method === "POST" || req.method === "GET")) {
+  const admin = url.searchParams.get("admin") || "";
+  const auth = req.headers.get("Authorization") || "";
+  const ok = auth === `Bearer ${env.ADMIN_KEY}` || admin === env.ADMIN_KEY;
+  if (!ok) return unauthorized(req);
 
+  let body: any = {};
+  try { body = await req.json(); } catch {}
+
+  const ttlDays = Number(body?.ttlDays ?? url.searchParams.get("ttlDays") ?? 7);
     // invite/issue (管理者のみ)
-    if (path === "/invite/issue" && req.method === "POST") {
+    /*if (path === "/invite/issue" && req.method === "POST") {
       const auth = req.headers.get("Authorization") || "";
       if (auth !== `Bearer ${env.ADMIN_KEY}`) return unauthorized(req);
 
@@ -89,7 +99,7 @@ export default {
         body = await req.json();
       } catch {}
 
-      const ttlDays = Number(body?.ttlDays ?? 7);
+      const ttlDays = Number(body?.ttlDays ?? 7);*/
       if (!Number.isFinite(ttlDays) || ttlDays <= 0 || ttlDays > 90) {
         return bad(req, "ttlDays must be 1..90");
       }
