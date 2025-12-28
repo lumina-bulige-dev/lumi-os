@@ -96,20 +96,7 @@ export default function MoneyStabilizer() {
     }
   }, [openingBalance, logs]);
 
-type ParentKey = "FIXED" | "LIFE" | "WORK" | "FUN" | "OTHER";
-type PlaceTag = "home" | "work" | "move" | "other";
-type LogKind = "INCOME" | "EXPENSE";
-type LogItem = {
-  id: string;
-  occurredAt: number;
-  createdAt: number;
-  kind: LogKind;
-  parent: ParentKey;
-  child: string;
-  amount: number;
-  memo?: string;
-  placeTag?: PlaceTag;
-};
+
 
 const PARENTS: ParentKey[] = ["FIXED", "LIFE", "WORK", "FUN", "OTHER"];
 const PLACES: PlaceTag[] = ["home", "work", "move", "other"];
