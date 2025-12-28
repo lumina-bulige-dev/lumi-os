@@ -1,6 +1,6 @@
 type Env = {
-  ADMIN_KEY: string;             // 発行権限（管理者トークン）
-  INVITE_SIGNING_KEY: string;    // 招待トークン署名用（HMAC）
+  ADMIN_KEY: string;            // 管理者トークン（短め推奨。後で強化）
+  INVITE_SIGNING_KEY: string;   // 招待トークン署名用（HMAC秘密鍵）
 };
 
 const ALLOWED_ORIGINS = new Set([
@@ -30,6 +30,7 @@ async function hmacSha256(secret: string, data: string) {
   const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(data));
   return new Uint8Array(sig);
 }
+
 function json(data: unknown, status = 200, headers: Record<string, string> = {}) {
   return new Response(JSON.stringify(data), {
     status,
@@ -42,6 +43,7 @@ function text(body: string, status = 200, headers: Record<string, string> = {}) 
     headers: { "content-type": "text/plain; charset=utf-8", ...headers },
   });
 }
+
 function corsHeaders(req: Request) {
   const origin = req.headers.get("Origin") || "";
   const allow = ALLOWED_ORIGINS.has(origin) ? origin : "https://app.luminabulige.com";
@@ -58,6 +60,14 @@ function unauthorized(req: Request) {
 }
 function bad(req: Request, msg: string, code = 400) {
   return json({ ok: false, error: msg }, code, corsHeaders(req));
+}
+
+// ✅ admin認証：ヘッダ優先、ダメなら ?admin= も一時許可（あとで消す）
+function isAdmin(req: Request, env: Env, url: URL) {
+  const auth = req.headers.get("Authorization") || "";
+  if (auth === `Bearer ${env.ADMIN_KEY}`) return true;
+  const q = url.searchParams.get("admin") || "";
+  return q && q === env.ADMIN_KEY;
 }
 
 export default {
@@ -78,28 +88,20 @@ export default {
         corsHeaders(req)
       );
     }
-// invite/issue (管理者のみ)  ※一時: GET も許可
-if (path === "/invite/issue" && (req.method === "POST" || req.method === "GET")) {
-  const admin = url.searchParams.get("admin") || "";
-  const auth = req.headers.get("Authorization") || "";
-  const ok = auth === `Bearer ${env.ADMIN_KEY}` || admin === env.ADMIN_KEY;
-  if (!ok) return unauthorized(req);
 
-  let body: any = {};
-  try { body = await req.json(); } catch {}
+    // invite/issue（管理者のみ）✅ POST でも GET でもOK
+    if (path === "/invite/issue" && (req.method === "POST" || req.method === "GET")) {
+      if (!isAdmin(req, env, url)) return unauthorized(req);
 
-  const ttlDays = Number(body?.ttlDays ?? url.searchParams.get("ttlDays") ?? 7);
-    // invite/issue (管理者のみ)
-    /*if (path === "/invite/issue" && req.method === "POST") {
-      const auth = req.headers.get("Authorization") || "";
-      if (auth !== `Bearer ${env.ADMIN_KEY}`) return unauthorized(req);
+      let ttlDays = Number(url.searchParams.get("ttlDays") ?? 7);
 
-      let body: any = {};
-      try {
-        body = await req.json();
-      } catch {}
+      if (req.method === "POST") {
+        try {
+          const body: any = await req.json();
+          if (body?.ttlDays != null) ttlDays = Number(body.ttlDays);
+        } catch {}
+      }
 
-      const ttlDays = Number(body?.ttlDays ?? 7);*/
       if (!Number.isFinite(ttlDays) || ttlDays <= 0 || ttlDays > 90) {
         return bad(req, "ttlDays must be 1..90");
       }
@@ -107,22 +109,19 @@ if (path === "/invite/issue" && (req.method === "POST" || req.method === "GET"))
       const now = Math.floor(Date.now() / 1000);
       const exp = now + ttlDays * 86400;
 
-      // 乱数
       const rndBytes = new Uint8Array(16);
       crypto.getRandomValues(rndBytes);
       const rnd = b64u(rndBytes);
 
       const payload = { v: 1, iat: now, exp, rnd };
       const payloadB64 = b64u(new TextEncoder().encode(JSON.stringify(payload)));
-
-      // ★ ここが INVITE_SIGNING_KEY
       const sig = await hmacSha256(env.INVITE_SIGNING_KEY, payloadB64);
       const token = `${payloadB64}.${b64u(sig)}`;
 
       return json({ ok: true, invite: token, exp, ttlDays }, 200, corsHeaders(req));
     }
 
-    // invite/verify（ブラウザテストしやすいように GET も用意）
+    // invite/verify（GET/POST）
     if (path === "/invite/verify" && (req.method === "POST" || req.method === "GET")) {
       let invite = url.searchParams.get("invite") || "";
 
@@ -136,11 +135,8 @@ if (path === "/invite/issue" && (req.method === "POST" || req.method === "GET"))
       if (!invite.includes(".")) return bad(req, "invalid invite");
 
       const [payloadB64, sigB64] = invite.split(".", 2);
-
-      // ★ ここが INVITE_SIGNING_KEY
       const expected = await hmacSha256(env.INVITE_SIGNING_KEY, payloadB64);
 
-      // timing-safe っぽく
       const got = b64uToBytes(sigB64);
       if (got.length !== expected.length) return bad(req, "bad signature", 403);
 
