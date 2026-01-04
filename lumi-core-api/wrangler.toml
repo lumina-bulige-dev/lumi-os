@@ -1,11 +1,8 @@
 name = "lumi-core-api"
 main = "src/index.ts"
-compatibility_date = "2025-03-01"
+compatibility_date = "2025-12-28"
 
-kv_namespaces = [
-  { binding = "INVITES", id = "xxxxx" }
+# ルートが api.luminabulige.com に紐づいてる前提
+routes = [
+  { pattern = "api.luminabulige.com/*", zone_name = "luminabulige.com" }
 ]
-
-[vars]
-# ADMIN_KEYはここに直書きしない（漏れる）
-# wrangler secret put ADMIN_KEY で入れる
