@@ -1,8 +1,11 @@
 // src/index.ts
+import { MOCK_HOME_STATE } from "./mocks/home_state";
+
 export interface Env {
   ADMIN_KEY?: string;          // secret推奨
   INVITE_SIGNING_KEY?: string; // secret推奨（署名キー）
   DATA_MODE?: string;          // "mock" など
+  WISE_REFERRAL_URL?: string;  // Wise紹介リンク
 }
 function normPath(pathname: string) {
   // 1) /api/v1 を吸収
@@ -159,6 +162,209 @@ async function handleInviteVerify(req: Request, env: Env) {
   if (!v.ok) return json({ ok: false, error: v.reason }, 401);
   return json({ ok: true, result: "OK" }, 200);
 }
+
+// --- Core OS Policy API handlers ---
+
+/**
+ * GET /api/v1/core/home_state
+ * ホーム画面のための まとめ値 API
+ */
+async function handleHomeState(req: Request, env: Env) {
+  if (req.method !== "GET") return text("method not allowed", 405);
+  
+  // MVP: mock data mode
+  if (env.DATA_MODE === "mock" || !env.DATA_MODE) {
+    // デフォルトは "safe" を返す
+    // クエリパラメータで状態を切り替え可能（デバッグ用）
+    const url = new URL(req.url);
+    const state = url.searchParams.get("state") || "safe";
+    
+    if (state === "warning" && MOCK_HOME_STATE.warning) {
+      return json(MOCK_HOME_STATE.warning, 200);
+    }
+    if (state === "danger" && MOCK_HOME_STATE.danger) {
+      return json(MOCK_HOME_STATE.danger, 200);
+    }
+    
+    return json(MOCK_HOME_STATE.safe, 200);
+  }
+  
+  // TODO: 本番実装（データベース連携など）
+  return json({ error: "not implemented" }, 501);
+}
+
+/**
+ * POST /api/v1/os/reaction
+ * state_t + action_t → state_{t+1} 計算エンジン
+ */
+async function handleReaction(req: Request, env: Env) {
+  if (req.method !== "POST") return text("method not allowed", 405);
+  
+  const body = await readBody(req);
+  if (!body || !body.state || !body.action) {
+    return json({ error: "state and action required" }, 400);
+  }
+  
+  const state = body.state;
+  const action = body.action;
+  const options = body.options || {};
+  
+  // MVP: 簡易計算ロジック
+  const balance_after = state.balance_total - action.amount;
+  const paket_floor = state.paket_floor || 250000;
+  
+  // safety_gap の計算
+  const safety_gap_before = state.balance_total - paket_floor;
+  const safety_gap_after = balance_after - paket_floor;
+  const delta_gap = safety_gap_after - safety_gap_before;
+  
+  // floor_status の判定
+  let floor_status_before = "SAFE";
+  let floor_status_after = "SAFE";
+  
+  if (safety_gap_before <= 0) floor_status_before = "RED";
+  else if (safety_gap_before <= 20000) floor_status_before = "WARN";
+  
+  if (safety_gap_after <= 0) floor_status_after = "RED";
+  else if (safety_gap_after <= 20000) floor_status_after = "WARN";
+  
+  // risk_score の更新（簡易版）
+  const risk_score_delta = Math.floor((action.amount / state.balance_total) * 10);
+  const risk_score_after = Math.min(100, (state.risk_score || 0) + risk_score_delta);
+  
+  // hidden_cost の更新
+  const hidden_cost_after = (state.hidden_cost_month || 0) + 
+    (action.fee_effective || 0) * action.amount;
+  
+  // zone 判定（Aurora / Twilight / Dark）
+  const getZone = (gap: number) => {
+    if (gap > 50000) return "Aurora";
+    if (gap > 20000) return "Twilight";
+    return "Dark";
+  };
+  
+  const response: any = {
+    state_before: state,
+    state_after: {
+      balance_total: balance_after,
+      paket_floor,
+      fixed_must: state.fixed_must,
+      living_min: state.living_min,
+      risk_score: risk_score_after,
+      hidden_cost_month: hidden_cost_after,
+    },
+    metrics: {
+      delta_gap,
+      safety_gap_before,
+      safety_gap_after,
+      floor_status_before,
+      floor_status_after,
+      zone_before: getZone(safety_gap_before),
+      zone_after: getZone(safety_gap_after),
+    },
+    alerts: [] as any[],
+  };
+  
+  // アラートの生成
+  if (floor_status_after === "RED") {
+    response.alerts.push({
+      level: "danger",
+      code: "FLOOR_RED",
+      message: "この支払いで床を下回ります。実行は推奨されません。",
+    });
+  } else if (floor_status_after === "WARN") {
+    response.alerts.push({
+      level: "warning",
+      code: "FLOOR_WARN",
+      message: `この支払いで、床との距離が ${safety_gap_after.toLocaleString()} 円まで近づきます。`,
+    });
+  }
+  
+  // router_decision（オプション）
+  if (options.include_router_decision && action.fee_candidate_list) {
+    const fee_current = action.fee_current || 0;
+    const candidates = action.fee_candidate_list || [];
+    
+    if (candidates.length > 0) {
+      const best = candidates.reduce((min: any, c: any) => 
+        c.fee_total < min.fee_total ? c : min
+      , candidates[0]);
+      
+      const saving = fee_current - best.fee_total;
+      const alpha = 0.3; // fee split parameter (0.10 ~ 0.75)
+      const lumi_fee = saving > 0 ? Math.floor(saving * alpha) : 0;
+      const user_gain = saving - lumi_fee;
+      
+      response.router_decision = {
+        enabled: state.auto_route_enabled || false,
+        considered: true,
+        best_candidate: best,
+        saving: Math.max(0, saving),
+        user_gain: Math.max(0, user_gain),
+        lumi_fee,
+        can_auto_switch: false, // MVP は常に false
+      };
+    }
+  }
+  
+  // diagnostics（オプション）
+  if (options.include_diagnostics) {
+    response.diagnostics = {
+      effective_fee_rate_current: action.fee_effective || 0,
+      effective_fee_rate_best: action.fee_effective || 0,
+      risk_score_delta,
+    };
+  }
+  
+  return json(response, 200);
+}
+
+/**
+ * POST /api/v1/goal/buffer
+ * paket_bigzoon（床）計算 API
+ */
+async function handleGoalBuffer(req: Request, env: Env) {
+  if (req.method !== "POST") return text("method not allowed", 405);
+  
+  const body = await readBody(req);
+  if (!body) {
+    return json({ error: "request body required" }, 400);
+  }
+  
+  // パラメータの取得
+  const fixed_must = body.fixed_must || 0;
+  const living_min = body.living_min || 0;
+  const buffer_multiplier = body.buffer_multiplier || 0;
+  
+  // 床の計算: paket_bigzoon = fixed_must + living_min + buffer
+  const paket_bigzoon = fixed_must + living_min + buffer_multiplier;
+  
+  return json({
+    paket_bigzoon,
+    components: {
+      fixed_must,
+      living_min,
+      buffer_multiplier,
+    },
+    formula: "paket_bigzoon = fixed_must + living_min + buffer_multiplier",
+  }, 200);
+}
+
+/**
+ * GET /api/v1/links/wise
+ * Wise紹介リンクを返す
+ */
+async function handleWiseLink(req: Request, env: Env) {
+  if (req.method !== "GET") return text("method not allowed", 405);
+  
+  const url = env.WISE_REFERRAL_URL || "https://wise.com/jp/invite/asd/luminabulige";
+  
+  if (!url) {
+    return json({ error: "Wise referral URL not configured" }, 500);
+  }
+  
+  return json({ url }, 200);
+}
 export default {
   async fetch(req: Request, env: Env) {
     const url = new URL(req.url);
@@ -174,6 +380,22 @@ export default {
     if (p === "/debug") {
       return handleDebug(req, env);
     }
+    
+    // --- Core OS Policy APIs (COPAPI) ---
+    if (p === "/core/home_state") {
+      return handleHomeState(req, env);
+    }
+    if (p === "/os/reaction") {
+      return handleReaction(req, env);
+    }
+    if (p === "/goal/buffer") {
+      return handleGoalBuffer(req, env);
+    }
+    if (p === "/links/wise") {
+      return handleWiseLink(req, env);
+    }
+    
+    // --- Invite APIs ---
     if (p === "/invite/issue") {
       return handleInviteIssue(req, env);
     }
