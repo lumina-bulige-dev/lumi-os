@@ -1,3 +1,4 @@
+📌 System ownership map: see `RESPONSIBILITY.md` (single source of truth).
 正式版を追加。
 lumi-os — Canonical OS / Rules / META / Algorithms Repository for LUMINA BULIGE
 
@@ -83,6 +84,9 @@ Only A：HQ may push canonical updates.
 Flow:
 E (Deep Source) → AI_E structuring → A:HQ adoption → lumi-os (canonical)
 All classes must read from main branch of this repo.
+
+
+•	NOTE: lumi-core-web is mock-only; production LP is served from /index.html (for now).
 
 下に古い説明文を残す。
 
@@ -192,6 +196,20 @@ This expresses the law of financial action–reaction, ensuring:
 	•	hidden costs accumulate
 	•	risk score responds to user behavior
 	•	every action updates the OS in a deterministic way
+
+{
+  "balance_total": 123456,
+  "paket_bigzoon": 80000,
+  "floor_status": "SAFE", 
+  "heart": {
+    "risk_mode": "LOW"
+  },
+  "meta": {
+    "version": "v1",
+    "generated_at": "2025-12-16T10:30:00Z"
+  }
+}
+
 
 ⸻
 
