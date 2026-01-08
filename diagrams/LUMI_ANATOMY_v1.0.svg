@@ -1,3 +1,4 @@
+<!--
 🔔A-CORE / NOTICE  
 LUMI Canonical Header Policy v1.2
 
@@ -8,6 +9,7 @@ B／C／D／E は参照のみとし、文言の引用・改変は禁止とする
 内容の改変・加筆・派生仕様の生成・PR 提案は A：HQ 以外のクラスには認められない。
 
 If it is not in lumi-os, it is not official.
+-->
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">
   <style>
     .title { font: bold 28px sans-serif; fill: #0b1530; }
