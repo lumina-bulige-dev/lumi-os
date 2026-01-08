@@ -6,3 +6,6 @@ compatibility_date = "2025-12-28"
 routes = [
   { pattern = "api.luminabulige.com/*", zone_name = "luminabulige.com" }
 ]
+
+[env.production]
+# Production environment inherits from base config
