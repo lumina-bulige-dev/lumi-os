@@ -317,6 +317,7 @@ export default function VClient() {
 
   const onPdfOne = () => {
     setPrintOne(true);
+    // Small delay to allow React to render print styles before printing
     setTimeout(() => window.print(), 60);
   };
 
