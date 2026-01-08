@@ -19,6 +19,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Configure Git
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Validate tag format
         shell: bash
         env:
@@ -30,8 +36,8 @@ jobs:
             exit 1
           fi
 
-      # We temporarily create a tag on HEAD to make the right version embedded
-      # in any build artifacts, BUT we don't push it to the remote yet.
+      # Create a temporary tag on HEAD for versioning purposes.
+      # This tag is not pushed to the remote in this step.
       - name: Create temporary tag
         shell: bash
         env:
