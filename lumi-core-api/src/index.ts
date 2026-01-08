@@ -7,6 +7,56 @@ export interface Env {
   DATA_MODE?: string;          // "mock" など
   WISE_REFERRAL_URL?: string;  // Wise紹介リンク
 }
+
+// Type definitions for reaction API
+interface Alert {
+  level: "info" | "warning" | "danger";
+  code: string;
+  message: string;
+}
+
+interface FeeCandidate {
+  provider: string;
+  fee_total: number;
+}
+
+interface RouterDecision {
+  enabled: boolean;
+  considered: boolean;
+  best_candidate: FeeCandidate;
+  saving: number;
+  user_gain: number;
+  lumi_fee: number;
+  can_auto_switch: boolean;
+}
+
+interface ReactionResponse {
+  state_before: any;
+  state_after: {
+    balance_total: number;
+    paket_floor: number;
+    fixed_must: number;
+    living_min: number;
+    risk_score: number;
+    hidden_cost_month: number;
+  };
+  metrics: {
+    delta_gap: number;
+    safety_gap_before: number;
+    safety_gap_after: number;
+    floor_status_before: string;
+    floor_status_after: string;
+    zone_before: string;
+    zone_after: string;
+  };
+  alerts: Alert[];
+  router_decision?: RouterDecision;
+  diagnostics?: {
+    effective_fee_rate_current: number;
+    effective_fee_rate_best: number;
+    risk_score_delta: number;
+  };
+}
 function normPath(pathname: string) {
   // 1) /api/v1 を吸収
   let p = pathname.replace(/^\/api\/v1(?=\/|$)/, "");
@@ -243,7 +293,7 @@ async function handleReaction(req: Request, env: Env) {
     return "Dark";
   };
   
-  const response: any = {
+  const response: ReactionResponse = {
     state_before: state,
     state_after: {
       balance_total: balance_after,
@@ -262,7 +312,7 @@ async function handleReaction(req: Request, env: Env) {
       zone_before: getZone(safety_gap_before),
       zone_after: getZone(safety_gap_after),
     },
-    alerts: [] as any[],
+    alerts: [],
   };
   
   // アラートの生成
@@ -283,10 +333,10 @@ async function handleReaction(req: Request, env: Env) {
   // router_decision（オプション）
   if (options.include_router_decision && action.fee_candidate_list) {
     const fee_current = action.fee_current || 0;
-    const candidates = action.fee_candidate_list || [];
+    const candidates: FeeCandidate[] = action.fee_candidate_list || [];
     
     if (candidates.length > 0) {
-      const best = candidates.reduce((min: any, c: any) => 
+      const best = candidates.reduce((min, c) => 
         c.fee_total < min.fee_total ? c : min
       , candidates[0]);
       
@@ -358,10 +408,6 @@ async function handleWiseLink(req: Request, env: Env) {
   if (req.method !== "GET") return text("method not allowed", 405);
   
   const url = env.WISE_REFERRAL_URL || "https://wise.com/jp/invite/asd/luminabulige";
-  
-  if (!url) {
-    return json({ error: "Wise referral URL not configured" }, 500);
-  }
   
   return json({ url }, 200);
 }
