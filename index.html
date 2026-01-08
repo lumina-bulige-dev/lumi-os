@@ -3,122 +3,273 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>LUMINA BULIGE – MONEY FLOW STABILIZER OS</title>
+  <title>LUMINA BULIGE — Money Flow Stabilizer</title>
 
   <style>
+    :root{
+      --bg0:#050A14;
+      --bg1:#071B33;
+
+      --text:#EAF2FF;
+      --muted:rgba(234,242,255,.72);
+
+      --card:rgba(255,255,255,.06);
+      --border:rgba(255,255,255,.12);
+
+      --accent:#46B6FF;
+      --accent2:rgba(70,182,255,.35);
+
+      --r-lg:16px;
+      --r-md:12px;
+
+      --space-1:8px;
+      --space-2:16px;
+      --space-3:24px;
+      --space-4:32px;
+    }
+
+    * { box-sizing: border-box; }
+
     body {
       margin: 0;
       padding: 0;
-      background: #0b0f17;
       font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", sans-serif;
-      color: #ffffff;
+      color: var(--text);
       line-height: 1.6;
+
+      background:
+        radial-gradient(1200px 700px at 50% -10%, rgba(70,182,255,.18), transparent 55%),
+        radial-gradient(900px 600px at 15% 15%, rgba(70,182,255,.10), transparent 60%),
+        linear-gradient(180deg, var(--bg0) 0%, var(--bg1) 100%);
     }
 
-    .hero {
-      padding: 60px 20px 40px;
-      text-align: center;
-      background: linear-gradient(180deg, #0b0f17 0%, #09121d 100%);
-    }
-
-    .logo {
-      max-width: 180px;
-      margin: 0 auto 20px;
-      opacity: 0.95;
-    }
-
-    h1 {
-      font-size: 32px;
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
-
-    .subtitle {
-      font-size: 16px;
-      opacity: 0.85;
-    }
-
-    .section {
-      max-width: 820px;
-      margin: 40px auto;
+    .wrap {
+      max-width: 420px;
+      margin: 0 auto;
       padding: 0 20px;
     }
 
-    h2 {
-      font-size: 22px;
-      margin-bottom: 10px;
-      border-left: 4px solid #d7b45a;
-      padding-left: 8px;
+    /* HERO */
+    .hero {
+      padding: 44px 0 28px;
+      text-align: center;
+    }
+
+    .brand {
+      margin-bottom: var(--space-3);
+    }
+
+    .logo {
+      width: clamp(220px, 62vw, 520px);
+      height: auto;
+      display: block;
+      margin: 0 auto 18px;
+      opacity: 0.96;
+
+      /* 発光を“盛る”のをやめて、上品に */
+      filter:
+        drop-shadow(0 18px 55px rgba(0,0,0,.55))
+        drop-shadow(0 0 22px rgba(70,182,255,.16));
+    }
+
+    .brandname {
+      font-size: 14px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: rgba(234,242,255,.78);
+      margin-top: 6px;
+    }
+
+    .headline {
+      font-size: 44px;
+      line-height: 1.06;
+      letter-spacing: -0.02em;
+      margin: 0 0 14px;
+      font-weight: 700;
+    }
+
+    .subcopy {
+      margin: 0 auto;
+      font-size: 16.5px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    .cta {
+      margin-top: 22px;
+      display: grid;
+      gap: 12px;
     }
 
     .btn {
-      display: inline-block;
-      background: #d7b45a;
-      color: #000;
-      font-weight: 600;
-      padding: 14px 22px;
-      border-radius: 8px;
-      margin-top: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 56px;
+      border-radius: var(--r-lg);
       text-decoration: none;
       font-size: 16px;
+      font-weight: 650;
+      letter-spacing: .01em;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+
+      /* 影は最小限（金融の誠実さ） */
+      box-shadow: 0 10px 28px rgba(0,0,0,.35);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+   /* 銀＋ほんのり青み（Primary） */
+.btn.primary {
+  border-color: rgba(221,232,248,.85);
+  background:
+    linear-gradient(135deg, #dfe6f0 0%, #b8c2d2 45%, #eef3fb 100%);
+  color: #020814;
+}
+
+/* 透明＋銀フチ（Secondary） */
+.btn.secondary {
+  background: transparent;
+  border-color: rgba(221,232,248,.55);
+  color: rgba(234,242,255,.92);
+}
+
+    .trust {
+      margin-top: 14px;
+      font-size: 12.5px;
+      color: rgba(234,242,255,.62);
+      letter-spacing: .02em;
+    }
+
+    /* SECTIONS */
+    .section {
+      max-width: 820px;
+      margin: 26px auto;
+      padding: 0 20px;
+    }
+
+    .card {
+      max-width: 820px;
+      margin: 0 auto;
+      border-radius: var(--r-lg);
+      border: 1px solid var(--border);
+      background: var(--card);
+      padding: 18px 18px;
+      box-shadow: 0 18px 55px rgba(0,0,0,.25);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 0 0 10px;
+      padding-left: 10px;
+      border-left: 3px solid rgba(70,182,255,.55);
+      letter-spacing: .01em;
+    }
+
+    p { margin: 0 0 10px; color: rgba(234,242,255,.82); }
+
+    .note {
+      font-size: 12.5px;
+      color: rgba(234,242,255,.62);
+      margin-top: 10px;
+      line-height: 1.55;
     }
 
     footer {
-      margin-top: 80px;
-      padding: 20px;
-      font-size: 13px;
-      color: #aaa;
+      margin-top: 52px;
+      padding: 18px 20px 28px;
+      font-size: 12.5px;
+      color: rgba(234,242,255,.55);
       text-align: center;
-      opacity: 0.7;
+    }
+
+    @media (min-width: 900px) {
+      .hero { padding: 70px 0 34px; }
+      .headline { font-size: 52px; }
     }
   </style>
 </head>
 
 <body>
 
+  <!-- HERO -->
   <div class="hero">
-    <!-- ロゴ画像（あなたが GitHub に置いたパスへ変更）-->
-    <img src="39A645C2-D6DF-4BF2-8F57-7489C4C7A89F.png" class="logo" alt="LUMINA BULIGE LOGO">
+    <div class="wrap">
+      <div class="brand">
+        <img src="39A645C2-D6DF-4BF2-8F57-7489C4C7A89F.png" class="logo" alt="LUMINA BULIGE LOGO">
+        <div class="brandname">LUMINA BULIGE</div>
+      </div>
 
-    <h1>LUMI OS – MONEY FLOW STABILIZER</h1>
-    <div class="subtitle">Your Money. Protected by a New Generation of Financial OS.</div>
+      <!-- A：主役 -->
+      <h1 class="headline">Money Flow Stabilizer</h1>
+
+      <!-- A：誠実サブコピー（2行固定） -->
+      <p class="subcopy">
+        Track your floor. Build a 30-day safety record.<br>
+        We don’t hold your money. We help you protect it.
+      </p>
+
+      <!-- CTA：30日ログがPrimary（B） -->
+      <div class="cta">
+        <a href="https://app.luminabulige.com/beta" class="btn primary">View 30-Day Log</a>
+        <a href="https://app.luminabulige.com/compare" class="btn secondary">Run Compare</a>
+      </div>
+
+      <div class="trust">Privacy-first · No custody · Simple &amp; auditable</div>
+    </div>
   </div>
 
+  <!-- SECTION 1 -->
   <div class="section">
-    <h2>LUMI OS とは？</h2>
-    <p>
-      LUMI OS は、お金の「床」を守るミニマム金融 OS です。
-      家賃・生活費・光熱費など、絶対に割ってはいけないライン（Floor）を
-      常に可視化し、安全な支出判断を助けます。
-    </p>
-
-    <p>
-      騙しの手数料・静かに減る残高・サブスクの見落とし——  
-      それらを OS が自動で検知し、危険な一歩手前でブレーキをかけます。
-    </p>
+    <div class="card">
+      <h2>LUMI OS とは？</h2>
+      <p>
+        LUMI OS は、お金の「床（Floor）」を守るミニマム金融OSです。
+        家賃・生活費・光熱費など、絶対に割ってはいけないラインを可視化し、
+        日々の判断をシンプルにします。
+      </p>
+      <p class="note">
+        銀行ではありません／資金は預かりません／投資助言はしません。
+      </p>
+    </div>
   </div>
 
+  <!-- SECTION 2 -->
   <div class="section">
-    <h2>30日「床を割らない」チャレンジ</h2>
-    <p>
-      あなたの支出ペースに合わせて、毎日 OS が「今日の安全度」を計算し、  
-      SAFE / WARNING / DANGER の3段階でガイドします。
-    </p>
-    <a href="#" class="btn">アプリ版（準備中）を見る</a>
+    <div class="card">
+      <h2>30日「床を割らない」チャレンジ</h2>
+      <p>
+        Compareで「今日の安全度」を計算し、保存すると、30日ログに実績が蓄積されます。
+        SAFE / WARNING / DANGER の3段階で“継続の安全”を育てます。
+      </p>
+      <div class="cta" style="margin-top: 14px;">
+        <a href="https://app.luminabulige.com/beta" class="btn primary">30日ログを開く</a>
+        <a href="https://app.luminabulige.com/compare" class="btn secondary">今日を記録する（Compare）</a>
+      </div>
+    </div>
   </div>
 
+  <!-- SECTION 3 -->
   <div class="section">
-    <h2>Aurora（手数料ルーペ）</h2>
-    <p>
-      国際送金・為替の「見えない手数料」を可視化するルーペ機能。  
-      現行ルートと Aurora ルートを比較し、“失っていたはずのお金” を示します。
-    </p>
-
-    <a href="#" class="btn">Wise 手数料を見る</a>
+    <div class="card">
+      <h2>Aurora（手数料ルーペ）</h2>
+      <p>
+        国際送金・為替の「見えないコスト」を比較して、失っていた可能性のある金額を可視化します。
+      </p>
+      <div class="cta" style="margin-top: 14px;">
+        <a href="（Wiseのトラッキングリンク）" class="btn secondary">送金で損しないコツを見る</a>
+      </div>
+      <p class="note">※ Auroraは比較の補助であり、送金や決済の主体ではありません。</p>
+    </div>
   </div>
 
   <footer>
-    © 2025 LUMINA BULIGE LLC — MONEY FLOW STABILIZER OS  
+    © 2025 LUMINA BULIGE LLC — Money Flow Stabilizer
   </footer>
 
 </body>

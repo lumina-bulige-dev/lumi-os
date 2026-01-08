@@ -1,43 +1,25 @@
-.badge {
+.btn-base {
   display: inline-block;
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-weight: 700;
-  font-size: 14px;
-  border: 1px solid rgba(0,0,0,0.12);
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  border: none;
 }
 
-.badge-safe {
-  background: #e7f7ee;
-  color: #0f6a3b;
+/* SAFE = 緑系 */
+.btn-safe {
+  background: #16a34a;
+  color: #ffffff;
 }
 
-.badge-warning {
-  background: #fff7e0;
-  color: #8a5a00;
+/* WARNING = 黄系 */
+.btn-warning {
+  background: #facc15;
+  color: #1f2933;
 }
 
-.badge-danger {
-  background: #ffe8e8;
-  color: #8a0f0f;
-}
-
-.hint {
-  margin-top: 8px;
-  opacity: 0.85;
-}
-body { outline: 6px solid hotpink; }
-.home-card {
-  padding: 16px;
-  border-radius: 12px;
-  transition: background 0.3s ease;
-}
-
-.danger-bg {
-  background: linear-gradient(
-    180deg,
-    rgba(120, 0, 0, 0.35),
-    rgba(40, 0, 0, 0.85)
-  );
-  box-shadow: 0 0 0 1px rgba(255, 80, 80, 0.4);
+/* DANGER = 赤系 */
+.btn-danger {
+  background: #ef4444;
+  color: #ffffff;
 }
