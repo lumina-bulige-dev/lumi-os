@@ -1,170 +1,185 @@
-type Env = {
-  ADMIN_KEY: string;
-  INVITE_SIGNING_KEY: string;
-};
-
-const ALLOWED_ORIGINS = new Set([
-  "https://app.luminabulige.com",
-  "http://localhost:3000",
-]);
-
-function b64u(bytes: Uint8Array) {
-  let s = "";
-  bytes.forEach((b) => (s += String.fromCharCode(b)));
-  return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+// src/index.ts
+export interface Env {
+  ADMIN_KEY?: string;          // secret推奨
+  INVITE_SIGNING_KEY?: string; // secret推奨（署名キー）
+  DATA_MODE?: string;          // "mock" など
 }
-function b64uToBytes(s: string) {
-  s = s.replace(/-/g, "+").replace(/_/g, "/");
-  const pad = s.length % 4 ? "=".repeat(4 - (s.length % 4)) : "";
-  const bin = atob(s + pad);
-  return new Uint8Array([...bin].map((c) => c.charCodeAt(0)));
+function normPath(pathname: string) {
+  // 1) /api/v1 を吸収
+  let p = pathname.replace(/^\/api\/v1(?=\/|$)/, "");
+  // 2) 末尾スラッシュ吸収（ルート"/"は除外）
+  if (p.length > 1) p = p.replace(/\/+$/, "");
+  // 3) 空なら "/" に
+  if (!p) p = "/";
+  return p;
 }
-async function hmacSha256(secret: string, data: string) {
-  const key = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
-  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(data));
-  return new Uint8Array(sig);
+function hasAdmin(env: Env, req: Request, url: URL) {
+  // 正本：Authorization Bearer
+  const auth = req.headers.get("Authorization") || "";
+  const bearerOk =
+    env.ADMIN_KEY &&
+    auth.startsWith("Bearer ") &&
+    auth.slice("Bearer ".length) === env.ADMIN_KEY;
+  // 一時逃げ道：クエリ admin（後で削除）
+  const q = url.searchParams.get("admin");
+  const queryOk = env.ADMIN_KEY && q && q === env.ADMIN_KEY;
+  return Boolean(bearerOk || queryOk);
 }
-function corsHeaders(req: Request) {
-  const origin = req.headers.get("Origin") || "";
-  const allow = ALLOWED_ORIGINS.has(origin) ? origin : "https://app.luminabulige.com";
-  return {
-    "Access-Control-Allow-Origin": allow,
-    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    "Access-Control-Max-Age": "86400",
-    "Vary": "Origin",
-  };
-}
-function json(data: unknown, status = 200, headers: Record<string, string> = {}) {
+function json(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { "content-type": "application/json; charset=utf-8", ...headers },
+    headers: {
+      "content-type": "application/json; charset=utf-8",
+      "Access-Control-Allow-Origin": "*",
+    },
   });
 }
-function text(body: string, status = 200, headers: Record<string, string> = {}) {
+function text(body: string, status = 200) {
   return new Response(body, {
     status,
-    headers: { "content-type": "text/plain; charset=utf-8", ...headers },
+    headers: {
+      "content-type": "text/plain; charset=utf-8",
+      "Access-Control-Allow-Origin": "*",
+    },
   });
 }
-function bad(req: Request, msg: string, code = 400) {
-  return json({ ok: false, error: msg }, code, corsHeaders(req));
+async function readBody(req: Request) {
+  const ct = req.headers.get("content-type") || "";
+  if (ct.includes("application/json")) return await req.json().catch(() => null);
+  if (ct.includes("application/x-www-form-urlencoded")) {
+    const t = await req.text();
+    return Object.fromEntries(new URLSearchParams(t));
+  }
+  // それ以外：テキスト（POST推奨なので一旦これでOK）
+  return await req.text().catch(() => "");
 }
-function unauthorized(req: Request) {
-  return json({ ok: false, error: "unauthorized" }, 401, corsHeaders(req));
+// --- ここから invite 実装（MVP） ---
+// ※ 署名方式は後で差し替えOK。いまは「動く + debugできる」を優先。
+function signInviteToken(payload: any, env: Env) {
+  // TODO: 本命は HMAC/Ed25519 などにする
+  // いまは「キーが入ってるか」確認しつつダミー署名
+  const key = env.INVITE_SIGNING_KEY || "";
+  const raw = JSON.stringify(payload);
+  // 超簡易：長さで変化させるダミー（※セキュアではない）
+  const sig = btoa(`${raw.length}:${key.length}`).replace(/=+$/g, "");
+  return sig;
 }
-
+function verifyInviteToken(token: string, env: Env) {
+  // TODO: 本命は sign と整合する検証を実装
+  // いまは token の構造チェックだけ（デバッグ用）
+  if (!env.INVITE_SIGNING_KEY) {
+    return { ok: false, reason: "missing INVITE_SIGNING_KEY" };
+  }
+  if (!token || token.length < 10) {
+    return { ok: false, reason: "token too short" };
+  }
+  return { ok: true };
+}
+// --- handlers ---
+async function handleDebug(req: Request, env: Env) {
+  const url = new URL(req.url);
+  const pathname = url.pathname;
+  const normalized = normPath(pathname);
+  const auth = req.headers.get("Authorization") || "";
+  const authKind = auth ? (auth.startsWith("Bearer ") ? "bearer" : "other") : "none";
+  // 値は絶対に出さない。存在と長さだけ。
+  const out = {
+    now: new Date().toISOString(),
+    method: req.method,
+    host: url.host,
+    pathname,
+    normalized_path: normalized,
+    search: url.search || "",
+    headers: {
+      "content-type": req.headers.get("content-type") || "",
+      authorization: authKind,
+      "user-agent": req.headers.get("user-agent") || "",
+    },
+    env: {
+      DATA_MODE: env.DATA_MODE || "",
+      has_ADMIN_KEY: Boolean(env.ADMIN_KEY),
+      ADMIN_KEY_len: env.ADMIN_KEY ? env.ADMIN_KEY.length : 0,
+      has_INVITE_SIGNING_KEY: Boolean(env.INVITE_SIGNING_KEY),
+      INVITE_SIGNING_KEY_len: env.INVITE_SIGNING_KEY ? env.INVITE_SIGNING_KEY.length : 0,
+    },
+    admin_ok: hasAdmin(env, req, url),
+    tips: [
+      "not found が出る場合：normalized_path と期待ルートが一致してるかを見る",
+      "unauthorized が出る場合：Authorization Bearer か ?admin= のどちらかが一致してるかを見る",
+      "INVITE_SIGNING_KEY が空だと verify が落ちる（debugに has_INVITE_SIGNING_KEY が出る）",
+    ],
+  };
+  // /debug は本来 admin 保護推奨。いまは焦げ付き回避で「無認証でも見れる」でもOK。
+  // ただし将来は if (!hasAdmin(...)) 401 にする。
+  return json(out, 200);
+}
+async function handleInviteIssue(req: Request, env: Env) {
+  const url = new URL(req.url);
+  if (req.method !== "POST") return text("method not allowed", 405);
+  if (!hasAdmin(env, req, url)) return text("unauthorized", 401);
+  const body = await readBody(req);
+  const now = Date.now();
+  const payload = {
+    v: 1,
+    iat: now,
+    // ここに「誰に出した招待か」など入れてOK（メール等）
+    sub: (body && (body.email || body.sub || body.user)) ?? "unknown",
+    // 期限など
+    exp: now + 1000 * 60 * 60 * 24 * 7, // 7 days
+  };
+  const sig = signInviteToken(payload, env);
+  const token = btoa(JSON.stringify(payload)).replace(/=+$/g, "") + "." + sig;
+  return json(
+    {
+      ok: true,
+      token,
+      verify_url: `${url.origin}/invite/verify?token=${encodeURIComponent(token)}`,
+      payload,
+    },
+    200
+  );
+}
+async function handleInviteVerify(req: Request, env: Env) {
+  const url = new URL(req.url);
+  // GET/HEAD は「URL検証」用の補助として 200 ok を返しても良い
+  // ただし invite verify 自体は POST 推奨（長い/事故回避）
+  if (req.method === "HEAD" || req.method === "GET") {
+    // token が無いなら案内だけ返す
+    const token = url.searchParams.get("token");
+    if (!token) return json({ ok: false, error: "token required (POST recommended)" }, 400);
+    const v = verifyInviteToken(token, env);
+    if (!v.ok) return json({ ok: false, error: v.reason }, 401);
+    return json({ ok: true, result: "OK" }, 200);
+  }
+  if (req.method !== "POST") return text("method not allowed", 405);
+  const body = await readBody(req);
+  const token = (body && (body.token || body.invite || body.t)) || url.searchParams.get("token");
+  if (!token || typeof token !== "string") return json({ ok: false, error: "token required" }, 400);
+  const v = verifyInviteToken(token, env);
+  if (!v.ok) return json({ ok: false, error: v.reason }, 401);
+  return json({ ok: true, result: "OK" }, 200);
+}
 export default {
-  async fetch(req: Request, env: Env): Promise<Response> {
-    try {
-      const url = new URL(req.url);
-      const rawPath = url.pathname;
-      const path = rawPath.startsWith("/api/v1/") ? rawPath.slice("/api/v1".length) : rawPath;
-
-      if (req.method === "OPTIONS") {
-        return new Response(null, { status: 204, headers: corsHeaders(req) });
-      }
-
-      // health
-      if (req.method === "GET" && (path === "/health" || path === "/")) {
-        return json(
-          { status: "ok", service: "lumi-core-api", timestamp: new Date().toISOString() },
-          200,
-          corsHeaders(req)
-        );
-      }
-
-      // admin判定：Bearer or ?admin=...
-      const isAdmin = () => {
-        const auth = req.headers.get("Authorization") || "";
-        if (auth === `Bearer ${env.ADMIN_KEY}`) return true;
-        const q = url.searchParams.get("admin") || "";
-        return !!q && q === env.ADMIN_KEY;
-      };
-
-      // invite issue (POST or GET救済)
-      if (path === "/invite/issue" && (req.method === "POST" || req.method === "GET")) {
-        if (!isAdmin()) return unauthorized(req);
-        if (!env.INVITE_SIGNING_KEY) return bad(req, "missing INVITE_SIGNING_KEY", 500);
-
-        let ttlDays = Number(url.searchParams.get("ttlDays") ?? 7);
-
-        if (req.method === "POST") {
-          try {
-            const body: any = await req.json();
-            ttlDays = Number(body?.ttlDays ?? ttlDays);
-          } catch {}
-        }
-
-        if (!Number.isFinite(ttlDays) || ttlDays <= 0 || ttlDays > 90) {
-          return bad(req, "ttlDays must be 1..90");
-        }
-
-        const now = Math.floor(Date.now() / 1000);
-        const exp = now + ttlDays * 86400;
-
-        const rndBytes = new Uint8Array(16);
-        crypto.getRandomValues(rndBytes);
-        const rnd = b64u(rndBytes);
-
-        const payload = { v: 1, iat: now, exp, rnd };
-        const payloadB64 = b64u(new TextEncoder().encode(JSON.stringify(payload)));
-        const sig = await hmacSha256(env.INVITE_SIGNING_KEY, payloadB64);
-        const token = `${payloadB64}.${b64u(sig)}`;
-
-        return json({ ok: true, invite: token, exp, ttlDays }, 200, corsHeaders(req));
-      }
-
-      // invite verify (GET/POST)
-      if (path === "/invite/verify" && (req.method === "GET" || req.method === "POST")) {
-        if (!env.INVITE_SIGNING_KEY) return bad(req, "missing INVITE_SIGNING_KEY", 500);
-
-        let invite = url.searchParams.get("invite") || "";
-        if (req.method === "POST") {
-          try {
-            const body: any = await req.json();
-            invite = String(body?.invite ?? invite);
-          } catch {}
-        }
-
-        if (!invite.includes(".")) return bad(req, "invalid invite");
-        const [payloadB64, sigB64] = invite.split(".", 2);
-
-        const expected = await hmacSha256(env.INVITE_SIGNING_KEY, payloadB64);
-        const got = b64uToBytes(sigB64);
-        if (got.length !== expected.length) return bad(req, "bad signature", 403);
-
-        let diff = 0;
-        for (let i = 0; i < got.length; i++) diff |= got[i] ^ expected[i];
-        if (diff !== 0) return bad(req, "bad signature", 403);
-
-        let payload: any;
-        try {
-          payload = JSON.parse(new TextDecoder().decode(b64uToBytes(payloadB64)));
-        } catch {
-          return bad(req, "bad payload", 400);
-        }
-
-        const now = Math.floor(Date.now() / 1000);
-        if (!payload?.exp || now > payload.exp) return bad(req, "expired", 403);
-
-        return json({ ok: true, payload }, 200, corsHeaders(req));
-      }
-
-      return text("not found", 404, corsHeaders(req));
-    } catch (e: any) {
-      // 1101回避：理由が見えるように返す
-      return json(
-        { ok: false, error: "exception", message: String(e?.message || e), stack: String(e?.stack || "") },
-        500,
-        { "Access-Control-Allow-Origin": "*", "content-type": "application/json; charset=utf-8" }
-      );
+  async fetch(req: Request, env: Env) {
+    const url = new URL(req.url);
+    const p = normPath(url.pathname);
+    // --- core routes ---
+    if (p === "/health") {
+      return json({
+        status: "ok",
+        service: "lumi-core-api",
+        timestamp: new Date().toISOString(),
+      });
     }
+    if (p === "/debug") {
+      return handleDebug(req, env);
+    }
+    if (p === "/invite/issue") {
+      return handleInviteIssue(req, env);
+    }
+    if (p === "/invite/verify") {
+      return handleInviteVerify(req, env);
+    }
+    return text("Not found", 404);
   },
 };
