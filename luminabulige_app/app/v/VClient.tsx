@@ -315,12 +315,9 @@ export default function VClient() {
     return () => window.removeEventListener("afterprint", onAfter);
   }, []);
 
-    const onPdfOne = () => {
+  const onPdfOne = () => {
     setPrintOne(true);
--   setTimeout(() => window.print(), 60);
-//+   requestAnimationFrame(() => {
-//+     requestAnimationFrame(() => window.print());
-//+   });
+    setTimeout(() => window.print(), 60);
   };
 
   return (
