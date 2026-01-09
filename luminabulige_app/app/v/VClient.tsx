@@ -268,7 +268,7 @@ export default function VClient() {
           button:not(.print-keep) { display: none !important; }
           a { text-decoration: none !important; }
         }
-      `}</style>  
+      `}</style>
     <main
       style={{
         minHeight: "100vh",
@@ -387,26 +387,18 @@ export default function VClient() {
                   検証時刻（JST）: <span style={{ color: ui.color.text, fontWeight: 900 }}>{verifiedAt ? fmtJST(verifiedAt) : "-"}</span>
                 </div>
               </div>
-        {/* 検証時刻の下に verify_url（ここだけでOK） */}
-          {verifyUrl && (
-            <div style={{ marginTop: ui.space.sm }}>
-              <Row
-                k="verify_url"
-                v={<span style={{ fontFamily: ui.font.mono }}>{shortHash(verifyUrl, 42, 14)}</span>}
-                right={<CopyButton value={verifyUrl} label="verify_url" />}
-              />
-            </div>
-          )}
 
-               
-        
-              {explanation && (
-                <div style={{ marginTop: ui.space.sm, color: ui.color.sub, lineHeight: 1.7 }}>
-                  {explanation}
+              {/* 検証時刻の下に verify_url（ここだけでOK） */}
+              {verifyUrl && (
+                <div style={{ marginTop: ui.space.sm }}>
+                  <Row
+                    k="verify_url"
+                    v={<span style={{ fontFamily: ui.font.mono }}>{shortHash(verifyUrl, 42, 14)}</span>}
+                    right={<CopyButton value={verifyUrl} label="verify_url" />}
+                  />
                 </div>
               )}
 
-  
               {errorText && (
                 <div
                   style={{
@@ -497,12 +489,6 @@ export default function VClient() {
                   />
 
                   <Row
-                    k="verify_url"
-                    v={<span style={{ fontFamily: ui.font.mono }}>{shortHash(verifyUrl, 42, 14)}</span>}
-                    right={<CopyButton value={verifyUrl} label="verify_url" />}
-                  />
-
-                  <Row
                     k="ruleset_version"
                     v={<span style={{ fontFamily: ui.font.mono }}>{data?.proof?.ruleset_version ?? "-"}</span>}
                   />
@@ -580,5 +566,6 @@ export default function VClient() {
         </div>
       </div>
     </main>
+    </>
   );
 }
