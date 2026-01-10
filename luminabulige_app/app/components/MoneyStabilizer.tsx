@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
-
+type PlaceTag = "home" | "work" | "move" | "other";
 type ParentKey = "FIXED" | "LIFE" | "WORK" | "FUN" | "OTHER";
 type LogKind = "INCOME" | "EXPENSE";
 
@@ -17,7 +17,7 @@ type LogItem = {
 };
 
 const STORAGE_KEY = "lumi_compare_v2";
-
+const PLACES: PlaceTag[] = ["home", "work", "move", "other"];
 const CHILDREN: Record<ParentKey, string[]> = {
   FIXED: ["家賃", "通信", "サブスク", "保険", "ローン", "税金", "光熱費", "その他固定費"],
   LIFE: ["食費", "日用品", "交通", "医療", "衣類", "交際", "その他生活"],
