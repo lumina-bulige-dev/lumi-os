@@ -171,7 +171,7 @@ When implementing multi-environment builds with Vite 6+:
 
 ---
 
-**Canonical Status:** This pattern is officially recognized by LUMINA BULIGE as a best practice for Vite-based build configurations. All future web framework implementations should reference this pattern when implementing multi-environment builds.
+**Canonical Status:** This pattern is officially recognized by LUMINABULIGE as a best practice for Vite-based build configurations. All future web framework implementations should reference this pattern when implementing multi-environment builds.
 
 **Maintenance:** A：HQ only
 **Access:** B／C／D／E - Reference only (no modification)
