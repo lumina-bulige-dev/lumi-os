@@ -7,7 +7,7 @@ on:
 
 jobs:
   build_root:
-    runs-on: 'ubuntu-latest'
+    runs-on: ubuntu-latest
     name: Build root Next.js app
     steps:
       - uses: actions/checkout@v4
@@ -26,7 +26,7 @@ jobs:
         run: npm run build
 
   build_luminabulige_app:
-    runs-on: 'ubuntu-latest'
+    runs-on: ubuntu-latest
     name: Build luminabulige app
     steps:
       - uses: actions/checkout@v4
@@ -47,7 +47,7 @@ jobs:
         run: npm run build
 
   validate_lumi_core_api:
-    runs-on: 'ubuntu-latest'
+    runs-on: ubuntu-latest
     name: Validate lumi-core-api
     steps:
       - uses: actions/checkout@v4
