@@ -1,4 +1,8 @@
 // src/index.ts
+import { VERSION } from './version';
+
+export { VERSION };
+
 export interface Env {
   ADMIN_KEY?: string;          // secret推奨
   INVITE_SIGNING_KEY?: string; // secret推奨（署名キー）
@@ -168,6 +172,7 @@ export default {
       return json({
         status: "ok",
         service: "lumi-core-api",
+        version: VERSION,
         timestamp: new Date().toISOString(),
       });
     }
