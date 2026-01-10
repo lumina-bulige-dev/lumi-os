@@ -36,7 +36,7 @@ echo "==> Running TypeScript compiler to detect type breaking changes"
 if command -v npx &> /dev/null; then
     # First check the main project
     echo "Checking main project TypeScript files..."
-    if ! npx tsc --noEmit --project tsconfig.json 2>&1; then
+    if ! npx tsc --noEmit --project tsconfig.json; then
         echo "Error: Breaking changes detected in main project files"
         exit 1
     fi
@@ -45,7 +45,7 @@ if command -v npx &> /dev/null; then
     if [ -f "lumi-core-api/src/index.ts" ]; then
         echo "Checking lumi-core-api TypeScript files..."
         cd lumi-core-api
-        if ! npx tsc --noEmit --project tsconfig.json 2>&1; then
+        if ! npx tsc --noEmit --project tsconfig.json; then
             echo "Error: Breaking changes detected in lumi-core-api files"
             exit 1
         fi
