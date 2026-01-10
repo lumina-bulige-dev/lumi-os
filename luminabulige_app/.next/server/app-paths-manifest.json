@@ -1,9 +1,0 @@
-{
-  "/_not-found/page": "app/_not-found/page.js",
-  "/cia/page": "app/cia/page.js",
-  "/compare/page": "app/compare/page.js",
-  "/beta/page": "app/beta/page.js",
-  "/v/page": "app/v/page.js",
-  "/page": "app/page.js",
-  "/api/cia/route": "app/api/cia/route.js"
-}
