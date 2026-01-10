@@ -6,15 +6,17 @@ cd "$(dirname "$0")/.."
 
 echo "==> Detecting breaking changes"
 
+# Validate that commit SHA is provided
+if [ -z "$1" ]; then
+    echo "Error: Base commit SHA required as first argument"
+    exit 1
+fi
+
 # Define test paths for the lumi-os repository
 # These are key TypeScript files that define the API surface
+# Note: Only including files that are part of the main TypeScript compilation
 TEST_PATHS=(
 	lumi-core-api/src/index.ts
-	luminabulige_app/app/lib/db.ts
-	luminabulige_app/app/lib/cia.ts
-	luminabulige_app/app/types/money.ts
-	luminabulige_app/app/lib/db/types.ts
-	luminabulige_app/app/cia/model.ts
 	middleware.ts
 )
 
@@ -30,8 +32,25 @@ done
 echo "==> Running TypeScript compiler to detect type breaking changes"
 
 # Check if TypeScript compilation succeeds with old files
+# Use the root tsconfig which excludes luminabulige_app
 if command -v npx &> /dev/null; then
-    npx tsc --noEmit
+    # First check the main project
+    echo "Checking main project TypeScript files..."
+    if ! npx tsc --noEmit --project tsconfig.json 2>&1; then
+        echo "Error: Breaking changes detected in main project files"
+        exit 1
+    fi
+    
+    # Then check lumi-core-api separately if it exists
+    if [ -f "lumi-core-api/src/index.ts" ]; then
+        echo "Checking lumi-core-api TypeScript files..."
+        cd lumi-core-api
+        if ! npx tsc --noEmit 2>&1; then
+            echo "Error: Breaking changes detected in lumi-core-api files"
+            exit 1
+        fi
+        cd ..
+    fi
 else
     echo "Warning: npx not found, skipping TypeScript check"
 fi
