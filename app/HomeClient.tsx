@@ -1,26 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { fetchHomeState, fetchWiseReferral } from "./lib/api";
+import { useState } from "react";
+import { fetchWiseReferral } from "./lib/api";
+import { HomeState } from "./lib/types";
 
-type HomeState = {
-  balance_total: number;
-  paket_bigzoon: number;
-  floor_status: "SAFE" | "WARNING" | "DANGER";
-  heart: { risk_mode: string };
+type HomeClientProps = {
+  initialState: HomeState;
 };
 
-export default function HomeClient() {
-  const [state, setState] = useState<HomeState | null>(null);
-
-  useEffect(() => {
-    fetchHomeState()
-      .then((data) => {
-        console.log("🔥 home_state", data);
-        setState(data);
-      })
-      .catch(console.error);
-  }, []);
+export default function HomeClient({ initialState }: HomeClientProps) {
+  const [state] = useState<HomeState>(initialState);
 
   const openWise = async () => {
     try {
