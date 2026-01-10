@@ -65,4 +65,4 @@ jobs:
 
       - name: Validate with Wrangler
         working-directory: lumi-core-api
-        run: npm run deploy -- --dry-run
+        run: npx wrangler deploy --dry-run
