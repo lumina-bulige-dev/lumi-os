@@ -1,0 +1,34 @@
+{
+  "version": 3,
+  "middleware": {},
+  "functions": {
+    "/api/cia/route": {
+      "files": [
+        "server/middleware-build-manifest.js",
+        "server/middleware-react-loadable-manifest.js",
+        "server/next-font-manifest.js",
+        "server/interception-route-rewrite-manifest.js",
+        "server/edge-runtime-webpack.js",
+        "server/app/api/cia/route.js"
+      ],
+      "name": "app/api/cia/route",
+      "page": "/api/cia/route",
+      "matchers": [
+        {
+          "regexp": "^/api/cia$",
+          "originalSource": "/api/cia"
+        }
+      ],
+      "wasm": [],
+      "assets": [],
+      "env": {
+        "__NEXT_BUILD_ID": "vU4IThr_b1eZpngpPPRKk",
+        "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "KRHl3Dps5nKS0FPIpkw/HKQpsFPfOPNvrK1Ichaq7Zw=",
+        "__NEXT_PREVIEW_MODE_ID": "c2351f7a463d90273543b6b2400ee6d8",
+        "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "653c09153d9b4329ab752440de2ecd08069d78617908eaee2fb33cea6605a6b4",
+        "__NEXT_PREVIEW_MODE_SIGNING_KEY": "c1d7d3a5abc0024699cd49284140fc202bb8bff172cb5fd601a87ab4f8b437a3"
+      }
+    }
+  },
+  "sortedMiddleware": []
+}
