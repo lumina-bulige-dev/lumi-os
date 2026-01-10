@@ -12,7 +12,12 @@ jobs:
     steps:
       - name: Calculate fetch-depth
         run: |
-          echo "FETCH_DEPTH=$(expr ${{ github.event.pull_request.commits }} + 1)" >> $GITHUB_ENV
+          COMMITS="${{ github.event.pull_request.commits }}"
+          if [ -z "$COMMITS" ] || ! [ "$COMMITS" -eq "$COMMITS" ] 2>/dev/null; then
+            echo "FETCH_DEPTH=50" >> $GITHUB_ENV
+          else
+            echo "FETCH_DEPTH=$(expr $COMMITS + 1)" >> $GITHUB_ENV
+          fi
 
       - uses: actions/checkout@v4
         with:

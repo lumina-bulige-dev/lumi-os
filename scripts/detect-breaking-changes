@@ -44,12 +44,13 @@ if command -v npx &> /dev/null; then
     # Then check lumi-core-api separately if it exists
     if [ -f "lumi-core-api/src/index.ts" ]; then
         echo "Checking lumi-core-api TypeScript files..."
-        cd lumi-core-api
+        pushd lumi-core-api > /dev/null || exit 1
         if ! npx tsc --noEmit --project tsconfig.json; then
             echo "Error: Breaking changes detected in lumi-core-api files"
+            popd > /dev/null
             exit 1
         fi
-        cd ..
+        popd > /dev/null
     fi
 else
     echo "Warning: npx not found, skipping TypeScript check"
