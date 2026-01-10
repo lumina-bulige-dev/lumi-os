@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
-type PlaceTag = "home" | "work" | "move" | "other";
+
 type ParentKey = "FIXED" | "LIFE" | "WORK" | "FUN" | "OTHER";
 type LogKind = "INCOME" | "EXPENSE";
 import type { PlaceTag } from "@/app/types/money";
