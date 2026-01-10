@@ -1,18 +1,21 @@
 {
   "private": true,
   "scripts": {
+    "dev": "next dev",
     "build": "next build",
+    "pages:build": "next build && npx @cloudflare/next-on-pages",
     "start": "next start"
   },
   "dependencies": {
-    "next": "^14.0.0",
-    "pdf-lib": "^1.17.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "next": "14.2.35",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "pdf-lib": "1.17.1",
+    "@pdf-lib/fontkit": "1.1.1"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
-    "@types/react": "^18.0.0",
-    "typescript": "^5.7.0"
+    "typescript": "5.9.3",
+    "@types/node": "20.19.27",
+    "@types/react": "18.3.27"
   }
 }
