@@ -26,6 +26,8 @@
   "exclude": [
     "node_modules",
     "api"
+    "api",
+    "luminabulige_app"
   ],
   "include": [
     "next-env.d.ts",
