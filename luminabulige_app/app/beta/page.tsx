@@ -1,197 +1,56 @@
-"use client";
+// app/beta/page.tsx
+import Link from "next/link";
 
-import { useEffect, useMemo, useState, useCallback } from "react";
-import { PDFDocument, StandardFonts } from "pdf-lib";
-import { loadDailyLogs, last30, summarize, type DailyLog } from "../lib/lumiStorage";
-
-function getLast30Range() {
-  const today = new Date();
-  const to = today.toISOString().slice(0, 10);
-  const fromDate = new Date(today);
-  fromDate.setDate(today.getDate() - 29);
-  const from = fromDate.toISOString().slice(0, 10);
-  return { from, to };
-}
-
-function bytesToB64u(bytes: Uint8Array) {
-  let s = "";
-  for (const b of bytes) s += String.fromCharCode(b);
-  return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
-}
-
-async function sha256Bytes(data: Uint8Array) {
-  // ArrayBuffer に“確実に”寄せる（SharedArrayBuffer を排除）
-  const ab = new ArrayBuffer(data.byteLength);
-  new Uint8Array(ab).set(data);
-
-  const hash = await crypto.subtle.digest("SHA-256", ab);
-  return new Uint8Array(hash);
-}
-
-async function createVerifiedPdfFile(payload: any) {
-  // 1) 署名対象（固定化）
-  const payloadJson = JSON.stringify(payload);
-  const payloadBytes = new TextEncoder().encode(payloadJson);
-
-  // payload をPDFに載せる用（JSON直書きは事故るのでB64u化）
-  const payloadB64u = bytesToB64u(payloadBytes);
-
-  // 2) SHA-256
-  const hashBytes = await sha256Bytes(payloadBytes);
-  const hashB64u = bytesToB64u(hashBytes);
-
-  // 3) サーバ署名
-  const res = await fetch("/api/sign", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    cache: "no-store",
-    body: JSON.stringify({ hashB64u }),
-  });
-  if (!res.ok) throw new Error(`sign api failed: ${res.status}`);
-  const { sigB64u, kid, alg, ts } = await res.json();
-
-  // 4) PDF生成
-  const pdf = await PDFDocument.create();
-  const page = pdf.addPage([595, 842]);
-  const font = await pdf.embedFont(StandardFonts.Helvetica);
-
-  const lines = [
-    "LUMI 30-day log (Verified)",
-    "",
-    `alg: ${alg}  kid: ${kid}`,
-    `ts: ${ts}`,
-    "",
-    `hashB64u: ${hashB64u}`,
-    `sigB64u : ${sigB64u}`,
-    "",
-    "payloadB64u:",
-    payloadB64u,
-  ];
-
-  let y = 800;
-  for (const line of lines) {
-    page.drawText(line.slice(0, 110), { x: 40, y, size: 10, font });
-    y -= 14;
-    if (y < 40) break;
-  }
-
-  const pdfBytes = await pdf.save();
-  const fileName = `lumi_verified_${payload?.range?.to || "log"}.pdf`;
-
-  // ArrayBuffer に確実に寄せる
-  const ab = new ArrayBuffer(pdfBytes.byteLength);
-  new Uint8Array(ab).set(pdfBytes);
-
-  const file = new File([ab], fileName, { type: "application/pdf" });
-  return { file, fileName, meta: { hashB64u, sigB64u, kid, alg, ts } };
-} // ← ★これが必須。これが無いと export が壊れる
-
-function downloadFile(file: File, fileName: string) {
-  const url = URL.createObjectURL(file);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = fileName;
-  a.click();
-  URL.revokeObjectURL(url);
-}
+const items = [
+  { href: "/cia", title: "CIA", desc: "行動ログベースの監査ビュー（提出物の概念）" },
+  { href: "/compare", title: "Compare", desc: "他社KYC/信用スコアと比較する思考実験" },
+  { href: "/compare", title: "Money Stabilizer", desc: "30日ログ入力へ（床抜け検知つき）" },
+];
 
 export default function BetaPage() {
-  const [logs, setLogs] = useState<DailyLog[]>([]);
-  const [isSharing, setIsSharing] = useState(false);
-
-  useEffect(() => {
-    const all = loadDailyLogs();
-    setLogs(last30(all));
-  }, []);
-
-  const sum = useMemo(() => summarize(logs), [logs]);
-  const range = useMemo(() => getLast30Range(), []);
-
-  const onShare = useCallback(async () => {
-    if (isSharing) return;
-    setIsSharing(true);
-
-    try {
-      const payload = {
-        share_to_label: "manual",
-        range,
-        counts: { SAFE: sum.safe, WARNING: sum.warning, DANGER: sum.danger },
-        logs,
-        url: window.location.href,
-      };
-
-      const { file, fileName } = await createVerifiedPdfFile(payload);
-
-      // iPhone共有シート（対応してれば最優先）
-      try {
-        const nav: any = navigator;
-        if (nav.share && (!nav.canShare || nav.canShare({ files: [file] }))) {
-          await nav.share({
-            title: "LUMI 30-day log (Verified)",
-text: `Range: ${range.from}..${range.to}\nSAFE:${sum.safe} / WARNING:${sum.warning} / DANGER:${sum.danger}`,
-            files: [file],
-          });
-          return;
-        }
-      } catch {
-        // キャンセル含め握りつぶし
-      }
-
-      // フォールバック：DL
-      downloadFile(file, fileName);
-   } catch (e: any) {
-  console.error("PDF_SHARE_FAILED", e);
-  alert(`PDF生成に失敗: ${e?.message || e}`);
-} finally {
-      setTimeout(() => setIsSharing(false), 400);
-    }
-  }, [isSharing, logs, range, sum.safe, sum.warning, sum.danger]);
-
   return (
-    <main className="beta">
-      <div className="page">
-        <h1 className="h1">30日ログ（β）</h1>
-        <div className="lead">
-          Compareで「今日のログとして保存」を押すと、ここに集計が反映されます。
+    <main className="mx-auto max-w-4xl px-4 py-10 space-y-10">
+      <header className="space-y-3">
+        <h1 className="text-3xl font-extrabold tracking-tight">Beta（案内）</h1>
+        <p className="text-slate-300">
+          まず触る → 次に読む。βは “信用の結論” じゃなく “素材” を作る実験場。
+        </p>
+
+        {/* すぐ触れる導線（ボタン） */}
+        <div className="flex flex-wrap gap-2 pt-2">
+          <Link href="/compare" className="primary-cta">Money Stabilizer</Link>
+          <Link href="/cia" className="secondary-cta">CIA</Link>
+          <Link href="/" className="secondary-cta">LP</Link>
         </div>
+      </header>
 
-        <div className="card">
-          <div className="summary-title">30日のまとめ（直近30日）</div>
+      {/* 入口カード */}
+      <section className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
+        <div className="text-xs text-slate-400">入口</div>
 
-          <div className="pill-row">
-            <div className="pill safe">SAFE : {sum.safe}日</div>
-            <div className="pill warn">WARNING : {sum.warning}日</div>
-            <div className="pill danger">DANGER : {sum.danger}日</div>
-          </div>
-
-          <div className="note">
-            SAFE:{sum.safe} / WARNING:{sum.warning} / DANGER:{sum.danger}（記録:{sum.total}）
-          </div>
-
-          <div style={{ marginTop: 12 }}>
-            <button className="btn" type="button" onClick={onShare}>
-              {isSharing ? "PDFを生成中…" : "Verified PDF を作る"}
-            </button>
-          </div>
-
-          <div className="note">※ 銀行ではありません／資金は預かりません／投資助言はしません</div>
+        <div className="grid gap-2">
+          {items.map((x) => (
+            <Link
+              key={x.href + x.title}
+              href={x.href}
+              className="rounded-xl border border-white/10 bg-slate-950/30 p-4 hover:bg-white/10 transition"
+            >
+              <div className="font-semibold">{x.title}</div>
+              <div className="text-sm text-slate-300 mt-1">{x.desc}</div>
+            </Link>
+          ))}
         </div>
+      </section>
 
-        <div className="card">
-          <div className="summary-title">ログ一覧</div>
-          <ul>
-            {logs.map((l) => (
-              <li key={l.date}>
-                {l.date} / {l.level} / {Number(l.diffYen).toLocaleString()}円
-              </li>
-            ))}
-          </ul>
-
-          <div style={{ marginTop: 14 }}>
-            <a href="/compare">Compareへ戻る</a>
-          </div>
-        </div>
-      </div>
+      {/* 注意 */}
+      <section className="rounded-2xl border border-white/10 bg-white/5 p-5 space-y-2">
+        <h2 className="text-xl font-bold">注意（β版）</h2>
+        <ul className="list-disc pl-5 text-slate-200 space-y-1">
+          <li>UI・文言・仕様は予告なく変更されます。</li>
+          <li>信用は「結論」じゃなく「材料」。最終判断はユーザー自身。</li>
+          <li>問い合わせ返信は当面 luminabulige@gmail.com から行います。</li>
+        </ul>
+      </section>
     </main>
   );
 }

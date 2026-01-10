@@ -1,0 +1,150 @@
+<svg
+  width="100%"
+  height="480"
+  viewBox="0 0 1200 480"
+  xmlns="http://www.w3.org/2000/svg"
+>
+
+  <style>
+    .step-box {
+      fill: #ffffff;
+      stroke: #222;
+      stroke-width: 1.5;
+      rx: 10;
+      ry: 10;
+    }
+    .step-title {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .step-body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 12px;
+    }
+    .arrow {
+      stroke: #222;
+      stroke-width: 1.5;
+      marker-end: url(#arrowHead);
+      fill: none;
+    }
+    .label {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 12px;
+    }
+    .highlight {
+      font-weight: 700;
+    }
+  </style>
+
+  <!-- 矢印マーカー -->
+  <defs>
+    <marker id="arrowHead" orient="auto" markerWidth="6" markerHeight="6" refX="5" refY="3">
+      <path d="M0,0 L0,6 L6,3 z" />
+    </marker>
+  </defs>
+
+  <!-- ① 現状 -->
+  <g transform="translate(40,40)">
+    <rect class="step-box" width="220" height="80" />
+    <text class="step-title" x="10" y="22">① 現状：お金と仲が悪い</text>
+    <text class="step-body" x="10" y="44">・気づくと財布＆口座が軽い</text>
+    <text class="step-body" x="10" y="62">・理由が分からないまま“蒸発”する</text>
+  </g>
+
+  <!-- ② 記録（家計簿） -->
+  <g transform="translate(40,170)">
+    <rect class="step-box" width="220" height="80" />
+    <text class="step-title" x="10" y="22">② 記録：ただの家計簿</text>
+    <text class="step-body" x="10" y="44">・収支を入力して見える化</text>
+    <text class="step-body" x="10" y="62">・でも「なぜ」はまだ分からない</text>
+  </g>
+
+  <!-- ③ 行動ログ -->
+  <g transform="translate(340,170)">
+    <rect class="step-box" width="240" height="80" />
+    <text class="step-title" x="10" y="22">③ 行動ログ：生活・状況と紐づく</text>
+    <text class="step-body" x="10" y="44">・時間帯 / 気分 / シーンと支出を連動</text>
+    <text class="step-body" x="10" y="62">・“蒸発ポイント”のパターンを掘る</text>
+  </g>
+
+  <!-- ④ 気づき -->
+  <g transform="translate(640,170)">
+    <rect class="step-box" width="220" height="80" />
+    <text class="step-title" x="10" y="22">④ 気づき：クセ＆トリガー可視化</text>
+    <text class="step-body" x="10" y="44">・どのタイミングで無駄が出るか</text>
+    <text class="step-body" x="10" y="62">・無意識 → 意識できる状態へ</text>
+  </g>
+
+  <!-- ⑤ 行動修正 -->
+  <g transform="translate(940,170)">
+    <rect class="step-box" width="220" height="80" />
+    <text class="step-title" x="10" y="22">⑤ 行動修正：習慣×支出をリライト</text>
+    <text class="step-body" x="10" y="44">・“蒸発ルート”を潰す実験</text>
+    <text class="step-body" x="10" y="62">・生活とお金の関係を書き換える</text>
+  </g>
+
+  <!-- ⑥ Trast -->
+  <g transform="translate(340,300)">
+    <rect class="step-box" width="220" height="80" />
+    <text class="step-title" x="10" y="22">⑥ Trast：改善の“証拠ファイル”</text>
+    <text class="step-body" x="10" y="44">・改ざん検知つきで行動の履歴を保存</text>
+    <text class="step-body" x="10" y="62">・「ちゃんと直した」が残る器</text>
+  </g>
+
+  <!-- ⑥' BULIG Rank -->
+  <g transform="translate(640,300)">
+    <rect class="step-box" width="220" height="80" />
+    <text class="step-title" x="10" y="22">⑥’ BULIG Rank：変化のスコア</text>
+    <text class="step-body" x="10" y="44">・行動修正量を 0〜100 で数値化</text>
+    <text class="step-body" x="10" y="62">・+1, +7 でも“進歩”として見える</text>
+  </g>
+
+  <!-- CIA / oKYC -->
+  <g transform="translate(940,300)">
+    <rect class="step-box" width="220" height="100" />
+    <text class="step-title" x="10" y="22">CIAレポート ＋ oKYC</text>
+    <text class="step-body" x="10" y="44">・行動 × 修正 × 証拠 × Rank を束ねる</text>
+    <text class="step-body" x="10" y="62">・“自分で持ち歩く信用の前置き資料”</text>
+    <text class="step-body highlight" x="10" y="82">→ 家・仕事・契約で使える信用の素材に</text>
+  </g>
+
+  <!-- 矢印 ①→② -->
+  <line class="arrow" x1="150" y1="120" x2="150" y2="170" />
+  <text class="label" x="160" y="145">記録から始める</text>
+
+  <!-- 矢印 ②→③ -->
+  <line class="arrow" x1="260" y1="210" x2="340" y2="210" />
+  <text class="label" x="270" y="200">家計簿の一歩先へ</text>
+
+  <!-- 矢印 ③→④ -->
+  <line class="arrow" x1="580" y1="210" x2="640" y2="210" />
+
+  <!-- 矢印 ④→⑤ -->
+  <line class="arrow" x1="860" y1="210" x2="940" y2="210" />
+  <text class="label" x="780" y="200">気づき → 行動修正</text>
+
+  <!-- 矢印 ⑤→⑥（下方向） -->
+  <line class="arrow" x1="1050" y1="250" x2="1050" y2="300" />
+  <text class="label" x="1060" y="280">改善の履歴を残す</text>
+
+  <!-- 矢印 ④→⑥ -->
+  <line class="arrow" x1="750" y1="250" x2="750" y2="300" />
+
+  <!-- 矢印 ③→⑥ -->
+  <line class="arrow" x1="460" y1="250" x2="460" y2="300" />
+
+  <!-- 矢印 ⑥→CIA -->
+  <line class="arrow" x1="560" y1="340" x2="640" y2="340" />
+  <text class="label" x="565" y="330">証拠（Trast）</text>
+
+  <!-- 矢印 ⑥'→CIA -->
+  <line class="arrow" x1="860" y1="340" x2="940" y2="340" />
+  <text class="label" x="805" y="330">変化のスコア（Rank）</text>
+
+  <!-- タイトル -->
+  <text class="step-title" x="40" y="26">
+    LUMINA：お金との関係を直し、その軌跡を“信用の素材”にするパラレルフロー
+  </text>
+
+</svg>

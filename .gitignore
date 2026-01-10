@@ -1,7 +1,18 @@
+# Dependencies
 node_modules
-.next
-out
-*.log
-.DS_Store
-*.tsbuildinfo
+
+# next.js build output
+.next/
+out/
 next-env.d.ts
+
+# typescript
+*.tsbuildinfo
+
+# logs
+*.log
+
+# environment
+.env
+.env.local
+.env*.local
