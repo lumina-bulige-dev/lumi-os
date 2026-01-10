@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { fetchWiseReferral } from "./lib/api";
 import { HomeState } from "./lib/types";
 
@@ -9,7 +8,7 @@ type HomeClientProps = {
 };
 
 export default function HomeClient({ initialState }: HomeClientProps) {
-  const [state] = useState<HomeState>(initialState);
+  const state = initialState;
 
   const openWise = async () => {
     try {

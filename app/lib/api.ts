@@ -17,5 +17,6 @@ export async function fetchWiseReferral(): Promise<{ url: string }> {
     { cache: "no-store" }
   );
   if (!res.ok) throw new Error("API error");
-  return res.json();
+  const data = await res.json();
+  return { url: data.wise_referral_url };
 }
