@@ -1,5 +1,7 @@
-import ComparePage from "./compare/page";
+// app/page.tsx
+export const metadata = {
+  title: "LUMINA",
+  description: "LUMINA / LUMINA CIA / oKYC beta landing page.",
+};
 
-export default function Page() {
-  return <ComparePage />;
-}
+export { default } from "./lppage";

@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "export",
-  images: { unoptimized: true },
+  // 必要なら設定ここに
+  // Cloudflare Pages で静的書き出ししてるので、とりあえずこれくらいでOK
+ // output: "export",
 };
 
 export default nextConfig;
