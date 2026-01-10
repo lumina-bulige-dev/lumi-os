@@ -20,3 +20,10 @@
     "@types/react": "18.3.27"
   }
 }
+
+{
+  "scripts": {
+    "build": "next build",
+    "pages:build": "next build && npx @cloudflare/next-on-pages"
+  }
+}
