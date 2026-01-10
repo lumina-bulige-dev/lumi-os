@@ -528,6 +528,25 @@ export CLOUDFLARE_ACCOUNT_ID=your_account_id
 npx wrangler whoami
 ```
 
+#### 6. Build Errors with Missing Components / コンポーネント欠落によるビルドエラー
+
+**Problem**: Build fails with "Cannot find module" errors
+**問題**：「Cannot find module」エラーでビルドが失敗する
+
+**Known Issue**: There is a known path resolution issue in the repository where some components in `luminabulige_app/` are trying to import from `@/app/components/` but the paths don't align correctly.
+
+**既知の問題**：リポジトリには既知のパス解決問題があり、`luminabulige_app/`の一部のコンポーネントが`@/app/components/`からインポートしようとしていますが、パスが正しく一致していません。
+
+**Workaround**:
+- For development, the dev server should still work: `npm run dev`
+- The static export build (`npm run build`) may fail until path imports are fixed
+- This is a pre-existing issue in the repository
+
+**回避策**：
+- 開発の場合、開発サーバーは動作するはずです：`npm run dev`
+- 静的エクスポートビルド（`npm run build`）は、パスインポートが修正されるまで失敗する可能性があります
+- これはリポジトリの既存の問題です
+
 ### Getting Help / ヘルプの取得
 
 If you encounter issues not covered here:
