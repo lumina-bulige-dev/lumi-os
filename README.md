@@ -2,6 +2,19 @@
 正式版を追加。
 lumi-os — Canonical OS / Rules / META / Algorithms Repository for LUMINA BULIGE
 
+---
+
+## 🚀 Getting Started / はじめに
+
+**New to LUMI OS?** Check out these guides:
+**LUMI OSは初めてですか？** これらのガイドをご覧ください：
+
+- **[QUICKSTART.md](./QUICKSTART.md)** - 5-minute setup guide / 5分セットアップガイド
+- **[DEVELOPMENT.md](./DEVELOPMENT.md)** - Complete development guide / 完全な開発ガイド
+- **[CONTRIBUTING.md](./CONTRIBUTING.md)** - How to contribute / 貢献方法
+
+---
+
 This repository (lumi-os) is the canonical source of truth for all core operating-system components of LUMINA BULIGE.
 
 It stores:
