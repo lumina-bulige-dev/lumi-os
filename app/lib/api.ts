@@ -11,7 +11,7 @@ export async function fetchHomeState(): Promise<HomeState> {
   return res.json();
 }
 
-export async function fetchWiseLink() {
+export async function fetchWiseReferral(): Promise<{ wise_referral_url: string }> {
   const res = await fetch(
     `${WORKER_BASE}/api/v1/links/wise_affiliate`,
     { cache: "no-store" }
