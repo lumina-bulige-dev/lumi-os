@@ -64,7 +64,7 @@ Fix bug in user authentication flow
 ## Configuration
 
 Changesets configuration is stored in `.changeset/config.json`. Current settings:
-- Base branch: `copilot/update-react-router-commit-reference`
+- Base branch: `main`
 - Changelog format: `@changesets/cli/changelog`
 - Access: `restricted` (private packages)
 
