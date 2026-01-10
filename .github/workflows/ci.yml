@@ -9,6 +9,8 @@ jobs:
   build_root:
     runs-on: ubuntu-latest
     name: Build root Next.js app
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -28,6 +30,8 @@ jobs:
   build_luminabulige_app:
     runs-on: ubuntu-latest
     name: Build luminabulige app
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -49,6 +53,8 @@ jobs:
   validate_lumi_core_api:
     runs-on: ubuntu-latest
     name: Validate lumi-core-api
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
