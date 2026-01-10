@@ -1,10 +1,10 @@
 // app/v/page.tsx
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
-export default function VerifyPage() {
+function VerifyPageContent() {
   const sp = useSearchParams();
   const proofId = useMemo(() => sp.get("proofId") || "", [sp]);
 
@@ -71,5 +71,13 @@ export default function VerifyPage() {
         </pre>
       )}
     </main>
+  );
+}
+
+export default function VerifyPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: 24 }}>Loading...</div>}>
+      <VerifyPageContent />
+    </Suspense>
   );
 }
