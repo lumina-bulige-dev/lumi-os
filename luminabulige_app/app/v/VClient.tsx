@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ui } from "./ui";
 
@@ -94,7 +94,6 @@ async function copyToClipboard(text: string) {
     await navigator.clipboard.writeText(text);
     return true;
   } catch {
-    // fallback（古い環境用）
     try {
       const ta = document.createElement("textarea");
       ta.value = text;
@@ -111,9 +110,9 @@ async function copyToClipboard(text: string) {
   }
 }
 
+
 function CopyButton(p: { value?: string | null; label?: string }) {
   const [copied, setCopied] = useState(false);
-
   const disabled = !p.value;
 
   return (
@@ -155,6 +154,48 @@ function Row(p: { k: string; v: React.ReactNode; right?: React.ReactNode }) {
   );
 }
 
+function PrintStyles() {
+  return (
+    <style jsx global>{`
+      @page { size: A4; margin: 10mm; }
+
+      @media print {
+        /* 印刷は白背景に寄せる（黒ベタだと紙が死ぬ） */
+        html, body { background: #fff !important; }
+        main { background: #fff !important; padding: 0 !important; min-height: auto !important; }
+
+        /* 色を印刷に反映 */
+        * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+        /* 印刷に不要なUIは消す（PDFボタンも消える） */
+        button { display: none !important; }
+
+        /* ===== 1枚モード（className=print-one） ===== */
+        .print-one h1 { font-size: 18px !important; margin: 0 0 6px !important; }
+        .print-one section { box-shadow: none !important; padding: 10px !important; }
+        .print-one * { line-height: 1.25 !important; }
+
+        /* ここが「1枚化」のキモ：長いところは落とす */
+        .print-one [data-print="json"] { display: none !important; }   /* details/JSONを丸ごと非表示 */
+        .print-one [data-print="note"] { display: none !important; }  /* 下の注意文も落とす（必要なら消してOK） */
+
+        /* Proofカードが溢れるなら、これも落とす（必要ならコメントアウト） */
+        /* .print-one [data-print="proof"] { display: none !important; } */
+
+        /* ページ分割事故を減らす */
+        .print-one section, .print-one div { break-inside: avoid; page-break-inside: avoid; }
+
+        /* 長い文字列は折り返す */
+        .print-one pre, .print-one code, .print-one .mono {
+          white-space: pre-wrap !important;
+          word-break: break-word !important;
+          overflow: visible !important;
+        }
+      }
+    `}</style>
+  );
+}
+
 export default function VClient() {
   const sp = useSearchParams();
 
@@ -178,6 +219,27 @@ export default function VClient() {
     if (r === "OK" || r === "NG" || r === "REVOKED" || r === "UNKNOWN") return r as Result;
     return null;
   }, [data]);
+
+  const explanation = useMemo(() => {
+    if (!data || !result) return null;
+
+    if (result === "NG" && q.proofId) {
+      return "proofId は存在しますが署名が一致しません。URL改ざん、転記ミス、または署名不一致の可能性があります。";
+    }
+    if (result === "NG" && !q.proofId) {
+      return "署名が一致しません。入力値（hash / sig / kid / alg）の転記ミスや改ざんの可能性があります。";
+    }
+    if (result === "UNKNOWN") {
+      return "kid に対応する公開鍵が取得できません。発行元側の鍵ローテーション、または入力値の不整合の可能性があります。";
+    }
+    if (result === "REVOKED") {
+      return "この Proof は発行元により無効化されています（検証自体は実施済みとして扱います）。";
+    }
+    if (result === "OK") {
+      return "検証は成功しました。表示される Proof 情報は発行元DB（または一致した記録）に基づきます。";
+    }
+    return null;
+  }, [data, result, q.proofId]);
 
   const showContact = result === "NG" || result === "UNKNOWN";
 
@@ -213,10 +275,6 @@ export default function VClient() {
     return `mailto:contact@luminabulige.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   }, [data, q, verifiedAt, verifyUrl]);
 
-  const onPdf = () => {
-    window.print();
-  };
-
   async function runVerify() {
     setErrorText(null);
     setLoading(true);
@@ -234,9 +292,7 @@ export default function VClient() {
       setData(json);
       setVerifiedAt(Date.now());
 
-      if (!res.ok) {
-        setErrorText(json?.error ? `${json.error}` : `HTTP ${res.status}`);
-      }
+      if (!res.ok) setErrorText(json?.error ? `${json.error}` : `HTTP ${res.status}`);
     } catch (e: any) {
       setErrorText(e?.message || String(e));
       setData(null);
@@ -250,335 +306,297 @@ export default function VClient() {
   const hasProof = !!data?.proof;
   const showVerifiedFlag = typeof data?.verified === "boolean";
 
+  /* ===== 1枚PDFモード制御 ===== */
+  const [printOne, setPrintOne] = useState(false);
+
+  useEffect(() => {
+    const onAfter = () => setPrintOne(false);
+    window.addEventListener("afterprint", onAfter);
+    return () => window.removeEventListener("afterprint", onAfter);
+  }, []);
+
+  const onPdfOne = () => {
+    setPrintOne(true);
+    // Small delay to allow React to render print styles before printing
+    setTimeout(() => window.print(), 60);
+  };
+
   return (
-    <>
-      <style>{`
-        @media print {
-          details { display: block !important; }
-          details > summary { display: none !important; }
-          details:not([open]) > *:not(summary) { display: block !important; }
+    <React.Fragment>
+      <PrintStyles />
 
-          pre {
-            overflow: visible !important;
-            white-space: pre-wrap !important;
-            word-break: break-word !important;
-          }
-
-          /* PDFに残したいボタンは class で除外する */
-          button:not(.print-keep) { display: none !important; }
-          a { text-decoration: none !important; }
-        }
-      `}</style>  
-    <main
-      style={{
-        minHeight: "100vh",
-        background: ui.color.bg,
-        padding: ui.space.xxl,
-        fontFamily: ui.font.ui,
-      }}
-    >
-      <div style={{ maxWidth: 860, margin: "0 auto" }}>
-        {/* Title */}
-        <div style={{ marginBottom: ui.space.lg }}>
-          <div style={{ color: "rgba(255,255,255,0.78)", fontSize: 12, letterSpacing: 0.9 }}>
-            LUMINA BULIGE
-          </div>
-          <h1 style={{ color: "#FFFFFF", margin: "6px 0 0", fontSize: 28, lineHeight: 1.2 }}>
-            Proof Verification
-          </h1>
-          <div style={{ color: "rgba(255,255,255,0.72)", marginTop: 10, fontSize: 14, lineHeight: 1.7 }}>
-            QR / API の値を用いて署名検証し、結果と根拠を提示します（監査・問い合わせ前提の表示）。
-          </div>
-        </div>
-
-        {/* Action */}
-        <div
-          style={{
-            display: "flex",
-            gap: ui.space.md,
-            flexWrap: "wrap",
-            marginBottom: ui.space.lg,
-            alignItems: "center",
-          }}
-        >
-          <button
-            onClick={runVerify}
-            disabled={!hasParams || loading}
-            style={{
-              appearance: "none",
-              border: `1px solid ${ui.color.border}`,
-              background: hasParams ? "#FFFFFF" : "rgba(255,255,255,0.78)",
-              borderRadius: ui.radius.md,
-              padding: "11px 14px",
-              fontWeight: 900,
-              cursor: hasParams && !loading ? "pointer" : "not-allowed",
-              boxShadow: ui.shadow.soft,
-              letterSpacing: 0.2,
-            }}
-            title={!hasParams ? "proofId または (hash,sig,kid,alg) が必要です" : ""}
-          >
-            {loading ? "Verifying…" : "検証する"}
-          </button>
-
-          <div style={{ color: "rgba(255,255,255,0.72)", fontSize: 12, lineHeight: 1.6 }}>
-            <div style={{ fontFamily: ui.font.mono }}>
-              proofId={q.proofId ? shortHash(q.proofId, 10, 6) : "-"} / hash={q.hash ? "yes" : "no"} / sig=
-              {q.sig ? "yes" : "no"} / kid={q.kid ? shortHash(q.kid, 10, 6) : "-"} / alg={q.alg ?? "-"}
+      <main
+        className={printOne ? "print-one" : ""}
+        style={{
+          minHeight: "100vh",
+          background: ui.color.bg,
+          padding: ui.space.xxl,
+          fontFamily: ui.font.ui,
+        }}
+      >
+        <div style={{ maxWidth: 860, margin: "0 auto" }}>
+          {/* Title */}
+          <div style={{ marginBottom: ui.space.lg }}>
+            <div style={{ color: "rgba(255,255,255,0.78)", fontSize: 12, letterSpacing: 0.9 }}>LUMINA BULIGE</div>
+            <h1 style={{ color: "#FFFFFF", margin: "6px 0 0", fontSize: 28, lineHeight: 1.2 }}>Proof Verification</h1>
+            <div style={{ color: "rgba(255,255,255,0.72)", marginTop: 10, fontSize: 14, lineHeight: 1.7 }}>
+              QR / API の値を用いて署名検証し、結果と根拠を提示します（監査・問い合わせ前提の表示）。
             </div>
           </div>
-        </div>
 
-        {/* Result card */}
-        <section
-          style={{
-            border: `1px solid rgba(229,231,235,0.9)`,
-            borderRadius: ui.radius.lg,
-            padding: ui.space.xl,
-            background: ui.color.card,
-            boxShadow: ui.shadow.card,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
-            <div>
-              <div style={{ fontSize: 12, color: ui.color.sub, marginBottom: 8, letterSpacing: 0.3 }}>結果</div>
+          {/* Action */}
+          <div style={{ display: "flex", gap: ui.space.md, flexWrap: "wrap", marginBottom: ui.space.lg, alignItems: "center" }}>
+            <button
+              onClick={runVerify}
+              disabled={!hasParams || loading}
+              style={{
+                appearance: "none",
+                border: `1px solid ${ui.color.border}`,
+                background: hasParams ? "#FFFFFF" : "rgba(255,255,255,0.78)",
+                borderRadius: ui.radius.md,
+                padding: "11px 14px",
+                fontWeight: 900,
+                cursor: hasParams && !loading ? "pointer" : "not-allowed",
+                boxShadow: ui.shadow.soft,
+                letterSpacing: 0.2,
+              }}
+              title={!hasParams ? "proofId または (hash,sig,kid,alg) が必要です" : ""}
+            >
+              {loading ? "Verifying…" : "検証する"}
+            </button>
 
-              {result ? (
-                <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                  <span
-                    style={{
-                      ...badgeStyle(result),
-                      padding: "6px 10px",
-                      borderRadius: ui.radius.pill,
-                      fontWeight: 900,
-                      fontSize: 12,
-                      letterSpacing: 0.6,
-                    }}
-                  >
-                    {result}
-                  </span>
+            {/* 1枚PDFボタン（画面だけに見せる。印刷には出ない） */}
+            <button
+              onClick={onPdfOne}
+              style={{
+                appearance: "none",
+                border: `1px solid ${ui.color.border}`,
+                background: "#FFFFFF",
+                borderRadius: ui.radius.md,
+                padding: "11px 14px",
+                fontWeight: 900,
+                cursor: "pointer",
+                boxShadow: ui.shadow.soft,
+              }}
+              title="1ページに収まるように要点だけで印刷します"
+            >
+              1枚PDF
+            </button>
 
-                  <span style={{ color: ui.color.text, fontWeight: 900, fontSize: 16 }}>
-                    {CRITERIA[result]}
-                  </span>
+            <div style={{ color: "rgba(255,255,255,0.72)", fontSize: 12, lineHeight: 1.6 }}>
+              <div style={{ fontFamily: ui.font.mono }}>
+                proofId={q.proofId ? shortHash(q.proofId, 10, 6) : "-"} / hash={q.hash ? "yes" : "no"} / sig={q.sig ? "yes" : "no"} / kid=
+                {q.kid ? shortHash(q.kid, 10, 6) : "-"} / alg={q.alg ?? "-"}
+              </div>
+            </div>
+          </div>
 
-                  {showVerifiedFlag && (
+          {/* Result card */}
+          <section
+            style={{
+              border: `1px solid rgba(229,231,235,0.9)`,
+              borderRadius: ui.radius.lg,
+              padding: ui.space.xl,
+              background: ui.color.card,
+              boxShadow: ui.shadow.card,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+              <div>
+                <div style={{ fontSize: 12, color: ui.color.sub, marginBottom: 8, letterSpacing: 0.3 }}>結果</div>
+
+                {result ? (
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                     <span
                       style={{
-                        marginLeft: 6,
+                        ...badgeStyle(result),
                         padding: "6px 10px",
                         borderRadius: ui.radius.pill,
-                        border: `1px solid ${ui.color.border}`,
-                        background: ui.color.soft,
-                        fontSize: 12,
                         fontWeight: 900,
-                        color: ui.color.text,
+                        fontSize: 12,
+                        letterSpacing: 0.6,
                       }}
                     >
-                      verified: {String(data?.verified)}
+                      {result}
                     </span>
-                  )}
-                </div>
-              ) : (
-                <div style={{ color: ui.color.sub }}>まだ検証していません（上の「検証する」を押してください）</div>
-              )}
 
-              <div style={{ marginTop: ui.space.sm, display: "flex", gap: 10, flexWrap: "wrap" }}>
-                <div style={{ color: ui.color.sub, fontSize: 12 }}>
-                  検証時刻（JST）: <span style={{ color: ui.color.text, fontWeight: 900 }}>{verifiedAt ? fmtJST(verifiedAt) : "-"}</span>
+                    <span style={{ color: ui.color.text, fontWeight: 900, fontSize: 16 }}>{CRITERIA[result]}</span>
+
+                    {showVerifiedFlag && (
+                      <span
+                        style={{
+                          marginLeft: 6,
+                          padding: "6px 10px",
+                          borderRadius: ui.radius.pill,
+                          border: `1px solid ${ui.color.border}`,
+                          background: ui.color.soft,
+                          fontSize: 12,
+                          fontWeight: 900,
+                          color: ui.color.text,
+                        }}
+                      >
+                        verified: {String(data?.verified)}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <div style={{ color: ui.color.sub }}>まだ検証していません（上の「検証する」を押してください）</div>
+                )}
+
+                <div style={{ marginTop: ui.space.sm, display: "flex", gap: 10, flexWrap: "wrap" }}>
+                  <div style={{ color: ui.color.sub, fontSize: 12 }}>
+                    検証時刻（JST）:{" "}
+                    <span style={{ color: ui.color.text, fontWeight: 900 }}>{verifiedAt ? fmtJST(verifiedAt) : "-"}</span>
+                  </div>
                 </div>
+
+                {/* 検証時刻の下に verify_url（ここ“だけ”） */}
+                {verifyUrl && (
+                  <div style={{ marginTop: ui.space.sm }}>
+                    <Row
+                      k="verify_url"
+                      v={<span className="mono" style={{ fontFamily: ui.font.mono }}>{shortHash(verifyUrl, 42, 14)}</span>}
+                      right={<CopyButton value={verifyUrl} label="verify_url" />}
+                    />
+                  </div>
+                )}
+
+                {explanation && <div style={{ marginTop: ui.space.sm, color: ui.color.sub, lineHeight: 1.7 }}>{explanation}</div>}
+
+                {errorText && (
+                  <div
+                    style={{
+                      marginTop: ui.space.md,
+                      background: ui.color.soft,
+                      border: `1px solid ${ui.color.border}`,
+                      borderRadius: ui.radius.md,
+                      padding: ui.space.md,
+                      color: ui.color.text,
+                    }}
+                  >
+                    <div style={{ fontWeight: 900, marginBottom: 6 }}>エラー</div>
+                    <div style={{ fontFamily: ui.font.mono, fontSize: 12, whiteSpace: "pre-wrap" }}>{errorText}</div>
+                  </div>
+                )}
               </div>
-        {/* 検証時刻の下に verify_url（ここだけでOK） */}
-          {verifyUrl && (
-            <div style={{ marginTop: ui.space.sm }}>
-              <Row
-                k="verify_url"
-                v={<span style={{ fontFamily: ui.font.mono }}>{shortHash(verifyUrl, 42, 14)}</span>}
-                right={<CopyButton value={verifyUrl} label="verify_url" />}
-              />
-            </div>
-          )}
 
-               
-        
-              {explanation && (
-                <div style={{ marginTop: ui.space.sm, color: ui.color.sub, lineHeight: 1.7 }}>
-                  {explanation}
-                </div>
-              )}
+              {showContact && data && (
+                <div>
+                  <div style={{ marginTop: 10, marginBottom: 10, color: ui.color.sub, fontSize: 12, lineHeight: 1.6 }}>
+                    問い合わせボタンを押すと、検証に必要な情報（proofId / hash / kid / alg / 結果 / 応答JSON）が本文に自動で入ります。
+                  </div>
 
-  
-              {errorText && (
-                <div
-                  style={{
-                    marginTop: ui.space.md,
-                    background: ui.color.soft,
-                    border: `1px solid ${ui.color.border}`,
-                    borderRadius: ui.radius.md,
-                    padding: ui.space.md,
-                    color: ui.color.text,
-                  }}
-                >
-                  <div style={{ fontWeight: 900, marginBottom: 6 }}>エラー</div>
-                  <div style={{ fontFamily: ui.font.mono, fontSize: 12, whiteSpace: "pre-wrap" }}>{errorText}</div>
+                  <a
+                    href={contactMailto}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 8,
+                      padding: "10px 12px",
+                      borderRadius: ui.radius.md,
+                      border: `1px solid ${ui.color.border}`,
+                      background: "#FFFFFF",
+                      color: ui.color.link,
+                      fontWeight: 900,
+                      textDecoration: "none",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    発行元に問い合わせ
+                  </a>
                 </div>
               )}
             </div>
 
-            {showContact && data && (
-  <div style={{ marginTop: 10, marginBottom: 10, color: ui.color.sub, fontSize: 12, lineHeight: 1.6 }}>
-    問い合わせボタンを押すと、検証に必要な情報（proofId / hash / kid / alg / 結果 / 応答JSON）が本文に自動で入ります。
-  </div>
-)}
-            
-            {showContact && data && (
-              <a
-                href={contactMailto}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 8,
-                  padding: "10px 12px",
-                  borderRadius: ui.radius.md,
-                  border: `1px solid ${ui.color.border}`,
-                  background: "#FFFFFF",
-                  color: ui.color.link,
-                  fontWeight: 900,
-                  textDecoration: "none",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                発行元に問い合わせ
-              </a>
+            {/* Proof card */}
+            <div data-print="proof" style={{ marginTop: ui.space.xl }}>
+              <div style={{ fontSize: 12, color: ui.color.sub, marginBottom: ui.space.sm, letterSpacing: 0.3 }}>Proof 情報</div>
+
+              <div style={{ background: ui.color.soft, border: `1px solid ${ui.color.border}`, borderRadius: ui.radius.md, padding: ui.space.lg }}>
+                {hasProof ? (
+                  <div style={{ display: "grid", gap: 10 }}>
+                 
+                    <Row
+                      k="proof_id"
+                      v={<span className="mono" style={{ fontFamily: ui.font.mono }} title={data?.proof?.proof_id ?? ""}>{shortHash(data?.proof?.proof_id ?? "-", 18, 10)}</span>}
+                      right={<CopyButton value={data?.proof?.proof_id ?? null} label="proof_id" />}
+                    />
+
+                    <Row k="期間" v={<span>{data?.proof?.range?.from ?? "-"} 〜 {data?.proof?.range?.to ?? "-"}</span>} />
+                    <Row k="作成" v={<span>{fmtJST(data?.proof?.created_at_ts)}</span>} />
+
+                    <Row
+                      k="カウント"
+                      v={<span>SAFE {data?.proof?.counts?.SAFE ?? 0} / WARNING {data?.proof?.counts?.WARNING ?? 0} / DANGER {data?.proof?.counts?.DANGER ?? 0} / total {data?.proof?.counts?.total ?? 0}</span>}
+                    />
+
+                    <Row k="ruleset_version" v={<span className="mono" style={{ fontFamily: ui.font.mono }}>{data?.proof?.ruleset_version ?? "-"}</span>} />
+
+                    <Row
+                      k="kid"
+                      v={<span className="mono" style={{ fontFamily: ui.font.mono }} title={(data?.proof?.kid ?? data?.kid) ?? ""}>{shortHash((data?.proof?.kid ?? data?.kid) ?? "-", 18, 10)}</span>}
+                      right={<CopyButton value={(data?.proof?.kid ?? data?.kid) ?? null} label="kid" />}
+                    />
+
+                    <Row
+                      k="alg"
+                      v={<span className="mono" style={{ fontFamily: ui.font.mono }}>{data?.proof?.alg ?? data?.alg ?? "-"}</span>}
+                      right={<CopyButton value={(data?.proof?.alg ?? data?.alg) ?? null} label="alg" />}
+                    />
+
+                    <Row
+                      k="payload_hash_b64u"
+                      v={
+                        <span className="mono" style={{ fontFamily: ui.font.mono }} title={(data?.proof?.payload_hash_b64u ?? data?.payload_hash_b64u) ?? ""}>
+                          {shortHash((data?.proof?.payload_hash_b64u ?? data?.payload_hash_b64u) ?? "-", 22, 12)}
+                        </span>
+                      }
+                      right={<CopyButton value={(data?.proof?.payload_hash_b64u ?? data?.payload_hash_b64u) ?? null} label="payload_hash_b64u" />}
+                    />
+                  </div>
+                ) : (
+                  <div style={{ color: ui.color.sub, lineHeight: 1.7 }}>
+                    Proof 情報が取得できませんでした。
+                    <br />
+                    <span style={{ color: ui.color.weak }}>proofId 付きURLでの検証が最短で確実です（例: /v?proofId=xxxx）</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Details（JSON）は1枚PDFでは落とす */}
+            {data && (
+              <div data-print="json" style={{ marginTop: ui.space.lg }}>
+                <details>
+                  <summary style={{ cursor: "pointer", color: ui.color.link, fontWeight: 900 }}>技術詳細（レスポンスJSON）</summary>
+                  <pre
+                    style={{
+                      marginTop: ui.space.sm,
+                      padding: ui.space.md,
+                      borderRadius: ui.radius.md,
+                      border: `1px solid ${ui.color.border}`,
+                      background: "#0F172A",
+                      color: "#E5E7EB",
+                      overflowX: "auto",
+                      fontSize: 12,
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    {JSON.stringify(data, null, 2)}
+                  </pre>
+                </details>
+              </div>
             )}
+          </section>
+
+          <div data-print="note" style={{ color: "rgba(255,255,255,0.62)", fontSize: 12, marginTop: ui.space.lg, lineHeight: 1.7 }}>
+            注意: NG / UNKNOWN の場合は、入力値の転記ミス、改ざん、鍵ローテーション等が原因になり得ます。
+            <br />
+            ここまで整ってると、言い訳じゃなくて「説明」になります（大事）。
           </div>
-
-          {/* Proof card */}
-          <div style={{ marginTop: ui.space.xl }}>
-            <div style={{ fontSize: 12, color: ui.color.sub, marginBottom: ui.space.sm, letterSpacing: 0.3 }}>
-              Proof 情報
-            </div>
-
-            <div
-              style={{
-                background: ui.color.soft,
-                border: `1px solid ${ui.color.border}`,
-                borderRadius: ui.radius.md,
-                padding: ui.space.lg,
-              }}
-            >
-              {hasProof ? (
-                <div style={{ display: "grid", gap: 10 }}>
-                  <Row
-                    k="proof_id"
-                    v={<span style={{ fontFamily: ui.font.mono }}>{data?.proof?.proof_id ?? "-"}</span>}
-                    right={<CopyButton value={data?.proof?.proof_id ?? null} label="proof_id" />}
-                  />
-
-                  <Row
-                    k="期間"
-                    v={
-                      <span>
-                        {data?.proof?.range?.from ?? "-"} 〜 {data?.proof?.range?.to ?? "-"}
-                      </span>
-                    }
-                  />
-
-                  <Row k="作成" v={<span>{fmtJST(data?.proof?.created_at_ts)}</span>} />
-
-                  <Row
-                    k="カウント"
-                    v={
-                      <span>
-                        SAFE {data?.proof?.counts?.SAFE ?? 0} / WARNING {data?.proof?.counts?.WARNING ?? 0} / DANGER{" "}
-                        {data?.proof?.counts?.DANGER ?? 0} / total {data?.proof?.counts?.total ?? 0}
-                      </span>
-                    }
-                  />
-
-                  <Row
-                    k="verify_url"
-                    v={<span style={{ fontFamily: ui.font.mono }}>{shortHash(verifyUrl, 42, 14)}</span>}
-                    right={<CopyButton value={verifyUrl} label="verify_url" />}
-                  />
-
-                  <Row
-                    k="ruleset_version"
-                    v={<span style={{ fontFamily: ui.font.mono }}>{data?.proof?.ruleset_version ?? "-"}</span>}
-                  />
-
-                  <Row
-                    k="kid"
-                    v={<span style={{ fontFamily: ui.font.mono }}>{data?.proof?.kid ?? data?.kid ?? "-"}</span>}
-                    right={<CopyButton value={(data?.proof?.kid ?? data?.kid) ?? null} label="kid" />}
-                  />
-
-                  <Row
-                    k="alg"
-                    v={<span style={{ fontFamily: ui.font.mono }}>{data?.proof?.alg ?? data?.alg ?? "-"}</span>}
-                    right={<CopyButton value={(data?.proof?.alg ?? data?.alg) ?? null} label="alg" />}
-                  />
-
-                  <Row
-                    k="payload_hash_b64u"
-                    v={
-                      <span style={{ fontFamily: ui.font.mono }}>
-                        {data?.proof?.payload_hash_b64u ?? data?.payload_hash_b64u ?? "-"}
-                      </span>
-                    }
-                    right={
-                      <CopyButton
-                        value={(data?.proof?.payload_hash_b64u ?? data?.payload_hash_b64u) ?? null}
-                        label="payload_hash_b64u"
-                      />
-                    }
-                  />
-                </div>
-              ) : (
-                <div style={{ color: ui.color.sub, lineHeight: 1.7 }}>
-  Proof 情報が取得できませんでした。
-  <br />
-  <span style={{ color: ui.color.weak }}>
-    proofId 付きURLでの検証が最短で確実です（例: /v?proofId=xxxx）
-  </span>
-</div>
-              )}
-            </div>
-          </div>
-
-          {/* Details */}
-          {data && (
-            <div style={{ marginTop: ui.space.lg }}>
-              <details>
-                <summary style={{ cursor: "pointer", color: ui.color.link, fontWeight: 900 }}>
-                  技術詳細（レスポンスJSON）
-                </summary>
-                <pre
-                  style={{
-                    marginTop: ui.space.sm,
-                    padding: ui.space.md,
-                    borderRadius: ui.radius.md,
-                    border: `1px solid ${ui.color.border}`,
-                    background: "#0F172A",
-                    color: "#E5E7EB",
-                    overflowX: "auto",
-                    fontSize: 12,
-                    lineHeight: 1.5,
-                  }}
-                >
-                  {JSON.stringify(data, null, 2)}
-                </pre>
-              </details>
-            </div>
-          )}
-        </section>
-
-        <div style={{ color: "rgba(255,255,255,0.62)", fontSize: 12, marginTop: ui.space.lg, lineHeight: 1.7 }}>
-          注意: NG / UNKNOWN の場合は、入力値の転記ミス、改ざん、鍵ローテーション等が原因になり得ます。
-          <br />
-          ここまで整ってると、言い訳じゃなくて「説明」になります（大事）。
         </div>
-      </div>
-    </main>
+      </main>
+    </React.Fragment>
   );
 }
