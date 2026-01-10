@@ -9,6 +9,10 @@ jobs:
     runs-on: 'ubuntu-latest'
     name: detect-breaking-changes
     if: github.repository == 'lumina-bulige-dev/lumi-os'
+    
+    permissions:
+      contents: read
+    
     steps:
       - name: Calculate fetch-depth
         run: |
