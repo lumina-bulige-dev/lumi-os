@@ -6,8 +6,7 @@
     "build": "next build",
     "start": "next start",
     "changeset": "changeset",
-    "version": "changeset version",
-    "release": "changeset publish"
+    "version": "changeset version"
   },
   "dependencies": {
     "next": "^14.0.0",
