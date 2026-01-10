@@ -1,4 +1,6 @@
 // src/index.ts
+export { VERSION } from './version';
+
 export interface Env {
   ADMIN_KEY?: string;          // secret推奨
   INVITE_SIGNING_KEY?: string; // secret推奨（署名キー）
