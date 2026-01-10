@@ -1,3 +1,12 @@
+Claude Skills for use with LUMINA BULIGE OS development.
+
+Create and edit plain text files:
+
+- Markdown `.md`
+- HTML `.html`
+
+---
+
 正式版を追加。
 lumi-os — Canonical OS / Rules / META / Algorithms Repository for LUMINA BULIGE
 
