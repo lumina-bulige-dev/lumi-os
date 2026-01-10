@@ -1,276 +1,57 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>LUMINA BULIGE — Money Flow Stabilizer</title>
-
-  <style>
-    :root{
-      --bg0:#050A14;
-      --bg1:#071B33;
-
-      --text:#EAF2FF;
-      --muted:rgba(234,242,255,.72);
-
-      --card:rgba(255,255,255,.06);
-      --border:rgba(255,255,255,.12);
-
-      --accent:#46B6FF;
-      --accent2:rgba(70,182,255,.35);
-
-      --r-lg:16px;
-      --r-md:12px;
-
-      --space-1:8px;
-      --space-2:16px;
-      --space-3:24px;
-      --space-4:32px;
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", sans-serif;
-      color: var(--text);
-      line-height: 1.6;
-
-      background:
-        radial-gradient(1200px 700px at 50% -10%, rgba(70,182,255,.18), transparent 55%),
-        radial-gradient(900px 600px at 15% 15%, rgba(70,182,255,.10), transparent 60%),
-        linear-gradient(180deg, var(--bg0) 0%, var(--bg1) 100%);
-    }
-
-    .wrap {
-      max-width: 420px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
-
-    /* HERO */
-    .hero {
-      padding: 44px 0 28px;
-      text-align: center;
-    }
-
-    .brand {
-      margin-bottom: var(--space-3);
-    }
-
-    .logo {
-      width: clamp(220px, 62vw, 520px);
-      height: auto;
-      display: block;
-      margin: 0 auto 18px;
-      opacity: 0.96;
-
-      /* 発光を“盛る”のをやめて、上品に */
-      filter:
-        drop-shadow(0 18px 55px rgba(0,0,0,.55))
-        drop-shadow(0 0 22px rgba(70,182,255,.16));
-    }
-
-    .brandname {
-      font-size: 14px;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-      color: rgba(234,242,255,.78);
-      margin-top: 6px;
-    }
-
-    .headline {
-      font-size: 44px;
-      line-height: 1.06;
-      letter-spacing: -0.02em;
-      margin: 0 0 14px;
-      font-weight: 700;
-    }
-
-    .subcopy {
-      margin: 0 auto;
-      font-size: 16.5px;
-      line-height: 1.6;
-      color: var(--muted);
-    }
-
-    .cta {
-      margin-top: 22px;
-      display: grid;
-      gap: 12px;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 56px;
-      border-radius: var(--r-lg);
-      text-decoration: none;
-      font-size: 16px;
-      font-weight: 650;
-      letter-spacing: .01em;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,.06);
-      color: var(--text);
-
-      /* 影は最小限（金融の誠実さ） */
-      box-shadow: 0 10px 28px rgba(0,0,0,.35);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-    }
-
-   /* 銀＋ほんのり青み（Primary） */
-.btn.primary {
-  border-color: rgba(221,232,248,.85);
-  background:
-    linear-gradient(135deg, #dfe6f0 0%, #b8c2d2 45%, #eef3fb 100%);
-  color: #020814;
-}
-
-/* 透明＋銀フチ（Secondary） */
-.btn.secondary {
-  background: transparent;
-  border-color: rgba(221,232,248,.55);
-  color: rgba(234,242,255,.92);
-}
-
-    .trust {
-      margin-top: 14px;
-      font-size: 12.5px;
-      color: rgba(234,242,255,.62);
-      letter-spacing: .02em;
-    }
-
-    /* SECTIONS */
-    .section {
-      max-width: 820px;
-      margin: 26px auto;
-      padding: 0 20px;
-    }
-
-    .card {
-      max-width: 820px;
-      margin: 0 auto;
-      border-radius: var(--r-lg);
-      border: 1px solid var(--border);
-      background: var(--card);
-      padding: 18px 18px;
-      box-shadow: 0 18px 55px rgba(0,0,0,.25);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-    }
-
-    h2 {
-      font-size: 18px;
-      margin: 0 0 10px;
-      padding-left: 10px;
-      border-left: 3px solid rgba(70,182,255,.55);
-      letter-spacing: .01em;
-    }
-
-    p { margin: 0 0 10px; color: rgba(234,242,255,.82); }
-
-    .note {
-      font-size: 12.5px;
-      color: rgba(234,242,255,.62);
-      margin-top: 10px;
-      line-height: 1.55;
-    }
-
-    footer {
-      margin-top: 52px;
-      padding: 18px 20px 28px;
-      font-size: 12.5px;
-      color: rgba(234,242,255,.55);
-      text-align: center;
-    }
-
-    @media (min-width: 900px) {
-      .hero { padding: 70px 0 34px; }
-      .headline { font-size: 52px; }
-    }
-  </style>
+  <meta charset="UTF-8">
+  <title>LUMINA | Explainable Spending 3D</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
-
-<body>
-
-  <!-- HERO -->
-  <div class="hero">
-    <div class="wrap">
-      <div class="brand">
-        <img src="39A645C2-D6DF-4BF2-8F57-7489C4C7A89F.png" class="logo" alt="LUMINA BULIGE LOGO">
-        <div class="brandname">LUMINA BULIGE</div>
-      </div>
-
-      <!-- A：主役 -->
-      <h1 class="headline">Money Flow Stabilizer</h1>
-
-      <!-- A：誠実サブコピー（2行固定） -->
-      <p class="subcopy">
-        Track your floor. Build a 30-day safety record.<br>
-        We don’t hold your money. We help you protect it.
-      </p>
-
-      <!-- CTA：30日ログがPrimary（B） -->
-      <div class="cta">
-        <a href="https://app.luminabulige.com/beta" class="btn primary">View 30-Day Log</a>
-        <a href="https://app.luminabulige.com/compare" class="btn secondary">Run Compare</a>
-      </div>
-
-      <div class="trust">Privacy-first · No custody · Simple &amp; auditable</div>
-    </div>
-  </div>
-
-  <!-- SECTION 1 -->
-  <div class="section">
-    <div class="card">
-      <h2>LUMI OS とは？</h2>
-      <p>
-        LUMI OS は、お金の「床（Floor）」を守るミニマム金融OSです。
-        家賃・生活費・光熱費など、絶対に割ってはいけないラインを可視化し、
-        日々の判断をシンプルにします。
-      </p>
-      <p class="note">
-        銀行ではありません／資金は預かりません／投資助言はしません。
-      </p>
-    </div>
-  </div>
-
-  <!-- SECTION 2 -->
-  <div class="section">
-    <div class="card">
-      <h2>30日「床を割らない」チャレンジ</h2>
-      <p>
-        Compareで「今日の安全度」を計算し、保存すると、30日ログに実績が蓄積されます。
-        SAFE / WARNING / DANGER の3段階で“継続の安全”を育てます。
-      </p>
-      <div class="cta" style="margin-top: 14px;">
-        <a href="https://app.luminabulige.com/beta" class="btn primary">30日ログを開く</a>
-        <a href="https://app.luminabulige.com/compare" class="btn secondary">今日を記録する（Compare）</a>
-      </div>
-    </div>
-  </div>
-
-  <!-- SECTION 3 -->
-  <div class="section">
-    <div class="card">
-      <h2>Aurora（手数料ルーペ）</h2>
-      <p>
-        国際送金・為替の「見えないコスト」を比較して、失っていた可能性のある金額を可視化します。
-      </p>
-      <div class="cta" style="margin-top: 14px;">
-        <a href="（Wiseのトラッキングリンク）" class="btn secondary">送金で損しないコツを見る</a>
-      </div>
-      <p class="note">※ Auroraは比較の補助であり、送金や決済の主体ではありません。</p>
-    </div>
-  </div>
-
-  <footer>
-    © 2025 LUMINA BULIGE LLC — Money Flow Stabilizer
-  </footer>
-
+<body style="margin:0;background:#0b0f14;color:#eaeaea;font-family:system-ui;">
+  <h2 style="text-align:center;margin:16px 0;">
+    📈 12月支出推移（Explainable 3D）
+  </h2>
+  <div id="graph" style="width:100%;height:520px;"></div>
+  <script>
+    // ====== 将来ここをAPI差し替え ======
+    const data = [
+      { day: 1, amount: 5200, category: "光熱費", verified: true },
+      { day: 2, amount: 8800, category: "食費", verified: true },
+      { day: 3, amount: 4300, category: "通信", verified: false },
+      { day: 4, amount: 10200, category: "交通", verified: true },
+      { day: 5, amount: 6100, category: "日用品", verified: true },
+      // …続けるだけ
+    ];
+    const x = data.map(d => d.day);
+    const y = data.map(d => d.amount);
+    const z = data.map(d => d.day * 0.15);
+    const hoverText = data.map(d =>
+      `日付: ${d.day}日<br>` +
+      `金額: ¥${d.amount.toLocaleString()}<br>` +
+      `カテゴリ: ${d.category}<br>` +
+      `検証状態: ${d.verified ? "✓ 検証済み" : "未検証"}`
+    );
+    const trace = {
+      x, y, z,
+      type: "scatter3d",
+      mode: "lines+markers",
+      line: { width: 5, color: "#46b6ff" },
+      marker: {
+        size: 5,
+        color: data.map(d => d.verified ? "#46b6ff" : "#ffb020")
+      },
+      hovertext: hoverText,
+      hoverinfo: "text"
+    };
+    const layout = {
+      paper_bgcolor: "#0b0f14",
+      plot_bgcolor: "#0b0f14",
+      scene: {
+        xaxis: { title: "日付", color: "#aaa" },
+        yaxis: { title: "支出（JPY）", color: "#aaa" },
+        zaxis: { title: "時間レイヤー", color: "#aaa" }
+      },
+      margin: { l: 0, r: 0, b: 0, t: 40 }
+    };
+    Plotly.newPlot("graph", [trace], layout, { responsive: true });
+  </script>
 </body>
 </html>
