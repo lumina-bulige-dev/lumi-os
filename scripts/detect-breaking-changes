@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+set -e
+
+BASE_SHA="${1:-HEAD^}"
+
+echo "Checking for breaking changes since $BASE_SHA..."
+
+# Get list of changed files
+CHANGED_FILES=$(git diff --name-only "$BASE_SHA" HEAD)
+
+# Check if any critical files were deleted
+DELETED_FILES=$(git diff --diff-filter=D --name-only "$BASE_SHA" HEAD)
+
+if echo "$DELETED_FILES" | grep -E '^(lumi-os/|specifications/|rules/|protocols/).*\.md$'; then
+  echo "⚠️  Warning: Critical specification or rule files were deleted."
+  echo "This may indicate breaking changes to the LUMI OS specification."
+  echo ""
+  echo "Deleted files:"
+  echo "$DELETED_FILES" | grep -E '^(lumi-os/|specifications/|rules/|protocols/).*\.md$'
+  echo ""
+  echo "Please ensure these deletions are intentional and properly documented."
+fi
+
+# Check if package.json has breaking dependency changes
+if echo "$CHANGED_FILES" | grep -q "package.json"; then
+  echo "📦 package.json was modified. Checking for dependency changes..."
+  
+  # Check for removed dependencies
+  REMOVED_DEPS=$(git diff "$BASE_SHA" HEAD -- package.json luminabulige_app/package.json 2>/dev/null | grep -E '^\-\s+".*":' || true)
+  
+  if [ ! -z "$REMOVED_DEPS" ]; then
+    echo "⚠️  Warning: Dependencies were removed:"
+    echo "$REMOVED_DEPS"
+    echo ""
+  fi
+fi
+
+# Check if TypeScript config has breaking changes
+if echo "$CHANGED_FILES" | grep -q "tsconfig.json"; then
+  echo "📝 tsconfig.json was modified."
+  
+  # Check for strict mode changes
+  if git diff "$BASE_SHA" HEAD -- tsconfig.json | grep -E '^\-.*"strict".*true' > /dev/null 2>&1; then
+    echo "❌ ERROR: TypeScript strict mode was disabled. This is a breaking change."
+    exit 1
+  fi
+fi
+
+echo "✅ No obvious breaking changes detected."
+echo ""
+echo "Note: This script performs basic checks. Manual review is still required."
