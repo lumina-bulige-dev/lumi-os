@@ -2,6 +2,20 @@
 
 Thank you for contributing to LUMI OS! This document provides guidelines for contributing to this repository.
 
+## Setup
+
+To configure your local git to use the commit message template:
+
+```bash
+# Make the setup script executable (first time only)
+chmod +x setup-git-template.sh
+
+# Run the setup script
+./setup-git-template.sh
+```
+
+After running this script, your git commits will automatically use the template defined in `.gitmessage`.
+
 ## Commit Message Format
 
 To maintain consistency and clarity in the project history, all commit messages should follow this format:
