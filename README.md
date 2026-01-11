@@ -85,6 +85,15 @@ Flow:
 E (Deep Source) → AI_E structuring → A:HQ adoption → lumi-os (canonical)
 All classes must read from main branch of this repo.
 
+⸻
+
+7. Deployment
+
+For Cloudflare deployment configuration and troubleshooting:
+📄 See `CLOUDFLARE_DEPLOYMENT.md`
+
+System ownership and domain mapping:
+📄 See `RESPONSIBILITY.md`
 
 •	NOTE: lumi-core-web is mock-only; production LP is served from /index.html (for now).
 
