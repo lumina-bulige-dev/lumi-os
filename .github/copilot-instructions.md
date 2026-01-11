@@ -1,4 +1,4 @@
-# GitHub Copilot instructions
+　# GitHub Copilot instructions
 
 ## Repository overview
 - Next.js 14 static-export app in `/app` using TypeScript. Root hosts canonical specification documents (e.g., `LUMI_*`, `rules/`, `specifications/`) that should only change when explicitly requested.
