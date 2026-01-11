@@ -1,0 +1,13 @@
+name = "lb-bot"
+main = "src/index.ts"
+compatibility_date = "2025-01-10"
+
+routes = [
+  # どちらか一つ
+  # { pattern = "api.luminabulige.com/bot/*", zone_name = "luminabulige.com" }
+  # または workers.dev を使う（routesなし）
+]
+
+[vars]
+GITHUB_REPO_SLUG = "<OWNER>/lumina-bulige-dev"
+CORS_ORIGIN = "https://app.luminabulige.com"
