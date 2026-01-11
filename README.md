@@ -140,7 +140,7 @@ Only A：HQ may run automatic consistency checks.
 A：HQ automatically checks:
 	•	conflicts against A：CORE (constitution)
 	•	violations of META rules
-	•	fintech regulatory boundaries
+	•	Fintech regulatory boundaries
 	•	numerical / logical contradictions
 	•	past OS versions in this repository
 
