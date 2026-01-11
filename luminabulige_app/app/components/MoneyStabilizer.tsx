@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 
 type ParentKey = "FIXED" | "LIFE" | "WORK" | "FUN" | "OTHER";
 type LogKind = "INCOME" | "EXPENSE";
+type PlaceTag = "home" | "work" | "move" | "other";
 
 type LogItem = {
   id: string;
@@ -13,7 +14,7 @@ type LogItem = {
   child: string;
   amount: number; // 常に正数（kindで符号扱い）
   memo?: string;
-  placeTag?: "home" | "work" | "move" | "other";
+  placeTag?: PlaceTag;
 };
 
 const STORAGE_KEY = "lumi_compare_v2";
@@ -58,7 +59,7 @@ export default function MoneyStabilizer() {
   const [child, setChild] = useState<string>(CHILDREN.LIFE[0]);
   const [amount, setAmount] = useState<string>("");
   const [memo, setMemo] = useState<string>("");
-  const [placeTag, setPlaceTag] = useState<LogItem["placeTag"]>("home");
+  const [placeTag, setPlaceTag] = useState<PlaceTag>("home");
   const [occurredAtInput, setOccurredAtInput] = useState<string>(() =>
     toDatetimeLocal(Date.now())
   );
