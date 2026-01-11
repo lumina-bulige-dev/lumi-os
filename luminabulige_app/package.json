@@ -5,8 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "pages:build": "next build && npx @cloudflare/next-on-pages",
-    "start": "next start"
+    "start": "next start",
+    "cf:build": "npx @opennextjs/cloudflare build",
+    "cf:deploy": "npx @opennextjs/cloudflare deploy"
   },
   "dependencies": {
     "next": "14.2.35",
