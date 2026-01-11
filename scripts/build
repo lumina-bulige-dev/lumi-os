@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -e
+
+echo "🔨 Building lumi-os project..."
+
+# Build root project
+echo "📦 Building root project..."
+npm run build
+
+# Build luminabulige_app
+echo "📦 Building luminabulige_app..."
+cd luminabulige_app
+npm run build
+cd ..
+
+echo "✅ Build complete!"
