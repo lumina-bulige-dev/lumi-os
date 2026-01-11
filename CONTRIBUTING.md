@@ -38,8 +38,8 @@ The type should be one of the following:
 - **Update**: Modify existing features or content
 - **Fix**: Bug fixes or corrections
 - **Refactor**: Code changes that neither fix bugs nor add features
-- **Remove**: Delete files, features, or functionality
-- **Delete**: Alias for Remove (use Remove preferred)
+- **Remove**: Remove code, features, or functionality
+- **Delete**: Delete entire files or directories (use Remove for code-level deletions)
 - **Create**: Initialize new components or pages
 - **Implement**: Add implementation for planned features
 - **Define**: Add type definitions or interfaces
