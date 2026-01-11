@@ -1,8 +1,12 @@
-name = "lumi-core-api"
+name = "lb-bot"
 main = "src/index.ts"
-compatibility_date = "2025-12-28"
+compatibility_date = "2025-01-10"
 
-# ルートが api.luminabulige.com に紐づいてる前提
 routes = [
-  { pattern = "api.luminabulige.com/*", zone_name = "luminabulige.com" }
+  # どちらか一つ
+  # { pattern = "api.luminabulige.com/bot/*", zone_name = "luminabulige.com" }
+  # または workers.dev を使う（routesなし）
 ]
+
+[vars]
+GITHUB_REPO_SLUG = "<OWNER>/lumina-bulige-dev"
