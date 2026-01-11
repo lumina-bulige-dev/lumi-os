@@ -403,7 +403,7 @@ ENABLE_30DAY_CHALLENGE=true
 
 1. **AUTO_CANONICAL_FLOW_PROTOCOL_v1.0.md** - Canonical update workflow
 2. **L-DEFENSE_PROTOCOL_v1.0.md** - Defense and safety protocols
-3. **AI_FEEDBACK_RIGHTS_PROTOCOL_v1.0** - AI feedback guidelines
+3. **AI_FEEDBACK_RIGHTS_PROTOCOL_v1.0** (no .md extension) - AI feedback guidelines
 
 ---
 
