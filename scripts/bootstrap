@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -e
+
+echo "🚀 Bootstrapping lumi-os project..."
+
+# Install root dependencies
+echo "📦 Installing root dependencies..."
+npm install
+
+# Install luminabulige_app dependencies
+echo "📦 Installing luminabulige_app dependencies..."
+cd luminabulige_app
+npm install
+cd ..
+
+echo "✅ Bootstrap complete!"

@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+set -e
+
+echo "🔨 Building lumi-os project..."
+
+# Build root project
+echo "📦 Building root project..."
+if ! npm run build 2>&1; then
+  echo "⚠️  Root project build failed"
+  exit 1
+fi
+
+# Build luminabulige_app
+echo "📦 Building luminabulige_app..."
+cd luminabulige_app
+if ! npm run build 2>&1; then
+  echo "⚠️  luminabulige_app build failed"
+  exit 1
+fi
+cd ..
+
+echo "✅ Build complete!"
