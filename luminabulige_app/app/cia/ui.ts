@@ -1,5 +1,6 @@
 export const ui = {
     color: {
+        link: "#46B6F..."
   bg: "#050A14",          // 例：今のデザインに合わせる
   // 既存
   border: "rgba(255,255,255,0.16)",
