@@ -79,7 +79,10 @@ export default function MoneyStabilizer() {
           setOpeningBalance(parsed.openingBalance);
         }
         if (Array.isArray(parsed.logs)) {
-          setLogs(parsed.logs);
+          const sortedLogs = [...parsed.logs].sort(
+            (a, b) => b.occurredAt - a.occurredAt
+          );
+          setLogs(sortedLogs);
         }
       }
     } catch {
@@ -150,14 +153,13 @@ function safeKind(v: any): LogKind {
 
   // ✅ 累積支出の時系列（折れ線グラフの元データ）
   const expenseSeries = useMemo(() => {
-    const sorted = [...logs].sort((a, b) => a.occurredAt - b.occurredAt);
-
     let cumExpense = 0;
     const points: { ts: number; v: number }[] = [];
 
-    for (const x of sorted) {
-      if (x.kind === "EXPENSE") cumExpense += x.amount;
-      points.push({ ts: x.occurredAt, v: cumExpense });
+    for (let i = logs.length - 1; i >= 0; i -= 1) {
+      const entry = logs[i];
+      if (entry.kind === "EXPENSE") cumExpense += entry.amount;
+      points.push({ ts: entry.occurredAt, v: cumExpense });
     }
 
     if (points.length === 0) {
@@ -196,14 +198,17 @@ function safeKind(v: any): LogKind {
   }, [expenseSeries]);
   // 残高・合計
   const summary = useMemo(() => {
-    const incomesTotal = logs
-      .filter((x) => x.kind === "INCOME")
-      .reduce((s, x) => s + x.amount, 0);
-    const expensesTotal = logs
-      .filter((x) => x.kind === "EXPENSE")
-      .reduce((s, x) => s + x.amount, 0);
-    const balance = openingBalance + incomesTotal - expensesTotal;
-    return { incomesTotal, expensesTotal, balance };
+    const totals = logs.reduce(
+      (acc, entry) => {
+        if (entry.kind === "INCOME") acc.incomesTotal += entry.amount;
+        if (entry.kind === "EXPENSE") acc.expensesTotal += entry.amount;
+        return acc;
+      },
+      { incomesTotal: 0, expensesTotal: 0 }
+    );
+    const balance =
+      openingBalance + totals.incomesTotal - totals.expensesTotal;
+    return { ...totals, balance };
   }, [logs, openingBalance]);
 
   // ====== JSX（ここから下は必ずこの return の中）======
