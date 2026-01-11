@@ -418,7 +418,7 @@ ENABLE_30DAY_CHALLENGE=true
 For questions about:
 - **Specifications**: Refer to A：HQ and canonical docs in lumi-os
 - **Implementation**: Check relevant class guidelines (B/C/D/E/F)
-- **Compliance**: Route through F：GOV for fintech boundary questions
+- **Compliance**: Route through F：GOV for Fintech boundary questions
 
 ### 12.2 Issue Reporting
 
