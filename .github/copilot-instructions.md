@@ -7,7 +7,10 @@
 ## Development workflow
 - Runtime: Node 18+.
 - Install dependencies: `npm install`.
-- Build/export: `npm run build` (current baseline fails during static export for `/v` due to `useSearchParams` missing a suspense boundary, and for `/api/verify` because `request.url` is used with `dynamic = "error"`; mention if unchanged rather than editing unless asked).
+- Build/export: `npm run build`.
+  - Baseline export currently fails for `/v` because `useSearchParams` is not wrapped in a suspense boundary.
+  - Baseline export currently fails for `/api/verify` because `request.url` is used alongside `dynamic = "error"`.
+  - If these issues are unchanged, note them rather than modifying behavior unless explicitly asked.
 - Do not commit build outputs or `node_modules/`.
 
 ## Coding guidance
