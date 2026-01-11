@@ -17,13 +17,8 @@ fi
 # Configure git to use the template for this repository
 git config commit.template "$TEMPLATE_FILE"
 
-if [ $? -eq 0 ]; then
-    echo "✓ Git commit message template configured successfully!"
-    echo "  Template file: $TEMPLATE_FILE"
-    echo ""
-    echo "When you run 'git commit', your editor will open with the template."
-    echo "For more information, see CONTRIBUTING.md"
-else
-    echo "✗ Failed to configure git commit message template"
-    exit 1
-fi
+echo "✓ Git commit message template configured successfully!"
+echo "  Template file: $TEMPLATE_FILE"
+echo ""
+echo "When you run 'git commit', your editor will open with the template."
+echo "For more information, see CONTRIBUTING.md"
