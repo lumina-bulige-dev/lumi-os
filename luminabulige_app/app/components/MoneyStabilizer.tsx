@@ -123,6 +123,21 @@ function safeKind(v: any): LogKind {
   return v === "INCOME" ? "INCOME" : "EXPENSE";
 }
 
+function insertLogDesc(list: LogItem[], item: LogItem) {
+  let low = 0;
+  let high = list.length;
+  while (low < high) {
+    const mid = (low + high) >>> 1;
+    if (list[mid].occurredAt <= item.occurredAt) {
+      high = mid;
+    } else {
+      low = mid + 1;
+    }
+  }
+  const next = [...list];
+  next.splice(low, 0, item);
+  return next;
+}
 
   
   function addLog() {
@@ -144,9 +159,7 @@ function safeKind(v: any): LogKind {
       placeTag,
     };
 
-    setLogs((prev) =>
-      [item, ...prev].sort((a, b) => b.occurredAt - a.occurredAt)
-    );
+    setLogs((prev) => insertLogDesc(prev, item));
     setAmount("");
     setMemo("");
   }
