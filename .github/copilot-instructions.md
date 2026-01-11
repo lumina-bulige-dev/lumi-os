@@ -8,8 +8,8 @@
 - Runtime: Node 18+.
 - Install dependencies: `npm install`.
 - Build/export: `npm run build`.
-  - Baseline export currently fails for `/v` because `useSearchParams` is not wrapped in a suspense boundary.
-  - Baseline export currently fails for `/api/verify` because `request.url` is used alongside `dynamic = "error"`.
+  - Baseline export currently fails for `/v` because it uses `useSearchParams` (client-only search params) in a way that Next.js cannot statically export without further guarding/refactor.
+  - Baseline export currently fails for `/api/verify` because the route handler reads `request.url`; API route handlers require a server runtime and are incompatible with static export.
   - If these issues are unchanged, note them rather than modifying behavior unless explicitly asked.
 - Do not commit build outputs or `node_modules/`.
 
