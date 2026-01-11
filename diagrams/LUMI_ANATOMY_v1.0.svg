@@ -33,7 +33,7 @@ If it is not in lumi-os, it is not official.
 
   <!-- Title -->
   <text x="600" y="50" text-anchor="middle" class="title">
-    LUMI Anatomy – Core OS & Branches
+    LUMI Anatomy – Core OS &amp; Branches
   </text>
   <text x="600" y="80" text-anchor="middle" class="small">
     If it is not in lumi-os, it is not official.
@@ -62,16 +62,16 @@ If it is not in lumi-os, it is not official.
   <text x="370" y="315" class="box-text">Constitution / A-CORE</text>
 
   <text x="520" y="295" class="small">/rules</text>
-  <text x="520" y="315" class="box-text">Safety & Money Rules</text>
+  <text x="520" y="315" class="box-text">Safety &amp; Money Rules</text>
 
   <text x="670" y="295" class="small">/algorithms</text>
-  <text x="670" y="315" class="box-text">Risk & Floor Engines</text>
+  <text x="670" y="315" class="box-text">Risk &amp; Floor Engines</text>
 
   <text x="820" y="295" class="small">/protocols</text>
   <text x="820" y="315" class="box-text">Operations / Flows</text>
 
   <text x="600" y="345" text-anchor="middle" class="small">
-    /specifications – API & Product Specs（B/C/D 向け正本）
+    /specifications – API &amp; Product Specs（B/C/D 向け正本）
   </text>
 
   <!-- Arrows: Brand -> Core -->
@@ -119,7 +119,7 @@ If it is not in lumi-os, it is not official.
   <!-- Right side: Guidance out -->
   <rect x="890" y="250" width="240" height="160" class="box-side" />
   <text x="1010" y="280" text-anchor="middle" class="box-title">
-    Guidance & Guard Rails
+    Guidance &amp; Guard Rails
   </text>
   <text x="905" y="305" class="box-text">
     • Floor status: SAFE / WARNING / DANGER
