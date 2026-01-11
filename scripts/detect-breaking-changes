@@ -26,14 +26,18 @@ fi
 if echo "$CHANGED_FILES" | grep -q "package.json"; then
   echo "📦 package.json was modified. Checking for dependency changes..."
   
-  # Check for removed dependencies
-  REMOVED_DEPS=$(git diff "$BASE_SHA" HEAD -- package.json luminabulige_app/package.json 2>/dev/null | grep -E '^\-\s+".*":' || true)
-  
-  if [ ! -z "$REMOVED_DEPS" ]; then
-    echo "⚠️  Warning: Dependencies were removed:"
-    echo "$REMOVED_DEPS"
-    echo ""
-  fi
+  # Check for removed dependencies (check if files exist first)
+  for pkg_file in package.json luminabulige_app/package.json; do
+    if git cat-file -e "$BASE_SHA:$pkg_file" 2>/dev/null; then
+      REMOVED_DEPS=$(git diff "$BASE_SHA" HEAD -- "$pkg_file" 2>/dev/null | grep -E '^\-\s+".*":' || true)
+      
+      if [ ! -z "$REMOVED_DEPS" ]; then
+        echo "⚠️  Warning: Dependencies were removed from $pkg_file:"
+        echo "$REMOVED_DEPS"
+        echo ""
+      fi
+    fi
+  done
 fi
 
 # Check if TypeScript config has breaking changes
