@@ -33,13 +33,11 @@ The "Autovalidate" job shows:
 
 ### Why Was It Skipped?
 
-The Autovalidate job is a **conditionally executed job** in the Copilot code review workflow. It only runs when specific conditions are met, such as:
+The Autovalidate job is a **conditionally executed job** in the Copilot code review workflow. 
 
-1. Certain types of changes that require additional validation
-2. Specific file patterns or configurations that need auto-validation
-3. When the PR contains changes that match predefined validation rules
+The exact execution conditions are determined by GitHub's Copilot code review workflow logic and are not publicly documented. Conditional job skipping is a standard GitHub Actions pattern where jobs only run when specific workflow-defined conditions (such as `if:` clauses) evaluate to true.
 
-**When the conditions aren't met, the job is skipped** - this is normal and expected behavior, not an error or bug.
+**When the conditions aren't met, the job is skipped** - this is normal and expected behavior, not an error or bug. The absence of execution indicates the conditions for this particular PR did not require autovalidation.
 
 ## Conclusion
 
