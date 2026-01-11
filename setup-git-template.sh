@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e  # Exit on error
+
 # Setup script for configuring git commit message template
 # Run this script to automatically configure your local git to use the commit message template
 
