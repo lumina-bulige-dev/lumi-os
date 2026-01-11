@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+set -e
+
+cd "$(dirname "$0")/.."
+
+echo "==> Detecting breaking changes"
+
+# Validate that commit SHA is provided
+if [ -z "$1" ]; then
+    echo "Error: Base commit SHA required as first argument"
+    exit 1
+fi
+
+# Define test paths for the lumi-os repository
+# These are key TypeScript files that define the API surface
+# Note: Only including files that are part of the main TypeScript compilation
+TEST_PATHS=(
+	lumi-core-api/src/index.ts
+	middleware.ts
+)
+
+for PATHSPEC in "${TEST_PATHS[@]}"; do
+    # Try to check out previous versions of the source files
+    # with the current codebase.
+    git checkout "$1" -- "${PATHSPEC}" 2>/dev/null || true
+done
+
+# Instead of running tests, use TypeScript compiler to check if an
+# older version is no longer compatible with the latest codebase.
+# This will detect breaking changes in types and interfaces.
+echo "==> Running TypeScript compiler to detect type breaking changes"
+
+# Check if TypeScript compilation succeeds with old files
+# Use the root tsconfig which excludes luminabulige_app
+if command -v npx &> /dev/null; then
+    # First check the main project
+    echo "Checking main project TypeScript files..."
+    if ! npx tsc --noEmit --project tsconfig.json; then
+        echo "Error: Breaking changes detected in main project files"
+        exit 1
+    fi
+    
+    # Then check lumi-core-api separately if it exists
+    if [ -f "lumi-core-api/src/index.ts" ]; then
+        echo "Checking lumi-core-api TypeScript files..."
+        pushd lumi-core-api > /dev/null || exit 1
+        if ! npx tsc --noEmit --project tsconfig.json; then
+            echo "Error: Breaking changes detected in lumi-core-api files"
+            popd > /dev/null
+            exit 1
+        fi
+        popd > /dev/null
+    fi
+else
+    echo "Warning: npx not found, skipping TypeScript check"
+fi
+
+echo "==> Breaking change detection complete"
