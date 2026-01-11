@@ -226,7 +226,9 @@ console.log("Wise referral URL:", wiseLink.wise_referral_url);
 
 ### 5.3 Mock Data Testing
 
-Production API が利用不可能な場合、`lumi-core-web` ディレクトリの mock data を使用可能：
+Production API が利用不可能な場合、mock data の使用が推奨される。
+
+`lumi-core-web` ファイルには、以下の構造の mock data 仕様が記述されている：
 
 ```
 lumi-core-web/
@@ -236,6 +238,8 @@ lumi-core-web/
       home_state.warning.json
       home_state.danger.json
 ```
+
+**注**: 実際の mock data ディレクトリは今後 B：INFRA により実装される予定。
 
 ---
 
