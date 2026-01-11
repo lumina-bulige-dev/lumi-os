@@ -12,7 +12,8 @@
 #   Update:     Modify existing features or content  
 #   Fix:        Bug fixes or corrections
 #   Refactor:   Code changes that neither fix bugs nor add features
-#   Remove:     Delete files, features, or functionality
+#   Remove:     Remove code, features, or functionality
+#   Delete:     Delete entire files or directories
 #   Create:     Initialize new components or pages
 #   Implement:  Add implementation for planned features
 #   Define:     Add type definitions or interfaces
