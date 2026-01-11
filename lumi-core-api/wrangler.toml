@@ -9,7 +9,7 @@ compatibility_date = "2024-01-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "lumi-db"
-database_id = "placeholder" # Set in Cloudflare dashboard
+database_id = "placeholder" # Replace with actual D1 database ID from Cloudflare dashboard (Settings → Bindings)
 
 [env.production]
 name = "lumi-core-api"

@@ -2,29 +2,29 @@ export default {
   async fetch(request: Request, env: any) {
     const url = new URL(request.url);
 
-    // health check
+    // Health check endpoint
     if (url.pathname === "/health") {
       return new Response(JSON.stringify({ ok: true }), {
         headers: { "content-type": "application/json" },
       });
     }
 
-// webhook path only
+    // Webhook path only
     if (url.pathname !== "/webhooks/wise") {
       return new Response("not found", { status: 404 });
     }
 
-    // Wise URL 検証用（GET/HEAD は 200）
+    // Wise URL verification (GET/HEAD returns 200)
     if (request.method === "GET" || request.method === "HEAD") {
       return new Response("OK", { status: 200 });
     }
 
-    // webhook 本体は POST のみ
+    // Webhook handler accepts POST only
     if (request.method !== "POST") {
       return new Response("method not allowed", { status: 405 });
     }
 
-    // ↓↓↓ ここから署名検証・DB保存 ↓↓↓
+    // Signature verification and database storage
     const raw = await request.arrayBuffer();
 
     const sigB64 = request.headers.get("X-Signature-SHA256");
