@@ -1,0 +1,41 @@
+# <type>: <subject>
+# |<----  Use imperative mood, max 50 chars  ---->|
+
+# [optional body]
+# |<----   Wrap at 72 characters   --->|
+
+# [optional footer]
+# Example: Closes #123, Fixes #456
+
+# Types:
+#   Add:        Add new features, files, or functionality
+#   Update:     Modify existing features or content  
+#   Fix:        Bug fixes or corrections
+#   Refactor:   Code changes that neither fix bugs nor add features
+#   Remove:     Remove code, features, or functionality
+#   Delete:     Delete entire files or directories
+#   Create:     Initialize new components or pages
+#   Implement:  Add implementation for planned features
+#   Define:     Add type definitions or interfaces
+#   Move:       Relocate files or restructure code
+#   Rename:     Change names of files, variables, or functions
+#   Format:     Code formatting changes
+#   Simplify:   Simplify code without changing functionality
+#
+# Subject line rules:
+#   - Use imperative mood ("Add" not "Added" or "Adds")
+#   - Do not capitalize first letter after type
+#   - No period at the end
+#   - Be specific and descriptive
+#
+# Body (optional):
+#   - Explain what and why, not how
+#   - Wrap at 72 characters
+#
+# Example:
+#   Add user authentication middleware
+#   
+#   Implement JWT-based authentication for API routes
+#   to ensure secure access to protected endpoints.
+#   
+#   Closes #42
