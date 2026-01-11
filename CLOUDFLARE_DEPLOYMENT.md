@@ -2,6 +2,8 @@
 
 This document describes the proper Cloudflare deployment configuration for all LUMINA BULIGE projects.
 
+> 🔧 **If deployments are failing**: See `CLOUDFLARE_DASHBOARD_SETUP.md` for step-by-step dashboard configuration instructions.
+
 ## Projects Overview
 
 ### 1. lumi-core-api (Cloudflare Workers)
