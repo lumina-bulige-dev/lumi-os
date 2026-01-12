@@ -16,6 +16,14 @@ type LogItem = {
   placeTag?: "home" | "work" | "move" | "other";
 };
 
+"use client";
+
+export default function MoneyStabilizer() {
+  // MVPスタブ（後で中身を実装）
+  return null;
+}
+
+
 const STORAGE_KEY = "lumi_compare_v2";
 
 const CHILDREN: Record<ParentKey, string[]> = {
