@@ -7,3 +7,22 @@
     }
   }
 }
+module.exports = {
+  plugins: ["boundaries", "import"],
+  settings: {
+    "boundaries/elements": [
+      { type: "features", pattern: "src/features/*" },
+      { type: "shared", pattern: "src/shared/*" },
+    ],
+  },
+  rules: {
+    "import/no-relative-packages": "error",
+    "boundaries/element-types": [2, {
+      default: "disallow",
+      rules: [
+        { from: "features", allow: ["shared"], disallow: ["features"] },
+        { from: "shared", allow: ["shared"] }
+      ]
+    }]
+  }
+};
