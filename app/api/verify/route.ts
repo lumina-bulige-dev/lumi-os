@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";       // これで静的化を禁止
 export const revalidate = 0;                  // キャッシュ無効
 export const fetchCache = "force-no-store";   // 取得キャッシュ回避（任意）
+export const runtime = "edge";
+
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
