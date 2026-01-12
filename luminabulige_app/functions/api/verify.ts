@@ -4,7 +4,7 @@ import React, { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 
-type Result = "OK" | "NG" | "REVOKED" | "UNKNOWN";
+
 
 type ProofSummary = {
   proof_id?: string;
