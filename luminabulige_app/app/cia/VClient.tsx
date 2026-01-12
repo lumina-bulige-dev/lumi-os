@@ -1,12 +1,13 @@
+// app/cia/VClient.tsx
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { ui } from "./ui";
 
 import type { Result, VerifyResponse, ProofSummary } from "@/app/lib/verify-types";
-// もしくは相対パス: import type { ... } from "../lib/verify-types";
 
-
+// ⚠️ ここに同名の type Result/VerifyResponse/ProofSummary を再定義しない
 
 
 type ProofSummary = {
