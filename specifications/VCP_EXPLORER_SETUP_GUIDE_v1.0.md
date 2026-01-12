@@ -1,4 +1,4 @@
-# VCP_EXPLORER_SETUP_GUIDE_v1.0
+LUMINABULIGEバージョン# VCP_EXPLORER_SETUP_GUIDE_v1.0
 
 **Visual Control Panel Explorer — Development Setup Guide**
 
