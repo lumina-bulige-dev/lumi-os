@@ -3,7 +3,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
-type Result = "OK" | "NG" | "REVOKED" | "UNKNOWN";
+import type { Result, VerifyResponse, ProofSummary } from "@/app/lib/verify-types";
+// もしくは相対パス: import type { ... } from "../lib/verify-types";
+
 
 
 
