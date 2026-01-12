@@ -3,6 +3,16 @@
 
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+import VClient from "./VClient"; // または import { VClient } from "./VClient";
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div />}>
+      <VClient />
+    </Suspense>
+  );
+}
 
 export default function VerifyPage() {
   const sp = useSearchParams();
