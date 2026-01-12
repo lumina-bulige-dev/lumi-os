@@ -1,0 +1,83 @@
+mkdir -p .github/workflows
+cat > .github/workflows/release.yml <<'YAML'
+name: release
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions: { contents: write }
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - name: Verify tag signature
+        run: |
+          git verify-tag "${GITHUB_REF_NAME}"
+
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+
+      - name: Install & Build
+        run: |
+          npm ci
+          npm run build
+          mkdir -p artifacts
+
+      - name: Checksums & release.json
+        run: |
+          # 配布ファイルを artifacts/ にコピーする処理を各自追加
+          # 例: cp -r .next/static artifacts/ || true
+
+          # 先にファイルだけ拾ってチェックサム（ディレクトリは除外）
+          (cd artifacts && find . -type f ! -name 'SHA256SUMS' -maxdepth 1 -print0 | xargs -0 sha256sum > SHA256SUMS || true)
+
+          cat > artifacts/release.json <<'JSON'
+          {
+            "version": "${GITHUB_REF_NAME}",
+            "tag": "${GITHUB_REF_NAME}",
+            "commit": "$(git rev-parse --verify HEAD)",
+            "build_ts": "$(date -u +%FT%TZ)",
+            "runner": "github-actions"
+          }
+          JSON
+
+      - name: Proof payload
+        run: |
+          cat > artifacts/proof.release.json <<'JSON'
+          {
+            "type": "release-proof",
+            "version": "1",
+            "reportDate": "$(date -u +%FT%TZ)",
+            "tag": "${GITHUB_REF_NAME}",
+            "commit": "$(git rev-parse --verify HEAD)",
+            "hashes": {
+              "SHA256SUMS": "$(sha256sum artifacts/SHA256SUMS | awk '{print $1}')",
+              "release.json": "$(sha256sum artifacts/release.json | awk '{print $1}')"
+            },
+            "notes": "Automated by GitHub Actions"
+          }
+          JSON
+
+          node -e "const fs=require('fs'),c=require('crypto');const r=fs.readFileSync('artifacts/proof.release.json');const d=c.createHash('sha256').update(r).digest('base64').replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=+$/,'');fs.writeFileSync('artifacts/payload_hash.b64u',d);"
+
+          KID="$(ssh-keygen -lf ~/.ssh/known_hosts 2>/dev/null | awk 'NR==1{print $2}' | sed 's/^SHA256://')"
+          KID="${KID:-unknown}"
+          jq --arg kid "$KID" --arg alg "ssh-ed25519" \
+             --arg ph "$(cat artifacts/payload_hash.b64u)" \
+             '. + {kid:$kid, alg:$alg, payload_hash_b64u:$ph}' \
+             artifacts/proof.release.json > artifacts/tmp && mv artifacts/tmp artifacts/proof.release.json
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          files: |
+            artifacts/SHA256SUMS
+            artifacts/release.json
+            artifacts/proof.release.json
+YAML
