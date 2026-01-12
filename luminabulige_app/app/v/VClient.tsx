@@ -1,3 +1,4 @@
+// 置換後の完成版（これだけ残してください）
 function badgeStyle(result: Result) {
   const palette = {
     OK:      { color: ui.color.ok,        bg: ui.color.okBg,             br: "#A7F3D0" },
@@ -8,6 +9,7 @@ function badgeStyle(result: Result) {
   const p = palette[result];
   return { color: p.color, background: p.bg, border: `1px solid ${p.br}` };
 }
+
 
 +  const palette = {
 +    OK:      { color: ui.color.ok,        bg: ui.color.okBg,                    br: "#A7F3D0" },
