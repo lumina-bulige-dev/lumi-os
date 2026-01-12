@@ -337,12 +337,13 @@ export default function VClient() {
     return () => window.removeEventListener("afterprint", onAfter);
   }, []);
 
-  const onPdfOne = () => {
-    setPrintOne(true);
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => window.print());
-    });
-  };
+const onPdfOne = () => {
+  setPrintOne(true);
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => window.print());
+  });
+};
+
 
   const contactMailto = useMemo(() => {
     if (!data) return "";
