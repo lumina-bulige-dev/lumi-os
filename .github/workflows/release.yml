@@ -1,0 +1,51 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag name for the release (e.g., v1.0.0)'
+        required: true
+        type: string
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Git
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Validate tag format
+        shell: bash
+        env:
+          TAG_NAME: ${{ inputs.tag_name }}
+        run: |
+          if [[ ! "$TAG_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: Tag name must follow semantic versioning"
+            echo "(e.g., v1.0.0)"
+            exit 1
+          fi
+
+      # Create a temporary tag on HEAD for versioning purposes.
+      # This tag is not pushed to the remote in this step.
+      - name: Create temporary tag
+        shell: bash
+        env:
+          TAG_NAME: ${{ inputs.tag_name }}
+        run: git tag "$TAG_NAME"
+
+      - name: Push tag
+        shell: bash
+        env:
+          TAG_NAME: ${{ inputs.tag_name }}
+        run: git push origin "$TAG_NAME"
