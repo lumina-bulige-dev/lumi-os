@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { ui } from "./ui";
+
 
 type Result = "OK" | "NG" | "REVOKED" | "UNKNOWN";
 
