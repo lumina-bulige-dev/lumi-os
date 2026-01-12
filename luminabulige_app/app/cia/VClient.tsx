@@ -5,9 +5,8 @@ import React, { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ui } from "./ui";
 
+// ✅ 共通型だけを使う（ローカルの同名 type は置かない）
 import type { Result, VerifyResponse, ProofSummary } from "@/app/lib/verify-types";
-
-// ⚠️ ここに同名の type Result/VerifyResponse/ProofSummary を再定義しない
 
 
 type ProofSummary = {
