@@ -25,5 +25,6 @@ export type VerifyResponse = {
   error?: string;
   message?: string;
   need?: string[];
-  got?: any;
+  got?: unknown;
 };
+
