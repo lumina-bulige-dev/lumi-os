@@ -9,3 +9,13 @@
   "updateInternalDependencies": "patch",
   "ignore": []
 }
+
+{
+  "type": "apply_patch_call",
+  "call_id": "call_123",
+  "operation": {
+    "type": "update_file",
+    "path": "lib/foo.py",
+    "diff": "*** Begin Patch\n..."
+  }
+}
