@@ -1,9 +1,7 @@
 // app/v/page.tsx
-import { Suspense } from 'react';
-import VClient from './VClient';
-
-export const dynamic = 'force-dynamic'; // 念のため静的化回避
-export const revalidate = 0;
+"use client";
+import { Suspense } from "react";
+import VClient from "./VClient"; // VClient が default export の想定
 
 export default function Page() {
   return (
@@ -11,4 +9,10 @@ export default function Page() {
       <VClient />
     </Suspense>
   );
+}
+
+// 以前の VerifyPage は名前付きで残す（必要なら）
+export function VerifyPageStandalone() {
+  // 既存ロジックをここに移す（useSearchParams 等）
+  return <div>Standalone Verify</div>;
 }
