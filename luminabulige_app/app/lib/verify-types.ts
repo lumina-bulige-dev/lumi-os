@@ -1,4 +1,5 @@
 // app/lib/verify-types.ts
+
 export type Result = "OK" | "NG" | "REVOKED" | "UNKNOWN";
 
 export type ProofSummary = {
@@ -25,6 +26,6 @@ export type VerifyResponse = {
   error?: string;
   message?: string;
   need?: string[];
-  got?: unknown;
+  got?: any;
 };
 
