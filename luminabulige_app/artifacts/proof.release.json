@@ -1,0 +1,20 @@
+{
+  "kind": "release-proof",
+  "service": "lumi-os",
+  "version": "v1",
+  "tag": "v0.1.0",
+  "commit": "177d33a38a9b356d208bdd9adfb98980917e3175",
+  "created_at": "2026-01-12T20:00:00Z",
+  "build": {
+    "runner": "github-actions",
+    "workflow": ".github/workflows/release.yml"
+  },
+  "artifacts": {
+    "sha256sums": "SHA256SUMS"
+  },
+
+  "kid": "",
+  "alg": "ssh-ed25519",
+  "payload_hash_b64u": "",
+  "sig_b64u": ""
+}
