@@ -48,7 +48,7 @@ function toResult(x: unknown): Result | null {
   const r = x.toUpperCase();
   return r === "OK" || r === "NG" || r === "REVOKED" || r === "UNKNOWN" ? (r as Result) : null;
 }
-
+/*
 function badgeStyle(result: Result) {
   switch (result) {
     case "OK":
@@ -60,7 +60,7 @@ function badgeStyle(result: Result) {
     case "UNKNOWN":
       return { color: ui.color.unk, background: ui.color.unkBg, border: `1px solid ${ui.color.border}` };
   }
-}
+}*/
 
 function shortHash(s?: string | null, head = 10, tail = 6) {
   if (!s) return "";
