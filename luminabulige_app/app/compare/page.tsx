@@ -1,4 +1,6 @@
-import MoneyStabilizer from "@/app/components/MoneyStabilizer";
+- import MoneyStabilizer from "@/app/components/MoneyStabilizer";
++ import MoneyStabilizer from "../components/MoneyStabilizer";
+
 
 export default function ComparePage() {
   return (
