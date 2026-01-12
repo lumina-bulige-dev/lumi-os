@@ -1,10 +1,13 @@
 // app/v/page.tsx
-import { Suspense } from "react";
-import VClient from "./VClient";
+import { Suspense } from 'react';
+import VClient from './VClient';
+
+export const dynamic = 'force-dynamic'; // 念のため静的化回避
+export const revalidate = 0;
 
 export default function Page() {
   return (
-    <Suspense fallback={<div style={{ padding: 24 }}>Loading…</div>}>
+    <Suspense fallback={<div />}>
       <VClient />
     </Suspense>
   );
