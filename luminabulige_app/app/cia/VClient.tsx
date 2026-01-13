@@ -51,10 +51,14 @@ const CRITERIA: Record<Result, string> = {
 const API_ORIGIN =
   process.env.NEXT_PUBLIC_API_ORIGIN ?? "https://api.luminabulige.com";
 
-function toResult(x: unknown): Result | null {
-  if (typeof x !== "string") return null;
-  const r = x.toUpperCase();
-  return r === "OK" || r === "NG" || r === "REVOKED" || r === "UNKNOWN" ? (r as Result) : null;
+const p = resultPalette[result];
+
+return {
+  color: p.color,
+  background: p.bg,
+  border: `1px solid ${p.br}`,
+};
+
 }
 // ここからでOK（既存の import 群や型定義はそのまま）
 type BadgeCSS = { color: string; background: string; border: string };
