@@ -5,6 +5,13 @@ import { useSearchParams } from "next/navigation";
 
 import { ui } from "../ui";
 import type { Result, VerifyResponse } from "@/app/lib/verify-types";
+const p = resultPalette[result];
+
+return {
+  color: p.color,
+  background: p.bg,
+  border: `1px solid ${p.br}`,
+};
 
 
 type ProofSummary = {
