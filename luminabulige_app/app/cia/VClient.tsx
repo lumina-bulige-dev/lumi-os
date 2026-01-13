@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
-import { ui } from "./ui/Badge.tsx";
+import { ui } from "../ui";
 import type { Result, VerifyResponse } from "@/app/lib/verify-types";
 
 
