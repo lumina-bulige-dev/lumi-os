@@ -50,7 +50,7 @@ const CRITERIA: Record<Result, string> = {
 
 const API_ORIGIN =
   process.env.NEXT_PUBLIC_API_ORIGIN ?? "https://api.luminabulige.com";
-
+/*
 const p = resultPalette[result];
 
 return {
@@ -94,7 +94,7 @@ ngBg: "rgba(245, 158, 11, 0.14)",
   const p = palette[result];
   return { color: p.color, background: p.bg, border: `1px solid ${p.br}` };
 }
-
+*/
 
 
 function shortHash(s?: string | null, head = 10, tail = 6) {
