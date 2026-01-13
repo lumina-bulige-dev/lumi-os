@@ -8,7 +8,13 @@ const cors = {
 if (req.method === "OPTIONS") return new Response(null, { headers: cors });
 
 return new Response(JSON.stringify(...), { headers: { ...cors, "content-type": "application/json; charset=utf-8" }});
+if (url.pathname === "/events") {
+  return json([{ id: "demo", status: "OK", ts: Date.now() }]);
+}
 
+if (url.pathname.startsWith("/verify")) {
+  return json({ result: "OK" });
+}
 export default {
   async fetch(req: Request) {
     const url = new URL(req.url);
