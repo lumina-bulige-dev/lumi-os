@@ -52,7 +52,10 @@ const API_ORIGIN =
   process.env.NEXT_PUBLIC_API_ORIGIN ?? "https://api.luminabulige.com";
 type Result = "OK" | "NG" | "REVOKED" | "UNKNOWN";
 
-const palette: Record<Result, { color: string; bg: string; br: string }> = {
+};
+import { ui } from "../ui";
+
+export const resultPalette = {
   OK: {
     color: ui.color.ok,
     bg: ui.color.okBg,
@@ -64,16 +67,18 @@ const palette: Record<Result, { color: string; bg: string; br: string }> = {
     br: "#FED7AA",
   },
   REVOKED: {
-    color: "#EF4444",
-    bg: "rgba(239,68,68,0.16)",
+    color: "#DC2626",
+    bg: "rgba(220,38,38,0.16)",
     br: "#FECACA",
   },
   UNKNOWN: {
-    color: ui.color.weak,
-    bg: ui.color.soft,
-    br: ui.color.border,
+    color: "#64748B",
+    bg: "rgba(100,116,139,0.16)",
+    br: "#CBD5E1",
   },
-};
+} as const;
+
+export type Result = keyof typeof resultPalette;
 
 
 function shortHash(s?: string | null, head = 10, tail = 6) {
