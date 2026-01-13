@@ -1,45 +1,10 @@
 {
   "compilerOptions": {
-    "baseUrl": "./src",
-    "paths": {
-      "@features/*": ["features/*"],
-      "@shared/*": ["shared/*"]
-    }
-  }
-}
-module.exports = {
-  plugins: ["boundaries", "import"],
-  settings: {
-    "boundaries/elements": [
-      { type: "features", pattern: "src/features/*" },
-      { type: "shared", pattern: "src/shared/*" },
-    ],
-  },
-  rules: {
-    "import/no-relative-packages": "error",
-    "boundaries/element-types": [2, {
-      default: "disallow",
-      rules: [
-        { from: "features", allow: ["shared"], disallow: ["features"] },
-        { from: "shared", allow: ["shared"] }
-      ]
-    }]
-  }
-};
-{
-  "observability": {
-    "enabled": false,
-    "head_sampling_rate": 1,
-    "logs": {
-      "enabled": true,
-      "head_sampling_rate": 1,
-      "persist": true,
-      "invocation_logs": true
-    },
-    "traces": {
-      "enabled": true,
-      "persist": true,
-      "head_sampling_rate": 1
-    }
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "jsx": "react-jsx",
+    "types": ["@cloudflare/workers-types"]
   }
 }
