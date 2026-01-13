@@ -1,3 +1,11 @@
+const p = resultPalette[result];
+
+return {
+  color: p.color,
+  background: p.bg,
+  border: `1px solid ${p.br}`,
+};
+
 export const ui = {
     color: {
         link: "#46B6F..."
