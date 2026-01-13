@@ -5,9 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "cf:build": "npx @opennextjs/cloudflare build",
-    "cf:deploy": "npx @opennextjs/cloudflare deploy"
+    "pages:build": "next build && npx @cloudflare/next-on-pages",
+    "start": "next start"
   },
   "dependencies": {
     "next": "14.2.35",
@@ -20,13 +19,5 @@
     "typescript": "5.9.3",
     "@types/node": "20.19.27",
     "@types/react": "18.3.27"
-  }
-}
-{
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
   }
 }
