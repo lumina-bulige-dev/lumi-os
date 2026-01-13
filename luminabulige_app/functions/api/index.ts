@@ -1,20 +1,21 @@
 cat > functions/api/index.ts <<'EOF'
-export interface Env {
-  // ここに後で KV / D1 / Secrets など足せる
-}
-
 export default {
-  async fetch(req: Request, env: Env, ctx: ExecutionContext) {
+  async fetch(req: Request) {
     const url = new URL(req.url);
 
-    // health
-    if (url.pathname === "/" || url.pathname === "/health" || url.pathname === "/v1/health") {
-      return new Response(JSON.stringify({ ok: true, path: url.pathname, ts: Date.now() }), {
+    const ok = (path: string) =>
+      new Response(JSON.stringify({ ok: true, path, ts: Date.now() }), {
         headers: { "content-type": "application/json; charset=utf-8" },
       });
+
+    if (url.pathname === "/" || url.pathname === "/health" || url.pathname === "/v1/health") {
+      return ok(url.pathname);
     }
+
+    if (url.pathname === "/favicon.ico") return new Response("", { status: 204 });
 
     return new Response("Not Found", { status: 404 });
   },
 };
 EOF
+
