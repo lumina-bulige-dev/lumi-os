@@ -64,6 +64,9 @@ function badgeStyle(result: Result): BadgeCSS {
       color: "#F97316",
       bg: "rgba(251,146,60,0.16)",
       br: "#FED7AA",
+      ng: "#F59E0B",
+ngBg: "rgba(245, 158, 11, 0.14)",
+
     },
     REVOKED: {
       color: "#EF4444",
