@@ -1,4 +1,4 @@
-// luminabulige_app/app/proof/page.tsx
+//lumi-os/luminabulige_app/proof/
 export default function ProofPage() {
   return (
     <main>
