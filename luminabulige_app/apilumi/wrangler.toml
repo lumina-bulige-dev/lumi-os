@@ -1,7 +1,23 @@
-name = "apilumi"
-main = "src/index.ts"
-compatibility_date = "2025-01-01"
+cat > /workspaces/lumi-os/luminabulige_app/apilumi/src/index.ts <<'EOF'
+export default {
+  async fetch(req: Request) {
+    const url = new URL(req.url);
 
-routes = [
-  { pattern = "api.luminabulige.com/*", zone_name = "luminabulige.com" }
-]
+    const cors = {
+      "access-control-allow-origin": "*",
+      "access-control-allow-methods": "GET,POST,OPTIONS",
+      "access-control-allow-headers": "Content-Type, Authorization",
+    };
+
+    if (req.method === "OPTIONS") return new Response(null, { headers: cors });
+
+    if (url.pathname === "/" || url.pathname === "/health" || url.pathname === "/v1/health") {
+      return new Response(JSON.stringify({ ok: true, path: url.pathname, ts: Date.now() }), {
+        headers: { ...cors, "content-type": "application/json; charset=utf-8" },
+      });
+    }
+
+    return new Response("Not Found", { status: 404, headers: cors });
+  },
+};
+EOF
