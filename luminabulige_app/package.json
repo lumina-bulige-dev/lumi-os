@@ -22,3 +22,9 @@
     "@types/react": "18.3.27"
   }
 }
+{
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite dev"
+  }
+}
