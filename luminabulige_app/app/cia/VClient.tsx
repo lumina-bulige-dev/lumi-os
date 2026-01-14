@@ -3,7 +3,11 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
-import { ui } from "../ui";
+import { ui } from "./ui";
+
+// 使用箇所
+ui.color.ng
+ui.color.ngBg
 import type { Result, VerifyResponse } from "@/app/lib/verify-types";
 const p = resultPalette[result];
 
