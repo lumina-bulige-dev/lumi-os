@@ -3,7 +3,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
-import { ciaUi } from "./ciaUi";
+export * from './ciaUi ';
+
 
 // すべて ui → ciaUi に置換
 ciaUi.color.ng
