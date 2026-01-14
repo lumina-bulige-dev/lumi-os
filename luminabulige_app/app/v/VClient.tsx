@@ -2,4 +2,4 @@
 
 import React, { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { ui } from "./ui";
+import { ui } from "@/app/cia/ui";
