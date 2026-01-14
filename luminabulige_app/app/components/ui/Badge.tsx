@@ -7,7 +7,7 @@ return {
 };
 
 // src/lib/ui.ts （UIテーマ設定ファイル）
-export const ui = {
+export const ciaUi  = {
   color: {
     // ...（既存のカラー定義）...
     ok: '#22C55E',         // 例: 良好（緑系） - 定義済みと仮定
