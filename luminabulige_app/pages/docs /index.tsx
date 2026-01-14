@@ -1,4 +1,8 @@
 // pages/docs/index.tsx (Next.js Pages Routerの場合)
+'use client'; // 先頭に移動する
+
+export const metadata = { ... };
+
 import fs from 'fs';
 import path from 'path';
 import Link from 'next/link';
