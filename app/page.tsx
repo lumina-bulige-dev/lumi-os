@@ -1,6 +1,6 @@
 // app/page.tsx
 import HomeClient from "./HomeClient";
-import { ui } from "@/app/cia/ui";
+import { ciaUi } from "@/app/cia/ciaUi";
 export default function Page() {
   return <HomeClient />;
 }
