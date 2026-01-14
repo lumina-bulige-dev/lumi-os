@@ -10,8 +10,8 @@ export const ui = {
     ok: "#0B5FFF",
     okBg: "rgba(11,95,255,0.14)",
 
-    ng: "#F97316",                 // ← 追加
-    ngBg: "rgba(251,146,60,0.16)", // ← 追加
+    ng: "#9A3412",          // ← 追加
+    ngBg: "#FFF7ED",        // ← 追加
 
     rev: "#EF4444",
     revBg: "rgba(239,68,68,0.14)",
