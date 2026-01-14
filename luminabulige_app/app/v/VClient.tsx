@@ -3,5 +3,3 @@
 import React, { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ui } from "./ui";
-
-// 以下そのまま
