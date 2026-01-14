@@ -1,9 +1,15 @@
-// app/page.tsx
+'use client';  // ← 必ず先頭に
+
 export const metadata = {
-  title: "LUMINA",
-  description: "LUMINA / LUMINA CIA / oKYC beta landing page.",
+  title: 'LUMINA',
+  description: 'LUMINA / LUMINA CIA / oKYC beta landing page.',
 };
-"use client"
+
+// 以下はそのまま…
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+// …
+
 
 import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
