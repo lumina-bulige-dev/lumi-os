@@ -1,6 +1,12 @@
-"use client";
 import { Suspense } from "react";
 import VClient from "./VClient";
-<Suspense fallback={...}>
-  <VClient />
-</Suspense>
+
+export const dynamic = "force-dynamic"; // ← これも入れる
+
+export default function Page() {
+  return (
+    <Suspense fallback={null}>
+      <VClient />
+    </Suspense>
+  );
+}
