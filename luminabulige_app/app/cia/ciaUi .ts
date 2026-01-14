@@ -1,4 +1,5 @@
-export const ciaUi  = {
+export * from './ciaUi ';
+/*export const ciaUi  = {
   color: {
     bg: "#050A14",
 
@@ -20,3 +21,4 @@ export const ciaUi  = {
     link: "#46B6FF",
   },
 } as const;
+*/
