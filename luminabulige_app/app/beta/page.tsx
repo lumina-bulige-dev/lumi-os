@@ -5,6 +5,8 @@ const items = [
   { href: "/cia", title: "CIA", desc: "行動ログベースの監査ビュー（提出物の概念）" },
   { href: "/compare", title: "Compare", desc: "他社KYC/信用スコアと比較する思考実験" },
   { href: "/compare", title: "Money Stabilizer", desc: "30日ログ入力へ（床抜け検知つき）" },
+   // ここにチャットへの導線を追加
+  { href: "/finance-chat", title: "Finance Chat", desc: "v0.app連携の実験的AIチャット" },
 ];
 
 export default function BetaPage() {
