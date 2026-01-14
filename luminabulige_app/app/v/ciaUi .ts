@@ -1,4 +1,4 @@
-export const ui = {
+export const ciaUi  = {
   color: {
     bg: "#050A14",
     border: "rgba(255,255,255,0.16)",
