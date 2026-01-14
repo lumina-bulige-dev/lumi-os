@@ -1,5 +1,5 @@
-// app/api/rank/route.ts
-import { NextResponse } from "next/server";
+// app/proof/route.ts
+//import { NextResponse } from "next/server";
 
 type WeeklyRow = {
   week: number;
