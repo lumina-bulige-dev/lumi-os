@@ -1,11 +1,7 @@
 "use client";
 
+import React, { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { ui } from "./ui";
 
-export default function VClient() {
-  const sp = useSearchParams();
-  const proofId = useMemo(() => sp.get("proofId") || "", [sp]);
-
-  // 以下そのまま
-}
+// 以下そのまま
