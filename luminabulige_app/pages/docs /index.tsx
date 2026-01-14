@@ -1,8 +1,4 @@
-// pages/docs/index.tsx (Next.js Pages Routerの場合)
-'use client'; // 先頭に移動する
-
-export const metadata = { ... };
-
+// luminabulige_app/pages/docs/index.tsx
 import fs from 'fs';
 import path from 'path';
 import Link from 'next/link';
@@ -12,6 +8,7 @@ interface DocItem {
   slug: string;
 }
 
+// build 時に public/docs のファイル一覧を取得
 export async function getStaticProps() {
   const docsDir = path.join(process.cwd(), 'public/docs');
   const files = fs.readdirSync(docsDir);
