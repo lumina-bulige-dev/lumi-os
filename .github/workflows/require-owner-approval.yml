@@ -24,9 +24,14 @@ jobs:
             echo "::notice::Repo variable REQUIRED_APPROVER is not set, skipping approval check"
             exit 0
           fi
-          # 承認レビュー取得
-          reviews=$(gh api repos/$OWNER/$REPO/pulls/$PR_NUMBER/reviews --jq '.[] | select(.state=="APPROVED") | .user.login')
+          # Get approval reviews
+          reviews=$(gh api repos/$OWNER/$REPO/pulls/$PR_NUMBER/reviews \
+            --jq '.[] | select(.state=="APPROVED") | .user.login')
           echo "Approvals: $reviews"
-          echo "$reviews" | grep -Fx "$REQUIRED" >/dev/null || { echo "::error::Approval required from $REQUIRED"; exit 1; }
+          # Check if required approver is in the list
+          if ! echo "$reviews" | grep -Fx "$REQUIRED" >/dev/null; then
+            echo "::error::Approval required from $REQUIRED"
+            exit 1
+          fi
       - name: Report success
         run: echo "Owner approval check completed."
