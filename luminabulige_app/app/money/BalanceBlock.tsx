@@ -1,4 +1,4 @@
-// app/components/BalanceBlock.tsx
+
 "use client";
 
 type Props = {

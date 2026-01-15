@@ -2,9 +2,24 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { ui } from "./ui";
+import { ciaUi } from "./ciaUi ";
 
-type Result = "OK" | "NG" | "REVOKED" | "UNKNOWN";
+
+// すべて ui → ciaUi に置換
+ciaUi.color.ng
+
+// 使用箇所
+ui.color.ng
+ui.color.ngBg
+import type { Result, VerifyResponse } from "@/app/lib/verify-types";
+const p = resultPalette[result];
+
+return {
+  color: p.color,
+  background: p.bg,
+  border: `1px solid ${p.br}`,
+};
+
 
 type ProofSummary = {
   proof_id?: string;
@@ -42,25 +57,13 @@ const CRITERIA: Record<Result, string> = {
 
 const API_ORIGIN =
   process.env.NEXT_PUBLIC_API_ORIGIN ?? "https://api.luminabulige.com";
+type Result = "OK" | "NG" | "REVOKED" | "UNKNOWN";
 
-function toResult(x: unknown): Result | null {
-  if (typeof x !== "string") return null;
-  const r = x.toUpperCase();
-  return r === "OK" || r === "NG" || r === "REVOKED" || r === "UNKNOWN" ? (r as Result) : null;
-}
+};
 
-function badgeStyle(result: Result) {
-  switch (result) {
-    case "OK":
-      return { color: ui.color.ok, background: ui.color.okBg, border: `1px solid #A7F3D0` };
-    case "NG":
-      return { color: ui.color.ng, background: ui.color.ngBg, border: `1px solid #FED7AA` };
-    case "REVOKED":
-      return { color: ui.color.rev, background: ui.color.revBg, border: `1px solid #FECACA` };
-    case "UNKNOWN":
-      return { color: ui.color.unk, background: ui.color.unkBg, border: `1px solid ${ui.color.border}` };
-  }
-}
+
+export type Result = keyof typeof resultPalette;
+
 
 function shortHash(s?: string | null, head = 10, tail = 6) {
   if (!s) return "";
@@ -337,12 +340,13 @@ export default function VClient() {
     return () => window.removeEventListener("afterprint", onAfter);
   }, []);
 
-  const onPdfOne = () => {
-    setPrintOne(true);
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => window.print());
-    });
-  };
+const onPdfOne = () => {
+  setPrintOne(true);
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => window.print());
+  });
+};
+
 
   const contactMailto = useMemo(() => {
     if (!data) return "";

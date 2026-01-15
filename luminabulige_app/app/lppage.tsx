@@ -155,6 +155,8 @@ export default function LPPage() {
           <Link href="/compare" className="secondary-cta">
             Compare
           </Link>
+<Link href="/finance-chat">…</Link>
+          
         </div>
       </section>
     </main>
