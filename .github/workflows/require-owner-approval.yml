@@ -12,13 +12,19 @@
         exit 0
       fi
 
-      # Get approval reviews via REST API
+      # Retrieve PR reviews via REST API
       reviews_json=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
         -H "Accept: application/vnd.github+json" \
         "https://api.github.com/repos/$OWNER/$REPO/pulls/$PR_NUMBER/reviews")
 
-      # Extract approved reviewer logins (if jq missing this will fail; ubuntu runners usually have jq)
-      approvals=$(echo "$reviews_json" | jq -r '.[] | select(.state=="APPROVED") | .user.login' || true)
+      # Extract approved reviewer logins (requires jq)
+      if command -v jq >/dev/null 2>&1; then
+        approvals=$(echo "$reviews_json" | jq -r '.[] | select(.state=="APPROVED") | .user.login' || true)
+      else
+        # Fallback: crude grep-based extraction if jq is not available
+        approvals=$(echo "$reviews_json" | grep -oP '"login"\s*:\s*"\K[^"]+' || true)
+      fi
+
       echo "Approvals: $approvals"
 
       if ! echo "$approvals" | grep -Fx "$REQUIRED" >/dev/null; then
