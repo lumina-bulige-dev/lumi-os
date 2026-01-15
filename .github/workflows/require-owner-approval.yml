@@ -25,7 +25,7 @@ jobs:
             REQUIRED="$OWNER"
             echo "::notice::REQUIRED_APPROVER not set, defaulting to repository owner: $REQUIRED"
           fi
-          # 承認レビュー取得
+          # Get approved reviews
           reviews=$(gh api repos/$OWNER/$REPO/pulls/$PR_NUMBER/reviews --jq '.[] | select(.state=="APPROVED") | .user.login')
           echo "Approvals: $reviews"
           echo "$reviews" | grep -Fx "$REQUIRED" >/dev/null || { echo "::error::Approval required from $REQUIRED"; exit 1; }
