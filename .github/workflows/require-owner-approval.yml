@@ -1,36 +1,37 @@
-  - name: Check if REQUIRED_APPROVER approved
-    id: check
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      OWNER: ${{ github.repository_owner }}
-      REPO: ${{ github.event.repository.name }}
-      PR_NUMBER: ${{ github.event.number }}
-      REQUIRED: ${{ vars.REQUIRED_APPROVER }}
-    run: |
-      if [ -z "$REQUIRED" ]; then
-        echo "::notice::Repo variable REQUIRED_APPROVER is not set, skipping approval check"
-        exit 0
-      fi
+name: require-owner-approval
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review, edited]
+permissions:
+  pull-requests: read
+  contents: read
+  statuses: write
 
-      # Retrieve PR reviews via REST API
-      reviews_json=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
-        -H "Accept: application/vnd.github+json" \
-        "https://api.github.com/repos/$OWNER/$REPO/pulls/$PR_NUMBER/reviews")
-
-      # Extract approved reviewer logins (requires jq)
-      if command -v jq >/dev/null 2>&1; then
-        approvals=$(echo "$reviews_json" | jq -r '.[] | select(.state=="APPROVED") | .user.login' || true)
-      else
-        # Fallback: crude grep-based extraction if jq is not available
-        approvals=$(echo "$reviews_json" | grep -oP '"login"\s*:\s*"\K[^"]+' || true)
-      fi
-
-      echo "Approvals: $approvals"
-
-      if ! echo "$approvals" | grep -Fx "$REQUIRED" >/dev/null; then
-        echo "::error::Approval required from $REQUIRED"
-        exit 1
-      fi
-
-  - name: Report success
-    run: echo "Owner approval check completed."
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if REQUIRED_APPROVER approved
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+          PR_NUMBER: ${{ github.event.number }}
+          REQUIRED: ${{ vars.REQUIRED_APPROVER }}
+        run: |
+          if [ -z "$REQUIRED" ]; then
+            echo "::notice::Repo variable REQUIRED_APPROVER is not set, skipping approval check"
+            exit 0
+          fi
+          # Get approval reviews
+          reviews=$(gh api repos/$OWNER/$REPO/pulls/$PR_NUMBER/reviews \
+            --jq '.[] | select(.state=="APPROVED") | .user.login')
+          echo "Approvals: $reviews"
+          # Check if required approver is in the list
+          if ! echo "$reviews" | grep -Fx "$REQUIRED" >/dev/null; then
+            echo "::error::Approval required from $REQUIRED"
+            exit 1
+          fi
+      - name: Report success
+        run: echo "Owner approval check completed."
