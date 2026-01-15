@@ -11,8 +11,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 // …
 
 
-import { useState, useEffect } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+
 import { LuminaHeader } from "@/components/lumina/header"
 import { WorldAView } from "@/components/lumina/world-a-view"
 import { PortalView } from "@/components/lumina/portal-view"
