@@ -1,0 +1,683 @@
+import os, shutil, zipfile, textwrap, pathlib, base64, json, re, math, random
+site_dir = "/mnt/data/chibi-mascot-site"
+assets_dir = os.path.join(site_dir, "assets")
+img_dir = os.path.join(assets_dir, "img")
+css_dir = os.path.join(assets_dir, "css")
+js_dir = os.path.join(assets_dir, "js")
+
+for d in [site_dir, assets_dir, img_dir, css_dir, js_dir]:
+    os.makedirs(d, exist_ok=True)
+
+# Copy mascot image
+src_img = "/mnt/data/A_chibi-style_digital_illustration_features_a_supe.png"
+dst_img = os.path.join(img_dir, "mascot.png")
+if os.path.exists(src_img):
+    shutil.copy(src_img, dst_img)
+
+# Create a simple favicon (use same image as png) - browsers accept, but we can also create 32x32
+from PIL import Image, ImageOps
+
+favicon_path = os.path.join(site_dir, "favicon.png")
+if os.path.exists(dst_img):
+    im = Image.open(dst_img).convert("RGBA")
+    # center-crop to square then resize
+    side = min(im.size)
+    left = (im.size[0]-side)//2
+    top = (im.size[1]-side)//2
+    im_sq = im.crop((left, top, left+side, top+side)).resize((256,256), Image.LANCZOS)
+    im_sq.save(favicon_path)
+
+# Write CSS
+styles_css = r"""
+:root{
+  --bg: #0b0f1a;
+  --card: rgba(255,255,255,.06);
+  --card2: rgba(255,255,255,.10);
+  --text: rgba(255,255,255,.92);
+  --muted: rgba(255,255,255,.70);
+  --line: rgba(255,255,255,.12);
+
+  --a: #a78bfa; /* pastel purple */
+  --b: #60a5fa; /* pastel blue   */
+  --c: #34d399; /* pastel green  */
+  --d: #fb7185; /* pastel pink   */
+  --e: #fbbf24; /* pastel amber  */
+
+  --shadow: 0 18px 50px rgba(0,0,0,.45);
+  --radius: 18px;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", "Yu Gothic", "Meiryo", sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(1100px 700px at 18% 12%, rgba(167,139,250,.25), transparent 60%),
+    radial-gradient(900px 600px at 80% 16%, rgba(96,165,250,.22), transparent 60%),
+    radial-gradient(900px 700px at 50% 92%, rgba(52,211,153,.18), transparent 60%),
+    linear-gradient(180deg, #060812, #0b0f1a 35%, #070b14);
+  overflow-x:hidden;
+}
+
+a{color:inherit; text-decoration:none}
+.container{width:min(1120px, 92vw); margin-inline:auto}
+.pill{
+  display:inline-flex; gap:.55rem; align-items:center;
+  padding:.45rem .75rem;
+  border:1px solid var(--line);
+  background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+  border-radius:999px;
+  box-shadow: 0 8px 25px rgba(0,0,0,.25);
+  backdrop-filter: blur(10px);
+}
+
+header{
+  position:sticky; top:0; z-index:50;
+  background:linear-gradient(180deg, rgba(6,8,18,.78), rgba(6,8,18,.25));
+  border-bottom:1px solid rgba(255,255,255,.08);
+  backdrop-filter: blur(12px);
+}
+.nav{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:.9rem 0;
+}
+.brand{
+  display:flex; gap:.65rem; align-items:center;
+  font-weight:800;
+  letter-spacing:.2px;
+}
+.brand .logo{
+  width:36px; height:36px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.18);
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.15), rgba(255,255,255,.06));
+  overflow:hidden;
+  box-shadow: 0 12px 35px rgba(0,0,0,.35);
+}
+.brand .logo img{width:100%; height:100%; object-fit:cover; transform:scale(1.05)}
+.brand small{
+  display:block;
+  font-weight:600;
+  color:var(--muted);
+  margin-top:2px;
+  letter-spacing:0;
+}
+
+.navlinks{
+  display:flex; align-items:center; gap:1.1rem;
+  color:var(--muted);
+  font-weight:650;
+}
+.navlinks a{padding:.4rem .55rem; border-radius:12px}
+.navlinks a:hover{background:rgba(255,255,255,.06); color:var(--text)}
+.cta{
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:.7rem 1rem;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.18);
+  background:linear-gradient(180deg, rgba(167,139,250,.22), rgba(96,165,250,.12));
+  box-shadow: 0 18px 40px rgba(0,0,0,.35);
+  font-weight:800;
+}
+.cta:hover{filter:brightness(1.05)}
+.cta:active{transform:translateY(1px)}
+
+.hero{
+  padding: clamp(2.8rem, 5.5vw, 4.5rem) 0 2.5rem;
+  display:grid;
+  grid-template-columns: 1.1fr .9fr;
+  gap: clamp(1.4rem, 4vw, 2.4rem);
+  align-items:center;
+}
+@media (max-width: 880px){
+  .hero{grid-template-columns:1fr; padding-top:2.2rem}
+  .navlinks{display:none}
+}
+.h-title{
+  font-size: clamp(2rem, 3.3vw, 3.15rem);
+  line-height:1.08;
+  margin:.8rem 0 1rem;
+}
+.h-sub{
+  color:var(--muted);
+  font-size: clamp(1rem, 1.15vw, 1.1rem);
+  line-height:1.75;
+  margin:0 0 1.35rem;
+}
+.spark{
+  position:relative;
+  display:inline-block;
+}
+.spark:after{
+  content:"";
+  position:absolute; inset:-.35rem -.55rem;
+  border-radius: 20px;
+  background: radial-gradient(circle at 30% 40%, rgba(251,113,133,.24), transparent 60%),
+              radial-gradient(circle at 70% 60%, rgba(52,211,153,.22), transparent 55%);
+  filter: blur(14px);
+  z-index:-1;
+}
+
+.hero-actions{
+  display:flex; gap:.9rem; flex-wrap:wrap; align-items:center;
+}
+.secondary{
+  display:inline-flex; align-items:center; gap:.55rem;
+  padding:.7rem .95rem;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.05);
+  color:var(--text);
+  font-weight:780;
+}
+.secondary:hover{background:rgba(255,255,255,.08)}
+.kpis{
+  display:flex; gap:1rem; flex-wrap:wrap;
+  margin-top:1.4rem;
+}
+.kpi{
+  padding:.75rem .95rem;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.12);
+  background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+  box-shadow: 0 12px 35px rgba(0,0,0,.22);
+}
+.kpi b{display:block; font-size:1.1rem}
+.kpi span{color:var(--muted); font-weight:650}
+
+.mascot-card{
+  border:1px solid rgba(255,255,255,.12);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
+  box-shadow: var(--shadow);
+  overflow:hidden;
+  position:relative;
+}
+.mascot-card:before{
+  content:"";
+  position:absolute;
+  inset:-30%;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(167,139,250,.35), transparent 52%),
+    radial-gradient(circle at 70% 40%, rgba(96,165,250,.28), transparent 55%),
+    radial-gradient(circle at 45% 75%, rgba(52,211,153,.22), transparent 55%);
+  filter: blur(24px);
+}
+.mascot-wrap{
+  position:relative;
+  display:grid; place-items:center;
+  padding: 1.2rem 1.2rem 1rem;
+}
+.mascot-wrap img{
+  width:min(420px, 80%);
+  height:auto;
+  transform: translateY(6px);
+  filter: drop-shadow(0 18px 30px rgba(0,0,0,.35));
+  animation: floaty 5.5s ease-in-out infinite;
+}
+@keyframes floaty{
+  0%,100%{transform: translateY(6px)}
+  50%{transform: translateY(-8px)}
+}
+.mascot-badge{
+  position:absolute;
+  left:1rem; top:1rem;
+}
+.mascot-caption{
+  position:relative;
+  padding: 0 1.2rem 1.1rem;
+  display:flex; justify-content:space-between; align-items:center;
+  gap:1rem;
+  color:var(--muted);
+  border-top:1px solid rgba(255,255,255,.10);
+  background:rgba(0,0,0,.08);
+}
+.mascot-caption b{color:var(--text)}
+
+.section{
+  padding: 2.8rem 0;
+}
+.section h2{
+  margin:0 0 1rem;
+  font-size: clamp(1.35rem, 2.2vw, 1.85rem);
+}
+.section p.lead{
+  margin:0 0 1.6rem;
+  color:var(--muted);
+  line-height:1.75;
+}
+
+.grid3{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 980px){.grid3{grid-template-columns:1fr}}
+.card{
+  padding: 1.15rem 1.15rem 1.1rem;
+  border-radius: var(--radius);
+  border:1px solid rgba(255,255,255,.12);
+  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+  box-shadow: 0 14px 35px rgba(0,0,0,.22);
+}
+.card .icon{
+  width:44px; height:44px;
+  border-radius:14px;
+  display:grid; place-items:center;
+  border:1px solid rgba(255,255,255,.14);
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,.12), rgba(255,255,255,.04));
+  margin-bottom:.75rem;
+}
+.card h3{margin:.25rem 0 .45rem; font-size:1.1rem}
+.card p{margin:0; color:var(--muted); line-height:1.7}
+
+.split{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:1rem;
+}
+@media (max-width: 980px){.split{grid-template-columns:1fr}}
+.note{
+  padding:1rem 1.15rem;
+  border-radius: var(--radius);
+  border:1px dashed rgba(255,255,255,.18);
+  background: rgba(255,255,255,.04);
+  color:var(--muted);
+  line-height:1.75;
+}
+.note b{color:var(--text)}
+
+.form{
+  display:grid;
+  gap:.9rem;
+}
+.field{
+  display:grid;
+  gap:.45rem;
+}
+label{font-weight:750}
+input, textarea{
+  width:100%;
+  padding:.85rem .9rem;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.20);
+  color:var(--text);
+  outline:none;
+}
+textarea{min-height:120px; resize:vertical}
+input:focus, textarea:focus{border-color: rgba(167,139,250,.55); box-shadow: 0 0 0 4px rgba(167,139,250,.15)}
+small.hint{color:var(--muted)}
+
+.footer{
+  padding: 2.2rem 0 2.6rem;
+  border-top:1px solid rgba(255,255,255,.08);
+  color:var(--muted);
+}
+.footer .row{
+  display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap;
+}
+.tag{
+  display:inline-flex; gap:.5rem; align-items:center;
+  padding:.35rem .6rem;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.05);
+  color:var(--muted);
+  font-weight:700;
+}
+kbd{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size:.85em;
+  padding:.12rem .35rem;
+  border-radius:8px;
+  border:1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.25);
+  color: rgba(255,255,255,.86);
+}
+"""
+open(os.path.join(css_dir, "styles.css"), "w", encoding="utf-8").write(styles_css.strip()+"\n")
+
+# Write JS
+script_js = r"""
+/**
+ * Tiny, dependency-free sprinkles.
+ * - Smooth scroll for internal anchors
+ * - Fake contact submit (no backend)
+ */
+(function(){
+  // Smooth scroll
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest('a[href^="#"]');
+    if(!a) return;
+    const id = a.getAttribute("href");
+    const el = document.querySelector(id);
+    if(!el) return;
+    e.preventDefault();
+    el.scrollIntoView({behavior:"smooth", block:"start"});
+    history.replaceState(null, "", id);
+  });
+
+  // Contact form: client-side only
+  const form = document.querySelector("#contactForm");
+  if(form){
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const data = new FormData(form);
+      const name = (data.get("name") || "").toString().trim() || "あなた";
+      const email = (data.get("email") || "").toString().trim();
+      const msg = (data.get("message") || "").toString().trim();
+
+      // Minimal validation
+      if(!email.includes("@") || email.length < 5){
+        toast("メールアドレスが怪しいです。@ を含めてね 📨");
+        return;
+      }
+      if(msg.length < 5){
+        toast("メッセージが短すぎます。もう少しだけ詳しく 🙂");
+        return;
+      }
+
+      // Since there's no backend, show a friendly confirmation.
+      toast(`${name}さん、送信ありがとう！(※このデモは送信されません) ✨`);
+      form.reset();
+    });
+  }
+
+  function toast(text){
+    let t = document.querySelector(".toast");
+    if(!t){
+      t = document.createElement("div");
+      t.className = "toast";
+      document.body.appendChild(t);
+    }
+    t.textContent = text;
+    t.style.opacity = "1";
+    t.style.transform = "translateY(0)";
+    clearTimeout(window.__toastTimer);
+    window.__toastTimer = setTimeout(()=>{
+      t.style.opacity = "0";
+      t.style.transform = "translateY(10px)";
+    }, 2600);
+  }
+})();
+"""
+open(os.path.join(js_dir, "script.js"), "w", encoding="utf-8").write(script_js.strip()+"\n")
+
+# Add toast styles via small extra file or inline in index; we'll inline minimal CSS in index for toast.
+index_html = r"""
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Chibi Mascot Landing</title>
+  <meta name="description" content="チビマスコットを主役にした、コンパクトで可愛いランディングページ。" />
+  <link rel="icon" href="./favicon.png" />
+  <link rel="stylesheet" href="./assets/css/styles.css" />
+  <style>
+    .toast{
+      position:fixed; left:50%; bottom:22px; transform:translate(-50%, 10px);
+      padding:.75rem 1rem;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.55);
+      color: rgba(255,255,255,.92);
+      box-shadow: 0 18px 45px rgba(0,0,0,.35);
+      opacity:0;
+      transition: opacity .25s ease, transform .25s ease;
+      z-index: 999;
+      backdrop-filter: blur(10px);
+      max-width:min(560px, 90vw);
+      text-align:center;
+      font-weight:750;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <a class="brand" href="#top" aria-label="Home">
+        <span class="logo">
+          <img src="./assets/img/mascot.png" alt="Mascot icon" />
+        </span>
+        <span>
+          Chibi Mascot
+          <small>かわいいは正義。…でもプロダクトはもっと正義。</small>
+        </span>
+      </a>
+
+      <nav class="navlinks" aria-label="Primary">
+        <a href="#about">概要</a>
+        <a href="#features">特徴</a>
+        <a href="#usecases">用途</a>
+        <a href="#contact">連絡</a>
+      </nav>
+
+      <a class="cta" href="#contact">相談する →</a>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="container hero" aria-label="Hero">
+      <div>
+        <span class="pill">✨ チビマスコット・ブランドサイト（雛形）</span>
+        <h1 class="h-title">
+          目がキラキラ、頭がでっかい。<br/>
+          <span class="spark">でも作りはちゃんと堅牢。</span>
+        </h1>
+        <p class="h-sub">
+          このページは、あなたのチビキャラ画像を主役にした<strong>1枚ものランディング</strong>です。
+          そのまま公開してもいいし、Fintech/アプリ/コミュニティの入口として育ててもOK。
+        </p>
+
+        <div class="hero-actions">
+          <a class="cta" href="#features">特徴を見る</a>
+          <a class="secondary" href="#contact" aria-label="Contact">
+            ✉️ 相談窓口
+          </a>
+        </div>
+
+        <div class="kpis" aria-label="Highlights">
+          <div class="kpi"><b>高速</b><span>静的サイト（CDN向き）</span></div>
+          <div class="kpi"><b>編集楽</b><span>HTML+CSS+JSだけ</span></div>
+          <div class="kpi"><b>かわいい</b><span>これは譲れない</span></div>
+        </div>
+      </div>
+
+      <aside class="mascot-card" aria-label="Mascot card">
+        <div class="mascot-wrap">
+          <span class="pill mascot-badge">🧸 Mascot</span>
+          <img src="./assets/img/mascot.png" alt="Chibi mascot" />
+        </div>
+        <div class="mascot-caption">
+          <span><b>Chibi</b> / pastel + smooth shading</span>
+          <span class="tag">v1.0</span>
+        </div>
+      </aside>
+    </section>
+
+    <section id="about" class="section">
+      <div class="container split">
+        <div>
+          <h2>このサイトの思想</h2>
+          <p class="lead">
+            「かわいい」は入口。<br/>
+            入口の先に、信用・UX・プロダクトの強さがあると、だいたい世界が平和になります。
+          </p>
+          <div class="note">
+            <b>編集ポイント（最短）</b><br/>
+            ① タイトル/説明文（index.html）<br/>
+            ② ボタンのリンク（index.html）<br/>
+            ③ 配色（assets/css/styles.css の <kbd>:root</kbd>）<br/>
+            ④ 画像差し替え（assets/img/mascot.png）
+          </div>
+        </div>
+        <div class="card">
+          <div class="icon">🧠</div>
+          <h3>“チビキャラ” をブランド資産にする</h3>
+          <p>
+            アイコン・LP・アプリのオンボーディング・SNSの固定ポストまで、
+            同じマスコットで世界観を揃えると、認知が加速します（ちゃんとやるとね）。
+          </p>
+          <p style="margin-top:.75rem">
+            <span class="tag">ロゴ</span>
+            <span class="tag">アプリアイコン</span>
+            <span class="tag">案内役</span>
+            <span class="tag">グッズ</span>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="section">
+      <div class="container">
+        <h2>特徴</h2>
+        <p class="lead">
+          バックエンド無しの“軽量構成”なので、まずは公開→反応を見る→強化、がしやすいです。
+        </p>
+
+        <div class="grid3">
+          <div class="card">
+            <div class="icon">⚡</div>
+            <h3>静的で速い</h3>
+            <p>CDN配信に強い。Vercel/Netlify/GitHub Pagesにそのまま載せられます。</p>
+          </div>
+          <div class="card">
+            <div class="icon">🎨</div>
+            <h3>パステル＆滑らか陰影</h3>
+            <p>マスコットを引き立てる、柔らかいグラデとガラスっぽいカードUI。</p>
+          </div>
+          <div class="card">
+            <div class="icon">🧩</div>
+            <h3>拡張しやすい</h3>
+            <p>後からフォーム送信・分析・決済・ログインなどを足しやすい構造にしてあります。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="usecases" class="section">
+      <div class="container">
+        <h2>用途の例</h2>
+        <p class="lead">Fintech文脈で使うなら、こういう使い方が刺さりやすいです。</p>
+
+        <div class="grid3">
+          <div class="card">
+            <div class="icon">🪪</div>
+            <h3>KYCの案内役</h3>
+            <p>本人確認は不安になりがち。マスコットが手順を導くと離脱が減りやすい。</p>
+          </div>
+          <div class="card">
+            <div class="icon">🧾</div>
+            <h3>料金・手数料の透明化</h3>
+            <p>“何にいくら” を図解＋マスコットで。怪しさを減らし、納得感を増やす。</p>
+          </div>
+          <div class="card">
+            <div class="icon">🛡️</div>
+            <h3>信頼の補助輪</h3>
+            <p>セキュリティ・運営体制・監査の説明を、堅くなり過ぎずに伝えられる。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="section">
+      <div class="container split">
+        <div>
+          <h2>連絡</h2>
+          <p class="lead">
+            ここはデモなので送信はされません。<br/>
+            実運用では、フォーム先を「メール/Slack/Notion/HubSpot」に繋げるのが定番です。
+          </p>
+          <div class="note">
+            <b>次にやると強いこと</b><br/>
+            ・ブランド名/サービス名を決めて、文言を全部合わせる<br/>
+            ・CTA（問い合わせ/LP登録/アプリDL）を1つに絞る<br/>
+            ・計測（GA4 / Plausible等）を入れて改善ループ<br/>
+          </div>
+        </div>
+
+        <div class="card">
+          <form id="contactForm" class="form" autocomplete="on">
+            <div class="field">
+              <label for="name">お名前</label>
+              <input id="name" name="name" placeholder="例）レディントン" />
+              <small class="hint">※ 任意</small>
+            </div>
+            <div class="field">
+              <label for="email">メール</label>
+              <input id="email" name="email" type="email" required placeholder="you@example.com" />
+            </div>
+            <div class="field">
+              <label for="message">メッセージ</label>
+              <textarea id="message" name="message" required placeholder="何を作りたい？ いつまで？ どこが一番詰まってる？"></textarea>
+            </div>
+            <button class="cta" type="submit">送信（デモ） →</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="container row">
+        <div>
+          <div class="brand" style="gap:.55rem">
+            <span class="logo" style="width:30px;height:30px;border-radius:10px">
+              <img src="./assets/img/mascot.png" alt="Mascot mini icon">
+            </span>
+            <span>Chibi Mascot</span>
+          </div>
+          <div style="margin-top:.5rem">© <span id="year"></span> All rights reserved.</div>
+        </div>
+        <div style="display:flex; gap:.6rem; align-items:center; flex-wrap:wrap">
+          <span class="tag">HTML</span>
+          <span class="tag">CSS</span>
+          <span class="tag">JS</span>
+          <span class="tag">Static</span>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <script src="./assets/js/script.js"></script>
+  <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+</body>
+</html>
+"""
+open(os.path.join(site_dir, "index.html"), "w", encoding="utf-8").write(index_html.strip()+"\n")
+
+readme = """
+# Chibi Mascot Site (Static)
+
+このフォルダは「チビキャラ画像」を主役にした静的サイトの雛形です。
+
+## 使い方
+- `index.html` をブラウザで開く（最速）
+- ちゃんと動かすならローカルサーバ：
+  - Python: `python -m http.server 8080`
+  - Node: `npx serve`
+
+## 編集ポイント
+- 文言：`index.html`
+- 配色：`assets/css/styles.css` の `:root`
+- 画像差し替え：`assets/img/mascot.png` を上書き
+
+## デプロイ
+- Vercel / Netlify / GitHub Pages で静的サイトとして公開できます。
+"""
+open(os.path.join(site_dir, "README.md"), "w", encoding="utf-8").write(readme.strip()+"\n")
+
+# Zip it
+zip_path = "/mnt/data/chibi-mascot-site.zip"
+with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as z:
+    for root, dirs, files in os.walk(site_dir):
+        for f in files:
+            full = os.path.join(root, f)
+            rel = os.path.relpath(full, site_dir)
+            z.write(full, arcname=rel)
+
+zip_path
