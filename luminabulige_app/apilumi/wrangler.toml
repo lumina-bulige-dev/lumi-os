@@ -1,0 +1,7 @@
+name = "apilumi"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+routes = [
+  { pattern = "api.luminabulige.com/*", zone_name = "luminabulige.com" }
+]

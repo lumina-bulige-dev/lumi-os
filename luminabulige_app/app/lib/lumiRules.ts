@@ -1,34 +1,42 @@
 // luminabulige_app/app/lib/lumiRules.ts
-// まずは「型ガチガチにしないモック」として割り切り
 
+/** 判定レベル */
 export type LumiRuleLevel = "SAFE" | "WARNING" | "DANGER";
 
-// 古いコードとの橋渡し用
+/** 旧API互換 */
 export type Level = LumiRuleLevel;
 
+/** 単一ルール */
 export type LumiRule = {
   id: string;
   level: LumiRuleLevel;
   label: string;
-  annualVolumeMax?: number;   // 年間ボリュームの目安
-  singleTxMax?: number;       // 1回あたりの目安
+  annualVolumeMax?: number;   // 年間ボリューム閾値
+  singleTxMax?: number;       // 1回あたり閾値
   note?: string;
 };
 
+/** ルールセット本体 */
 export type LumiRuleset = {
   id: string;
   version: string;
+  createdAt?: string;         // 任意：将来の署名付レポート用
   rules: LumiRule[];
 };
 
-/**
- * Compare 画面用のモックルール。
- * 将来ここを「本物のルールエンジン」から差し替える。
- */
+/** レベルごとの説明文を返す */
+export const LEVEL_TEXT: Record<LumiRuleLevel, string> = {
+  SAFE: "安全圏（通常の生活支出レベル）",
+  WARNING: "警告圏（高ボリュームまたは頻度高め）",
+  DANGER: "危険圏（異常または要説明）",
+};
+
+/** デフォルトルールセット（モック） */
 export function getDefaultRules(): LumiRuleset {
   return {
     id: "mock-default",
     version: "v1-mock",
+    createdAt: new Date().toISOString(),
     rules: [
       {
         id: "R1",
@@ -58,29 +66,43 @@ export function getDefaultRules(): LumiRuleset {
 
 /**
  * 年間ボリュームから SAFE / WARNING / DANGER を決めるモック関数。
- * - 今は annualVolumeMax ベースだけ見ている
- * - 将来はルールエンジンで差し替え予定
+ * 将来的にAI／統計ルールエンジンに差し替え可能な形に。
  */
 export function calcLevel(
   annualVolume: number,
-  ruleset?: LumiRuleset
+  ruleset: LumiRuleset = getDefaultRules()
 ): Level {
-  const rs = ruleset ?? getDefaultRules();
-
-  // annualVolumeMax が設定されているものを小さい順に見ていく
-  const sorted = [...rs.rules].sort((a, b) => {
-    const ax = a.annualVolumeMax ?? Infinity;
-    const bx = b.annualVolumeMax ?? Infinity;
-    return ax - bx;
-  });
+  const sorted = [...ruleset.rules].sort((a, b) =>
+    (a.annualVolumeMax ?? Infinity) - (b.annualVolumeMax ?? Infinity)
+  );
 
   for (const rule of sorted) {
-    const max = rule.annualVolumeMax ?? Infinity;
-    if (annualVolume <= max) {
+    if (annualVolume <= (rule.annualVolumeMax ?? Infinity)) {
       return rule.level;
     }
   }
-
-  // 全部すり抜けたら一番厳しい判定に倒す
   return "DANGER";
 }
+
+/** 将来的に複数指標を統合した評価に拡張可能 */
+export function calcRuleMatch(input: {
+  annualVolume: number;
+  singleTxAmount?: number;
+  ruleset?: LumiRuleset;
+}): { level: Level; matchedRule: LumiRule } {
+  const { annualVolume, singleTxAmount, ruleset = getDefaultRules() } = input;
+  const sorted = [...ruleset.rules].sort(
+    (a, b) => (a.annualVolumeMax ?? Infinity) - (b.annualVolumeMax ?? Infinity)
+  );
+
+  for (const rule of sorted) {
+    const volOK = annualVolume <= (rule.annualVolumeMax ?? Infinity);
+    const txOK =
+      singleTxAmount == null || singleTxAmount <= (rule.singleTxMax ?? Infinity);
+    if (volOK && txOK) {
+      return { level: rule.level, matchedRule: rule };
+    }
+  }
+  return { level: "DANGER", matchedRule: sorted.at(-1)! };
+}
+
