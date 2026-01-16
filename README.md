@@ -1,8 +1,81 @@
+# LUMI OS — Canonical OS / Rules / META / Algorithms Repository for LUMINA BULIGE
+
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://dash.cloudflare.com)
+
 📌 System ownership map: see `RESPONSIBILITY.md` (single source of truth).
-正式版を追加。
-lumi-os — Canonical OS / Rules / META / Algorithms Repository for LUMINA BULIGE
 
 This repository (lumi-os) is the canonical source of truth for all core operating-system components of LUMINA BULIGE.
+
+## Features
+
+- 🚀 Next.js with Server-Side Rendering (SSR)
+- ⚡️ Cloudflare Workers API for backend services
+- 📦 Asset bundling and optimization
+- 🔒 TypeScript by default
+- 🎯 Canonical OS definitions and META rules
+- 🔐 Secure authentication and authorization
+- 📊 Financial algorithm layer with state management
+- 🏗️ Modular architecture with clear class boundaries
+
+## Getting Started
+
+### Installation
+
+Install the dependencies:
+
+```bash
+npm install
+```
+
+### Development
+
+Start the Next.js development server with hot module replacement:
+
+```bash
+npm run build
+npm run start
+```
+
+Your application will be available at `http://localhost:3000`.
+
+For the Cloudflare Workers API development:
+
+```bash
+cd lumi-core-api
+npm install
+npx wrangler dev
+```
+
+The API will be available at `http://localhost:8787`.
+
+## Building for Production
+
+Create a production build:
+
+```bash
+npm run build
+```
+
+## Deployment
+
+### Deploy the Next.js Application
+
+The Next.js application is configured with static export. Deploy the `out/` directory to your hosting service.
+
+### Deploy the Cloudflare Workers API
+
+Deploy the API to Cloudflare Workers:
+
+```bash
+cd lumi-core-api
+npm run deploy
+```
+
+If you don't have a Cloudflare account, [create one here](https://dash.cloudflare.com/sign-up)! The API is configured to run on `api.luminabulige.com`.
+
+---
+
+## LUMI OS Architecture
 
 It stores:
 	•	Core OS definitions
