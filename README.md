@@ -90,10 +90,6 @@ All classes must read from main branch of this repo.
 
 
 
-
-
-
-
 ## Trademark Policy
 
 "LUMINA", "BULIGE", "LUMINA BULIGE", and related logos and names
