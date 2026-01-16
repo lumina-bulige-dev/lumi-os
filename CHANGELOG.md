@@ -1,7 +1,6 @@
-# lumi-os
+# LUMI OS — Specification Change Log
 
-## 1.0.1
+This document records all **canonical changes** to the LUMI OS specification.
 
-### Patch Changes
-
-- Initial changeset setup for version management
+Only changes explicitly listed here are considered adopted.
+Unlisted behavior is non-canonical.
