@@ -88,6 +88,36 @@ All classes must read from main branch of this repo.
 
 •	NOTE: lumi-core-web is mock-only; production LP is served from /index.html (for now).
 
+
+
+
+
+
+
+## Trademark Policy
+
+"LUMINA", "BULIGE", "LUMINA BULIGE", and related logos and names
+are trademarks or trade names of lumina-bulige-dev.
+
+Use of these names is permitted only to refer to this project in an
+accurate and non-misleading manner.
+Any use that implies endorsement, partnership, or official affiliation
+without prior written permission is prohibited.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 下に古い説明文を残す。
 
 # lumi-os
