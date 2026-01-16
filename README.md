@@ -1,3 +1,95 @@
+# LUMI OS — Canonical Specification Repository
+
+This repository (`lumi-os`) is the **canonical specification repository**
+for the LUMINA BULIGE ecosystem.
+
+All core rules, constraints, algorithms, and invariants that define
+the behavior, safety boundaries, and interpretation of LUMINA BULIGE
+are **authoritatively defined here**.
+
+Any implementation, application, service, documentation, or derivative
+work is considered **non-canonical** unless it strictly conforms to the
+specifications published in this repository.
+
+🔒 Authority & Governance
+### Authority and Governance
+
+This repository serves as the **single source of truth** for LUMI OS.
+
+- Specifications published here are authoritative.
+- External implementations **must not reinterpret, extend, or override**
+  these rules without explicit adoption into this repository.
+- Consistency, safety, and reversibility take precedence over convenience
+  or implementation speed.
+
+
+🧭 Scope of Canonical Specifications
+### Scope of Canonical Specifications
+
+The canonical scope includes, but is not limited to:
+
+- State definitions and invariants
+- Action constraints and reaction rules
+- Safety floors, limits, and lock conditions
+- Disclosure and verification semantics
+- Algorithmic boundaries and forbidden behaviors
+- Terminology definitions and semantic meaning
+
+Anything not explicitly specified here is **out of scope** and
+**non-authoritative**.
+
+⚠️ Non-Canonical Implementations
+### Non-Canonical Implementations
+
+Repositories, applications, prototypes, or experiments (including UI,
+API, or tooling repositories) are considered **implementations only**.
+
+They:
+- May evolve independently
+- Must not redefine or contradict this specification
+- Do not establish new rules by existence or usage
+
+Behavioral authority flows **from this repository outward**, never inward.
+
+🧪 Change Policy (非常に重要)
+### Change Policy
+
+Changes to canonical specifications require deliberate review.
+
+- Backward compatibility is preferred.
+- Breaking changes must be explicitly documented.
+- Safety and worst-case behavior are prioritized over optimization.
+- Ambiguity is treated as a defect.
+
+Silence does not imply permission.
+
+⚖️ Legal & License Boundary
+### Legal and License Boundary
+
+This repository is licensed under the MIT License.
+The license governs usage and distribution of the code and documentation.
+
+However:
+- Licensing does not grant authority to redefine specifications.
+- Trademarks, naming rights, and semantic authority are governed separately.
+
+🧠 Interpretation Rule（最後に効く一文）
+### Interpretation Rule
+
+If an interpretation conflict arises between this repository and any
+other material, **this repository prevails**
+
+
+Trademark Policy
+"LUMINA", "BULIGE", "LUMINA BULIGE", and related logos and names are trademarks or trade names of lumina-bulige-dev.
+
+Use of these names is permitted only to refer to this project in an accurate and non-misleading manner. Any use that implies endorsement, partnership, or official affiliation without prior written permission is prohibited.
+
+
+
+
+********************************       更新　　　************************************
+
 📌 System ownership map: see `RESPONSIBILITY.md` (single source of truth).
 正式版を追加。
 lumi-os — Canonical OS / Rules / META / Algorithms Repository for LUMINA BULIGE
@@ -90,31 +182,12 @@ All classes must read from main branch of this repo.
 
 
 
-## Trademark Policy
-
-"LUMINA", "BULIGE", "LUMINA BULIGE", and related logos and names
-are trademarks or trade names of lumina-bulige-dev.
-
-Use of these names is permitted only to refer to this project in an
-accurate and non-misleading manner.
-Any use that implies endorsement, partnership, or official affiliation
-without prior written permission is prohibited.
 
 
 
+********************************       更新　　　************************************
 
 
-
-
-
-
-
-
-
-
-
-
-下に古い説明文を残す。
 
 # lumi-os
 Core OS / Rules / Algorithms / Specifications for LUMINA BULIGE
