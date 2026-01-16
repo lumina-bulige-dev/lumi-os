@@ -51,6 +51,11 @@ export default function BetaPage() {
           <li>UI・文言・仕様は予告なく変更されます。</li>
           <li>信用は「結論」じゃなく「材料」。最終判断はユーザー自身。</li>
           <li>問い合わせ返信は当面 luminabulige@gmail.com から行います。</li>
+
+
+        <li> © 2025–2026 LUMINA BULIGE. All rights reserved.<li>
+<li>Not a bank. No custody. No investment advice.<li>
+ 
         </ul>
       </section>
     </main>
