@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { ciaUi } from "./ciaUi ";
+//import { ciaUi } from "./ciaUi ";
 
 
 // すべて ui → ciaUi に置換
