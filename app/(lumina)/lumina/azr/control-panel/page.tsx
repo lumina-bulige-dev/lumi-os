@@ -16,7 +16,40 @@ type Env = "prod" | "stage";
 type Target = "app" | "verify" | "api" | "info";
 
 type GuardrailLevel = "GREEN" | "YELLOW" | "RED";
+async function handleApprove(manifestPreview: unknown) {
+  // stub gate (human-only)
+  const approver = window.prompt("Approver（例: admin@luminabulige.com）") || "";
+  if (!approver.trim()) return;
 
+  const otp = window.prompt("OTP（6桁以上。今はstub）") || "";
+  if (otp.trim().length < 6) {
+    alert("OTPが短すぎます（6桁以上）");
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/decisions/approve", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-lumina-approver": approver.trim(),
+        "x-lumina-otp": otp.trim(),
+      },
+      body: JSON.stringify(manifestPreview),
+    });
+
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok) {
+      alert(`Approve failed: ${res.status}\n${JSON.stringify(data, null, 2)}`);
+      return;
+    }
+
+    alert(`Approved ✅\n${JSON.stringify(data, null, 2)}`);
+  } catch (e: any) {
+    alert(`Network error: ${e?.message ?? String(e)}`);
+  }
+}
 function computeGuardrail(input: {
   env: Env;
   targets: Target[];
