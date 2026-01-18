@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/app/lib/db";
 
 const SCHEMA = "lumi.decision_manifest.v0.1";
-const ENVS = new Set(["prod", "stage"]);
+const LUMI_DB_DRIVER = new Set(["prod", "stage"]);
 const TARGETS = new Set(["app", "verify", "api", "info"]);
 const REASONS = new Set(["OPS_UPDATE", "SECURITY_UPDATE", "INCIDENT_RESPONSE", "COPY_CHANGE", "OTHER"]);
 const ROLLBACKS = new Set(["revert_to_previous", "pinned_previous_id"]);
