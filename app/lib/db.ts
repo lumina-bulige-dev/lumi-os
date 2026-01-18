@@ -1,48 +1,46 @@
 // app/lib/db.ts
+import { getRequestContext } from "@cloudflare/next-on-pages";
 
 export type Db = {
   execute: (sql: string, params?: any[]) => Promise<any>;
 };
 
-/**
- * DB Adapter selector
- * - dev: in-memory / mock
- * - prod: Cloudflare D1 / Turso / etc
- */
 export async function getDb(): Promise<Db> {
-  const driver = process.env.LUMI_DB_DRIVER ?? "stub";
+  const driver = process.env.LUMI_DB_DRIVER ?? "d1"; // 既定をd1推奨（ローカルはstubにしてもOK）
 
   switch (driver) {
+    case "d1":
+      return createD1Db();
     case "stub":
       return createStubDb();
-
-    // 将来差し替え
-    // case "d1":
-    //   return createD1Db();
-    // case "turso":
-    //   return createTursoDb();
-
     default:
       throw new Error(`Unknown DB driver: ${driver}`);
   }
 }
 
-/* -----------------------------
- * Stub DB (safe default)
- * ----------------------------- */
+/** Cloudflare D1 adapter */
+function createD1Db(): Db {
+  const { env } = getRequestContext();
+  const db = env.DB as D1Database | undefined;
+  if (!db) throw new Error("D1 binding 'DB' is missing. Set Pages/Workers binding name = DB");
 
+  return {
+    async execute(sql: string, params: any[] = []) {
+      // D1: .all() は { results, success, meta } を返す
+      // INSERT/UPDATEでも results=[] になるが meta.changes 等で判断可能
+      const stmt = db.prepare(sql);
+      const bound = params.length ? stmt.bind(...params) : stmt;
+      return await bound.all();
+    },
+  };
+}
+
+/** Safe stub */
 function createStubDb(): Db {
   return {
     async execute(sql: string, params: any[] = []) {
-      console.warn("[DB:STUB] execute called");
-      console.warn(sql);
-      console.warn(params);
-
-      // Decision approve flow が死なない最低限
-      return {
-        rows: [],
-        rowsAffected: 1,
-      };
+      console.warn("[DB:STUB]", sql, params);
+      return { results: [], success: true, meta: { changes: 1 } };
     },
   };
 }
