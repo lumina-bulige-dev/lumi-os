@@ -7,7 +7,7 @@ import { useSearchParams } from "next/navigation";
 
 // すべて ui → ciaUi に置換
 //ciaUi.color.ng
-
+/*
 // 使用箇所
 //ui.color.ng
 //ui.color.ngBg
@@ -21,7 +21,7 @@ return {
   border: `1px solid ${p.br}`,
 };
 
-
+*/
 type ProofSummary = {
   proof_id?: string;
   created_at_ts?: number | string;
