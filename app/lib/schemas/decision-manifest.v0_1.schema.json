@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://luminabulige.com/schemas/decision-manifest.v0_1.schema.json",
+  "title": "LUMINA Decision Manifest v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "decision_id", "issued_at", "scope", "change", "reason", "rollback", "audit"],
+  "properties": {
+    "schema": {
+      "const": "lumi.decision_manifest.v0.1"
+    },
+    "decision_id": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 128,
+      "pattern": "^(dec_)[A-Za-z0-9_-]{6,}$"
+    },
+    "issued_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["targets", "environment"],
+      "properties": {
+        "targets": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": ["app", "verify", "api", "info"]
+          }
+        },
+        "environment": {
+          "type": "string",
+          "enum": ["prod", "stage"]
+        }
+      }
+    },
+
+    "change": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maintenance_mode", "feature_flags", "policy_text"],
+      "properties": {
+        "maintenance_mode": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled", "message"],
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "message": { "type": "string", "maxLength": 280 }
+          }
+        },
+
+        "feature_flags": {
+          "type": "object",
+          "description": "Extensible flags bag. Keep values simple to avoid policy confusion.",
+          "additionalProperties": {
+            "oneOf": [
+              { "type": "boolean" },
+              { "type": "string", "maxLength": 128 },
+              { "type": "number" }
+            ]
+          }
+        },
+
+        "policy_text": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["integrity_only", "truthfulness_not_attested", "verify_not_a_decider"],
+          "properties": {
+            "integrity_only": { "type": "boolean" },
+            "truthfulness_not_attested": { "type": "boolean" },
+            "verify_not_a_decider": { "type": "boolean" }
+          }
+        }
+      }
+    },
+
+    "reason": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "summary"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": ["OPS_UPDATE", "SECURITY_UPDATE", "INCIDENT_RESPONSE", "COPY_CHANGE", "OTHER"]
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 500
+        }
+      }
+    },
+
+    "rollback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["strategy", "safe_window_minutes"],
+      "properties": {
+        "strategy": {
+          "type": "string",
+          "enum": ["revert_to_previous", "pinned_previous_id"]
+        },
+        "safe_window_minutes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1440
+        },
+        "pinned_previous_decision_id": {
+          "type": "string",
+          "pattern": "^(dec_)[A-Za-z0-9_-]{6,}$"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "strategy": { "const": "pinned_previous_id" } }
+          },
+          "then": {
+            "required": ["pinned_previous_decision_id"]
+          }
+        }
+      ]
+    },
+
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["notes"],
+      "properties": {
+        "notes": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "non-PII only"
+        },
+        "revocation_ref": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "non-PII reference for ops/audit"
+        }
+      }
+    }
+  }
+}
