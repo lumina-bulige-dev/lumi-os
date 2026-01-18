@@ -9,8 +9,8 @@ import { useSearchParams } from "next/navigation";
 //ciaUi.color.ng
 
 // 使用箇所
-ui.color.ng
-ui.color.ngBg
+//ui.color.ng
+//ui.color.ngBg
 import type { Result, VerifyResponse } from "@/app/lib/verify-types";
 const p = resultPalette[result];
 
