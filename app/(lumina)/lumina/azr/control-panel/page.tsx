@@ -370,10 +370,13 @@ export default function ControlPanelPage() {
                 onClick={() => navigator.clipboard.writeText(JSON.stringify(manifestPreview, null, 2))}
               >
                 Copy JSON
-              </Button>
-              <Button variant="default" disabled={!canApprove} onClick={() => alert("Approveは後で接続（人間のみ）")}>
-                Approve (stub)
-              </Button>
+              <Button
+  variant="default"
+  disabled={!canApprove}
+  onClick={() => handleApprove(manifestPreview)}
+>
+  Approve (stub)
+</Button>
             </div>
             {!canApprove && (
               <p className="text-xs text-muted-foreground">
