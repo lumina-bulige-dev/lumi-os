@@ -2,6 +2,7 @@
 export const onRequestPost = async ({ request }: { request: Request }) => {
   return handleVerify(request);
 };
+{ name: "Ed25519" } as any
 
 function json(body: unknown, init: ResponseInit = {}): Response {
   return new Response(JSON.stringify(body), {
