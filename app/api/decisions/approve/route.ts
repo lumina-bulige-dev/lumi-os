@@ -1,5 +1,6 @@
 // app/api/decisions/approve/route.ts
 import { NextResponse } from "next/server";
+import { getDb } from "@/app/lib/db";
 
 const SCHEMA = "lumi.decision_manifest.v0.1";
 const ENVS = new Set(["prod", "stage"]);
@@ -10,7 +11,6 @@ const ROLLBACKS = new Set(["revert_to_previous", "pinned_previous_id"]);
 function isObject(x: unknown): x is Record<string, unknown> {
   return typeof x === "object" && x !== null && !Array.isArray(x);
 }
-import { getDb } from "@/app/lib/db";
 
 function nowIso() {
   return new Date().toISOString();
@@ -23,6 +23,7 @@ async function persistDecisionToDb(manifest: any, approver: string) {
   const env = manifest.scope.environment;
   const targets: string[] = manifest.scope.targets;
 
+  // 1) ledger insert
   await db.execute(
     `INSERT INTO decisions
       (decision_id, schema, issued_at, env, targets_json, manifest_json, approved_at, approver, jws)
@@ -36,13 +37,12 @@ async function persistDecisionToDb(manifest: any, approver: string) {
       JSON.stringify(manifest),
       approved_at,
       approver,
-      null
+      null,
     ]
   );
 
-  // upsert latest pointer per target
+  // 2) latest pointer upsert per target
   for (const t of targets) {
-    // SQLite upsert
     await db.execute(
       `INSERT INTO decision_latest (env, target, decision_id, updated_at)
        VALUES (?, ?, ?, datetime('now'))
@@ -55,46 +55,51 @@ async function persistDecisionToDb(manifest: any, approver: string) {
 
   return approved_at;
 }
+
 /**
  * Minimal validation (stub).
  * NOTE: This does NOT prove truthfulness; only shapes.
  */
 function validateManifest(body: unknown): { ok: true; manifest: any } | { ok: false; message: string } {
   if (!isObject(body)) return { ok: false, message: "Body must be an object." };
-  if (body.schema !== SCHEMA) return { ok: false, message: "Invalid schema." };
-  if (typeof body.decision_id !== "string" || !body.decision_id.startsWith("dec_"))
-    return { ok: false, message: "Invalid decision_id." };
-  if (typeof body.issued_at !== "string") return { ok: false, message: "issued_at required." };
+  if ((body as any).schema !== SCHEMA) return { ok: false, message: "Invalid schema." };
 
-  if (!isObject(body.scope)) return { ok: false, message: "scope required." };
-  const env = body.scope.environment;
+  const decision_id = (body as any).decision_id;
+  if (typeof decision_id !== "string" || !decision_id.startsWith("dec_"))
+    return { ok: false, message: "Invalid decision_id." };
+
+  if (typeof (body as any).issued_at !== "string") return { ok: false, message: "issued_at required." };
+
+  if (!isObject((body as any).scope)) return { ok: false, message: "scope required." };
+  const env = (body as any).scope.environment;
   if (typeof env !== "string" || !ENVS.has(env)) return { ok: false, message: "Invalid scope.environment." };
 
-  const targets = body.scope.targets;
+  const targets = (body as any).scope.targets;
   if (!Array.isArray(targets) || targets.length === 0) return { ok: false, message: "scope.targets required." };
   for (const t of targets) {
     if (typeof t !== "string" || !TARGETS.has(t)) return { ok: false, message: `Invalid target: ${String(t)}` };
   }
 
-  if (!isObject(body.change)) return { ok: false, message: "change required." };
-  if (!isObject(body.change.maintenance_mode)) return { ok: false, message: "change.maintenance_mode required." };
-  if (typeof body.change.maintenance_mode.enabled !== "boolean")
+  if (!isObject((body as any).change)) return { ok: false, message: "change required." };
+  if (!isObject((body as any).change.maintenance_mode))
+    return { ok: false, message: "change.maintenance_mode required." };
+  if (typeof (body as any).change.maintenance_mode.enabled !== "boolean")
     return { ok: false, message: "maintenance_mode.enabled must be boolean." };
 
-  if (!isObject(body.reason)) return { ok: false, message: "reason required." };
-  if (typeof body.reason.code !== "string" || !REASONS.has(body.reason.code))
+  if (!isObject((body as any).reason)) return { ok: false, message: "reason required." };
+  if (typeof (body as any).reason.code !== "string" || !REASONS.has((body as any).reason.code))
     return { ok: false, message: "Invalid reason.code." };
-  if (typeof body.reason.summary !== "string" || body.reason.summary.trim().length < 3)
+  if (typeof (body as any).reason.summary !== "string" || (body as any).reason.summary.trim().length < 3)
     return { ok: false, message: "reason.summary is too short." };
 
-  if (!isObject(body.rollback)) return { ok: false, message: "rollback required." };
-  if (typeof body.rollback.strategy !== "string" || !ROLLBACKS.has(body.rollback.strategy))
+  if (!isObject((body as any).rollback)) return { ok: false, message: "rollback required." };
+  if (typeof (body as any).rollback.strategy !== "string" || !ROLLBACKS.has((body as any).rollback.strategy))
     return { ok: false, message: "Invalid rollback.strategy." };
-  if (typeof body.rollback.safe_window_minutes !== "number")
+  if (typeof (body as any).rollback.safe_window_minutes !== "number")
     return { ok: false, message: "rollback.safe_window_minutes must be number." };
 
-  if (!isObject(body.audit)) return { ok: false, message: "audit required." };
-  if (typeof body.audit.notes !== "string") return { ok: false, message: "audit.notes required." };
+  if (!isObject((body as any).audit)) return { ok: false, message: "audit required." };
+  if (typeof (body as any).audit.notes !== "string") return { ok: false, message: "audit.notes required." };
 
   return { ok: true, manifest: body };
 }
@@ -130,20 +135,20 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "INVALID_MANIFEST", message: v.message }, { status: 400 });
   }
 
-  // TODO (next phase):
-  // - canonicalize (RFC8785)
-  // - sign (JWS EdDSA/Ed25519)
-  // - persist (KV/DB)
-  // - update "latest" pointer per target/env
-  // - emit audit log (non-PII)
+  try {
+    const approved_at = await persistDecisionToDb(v.manifest, gate.approver);
 
-  const approved_at = new Date().toISOString();
-
-  return NextResponse.json({
-    ok: true,
-    decision_id: v.manifest.decision_id,
-    approved_at,
-    approver: gate.approver,
-    note: "stub: not signed, not persisted"
-  });
+    return NextResponse.json({
+      ok: true,
+      decision_id: v.manifest.decision_id,
+      approved_at,
+      approver: gate.approver,
+    });
+  } catch (e: any) {
+    // DBが未配線/テーブル未作成などもここに落ちる
+    return NextResponse.json(
+      { ok: false, error: "DB_PERSIST_FAILED", message: e?.message ?? String(e) },
+      { status: 500 }
+    );
+  }
 }
