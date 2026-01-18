@@ -10,7 +10,51 @@ const ROLLBACKS = new Set(["revert_to_previous", "pinned_previous_id"]);
 function isObject(x: unknown): x is Record<string, unknown> {
   return typeof x === "object" && x !== null && !Array.isArray(x);
 }
+import { getDb } from "@/app/lib/db";
 
+function nowIso() {
+  return new Date().toISOString();
+}
+
+async function persistDecisionToDb(manifest: any, approver: string) {
+  const db = await getDb();
+
+  const approved_at = nowIso();
+  const env = manifest.scope.environment;
+  const targets: string[] = manifest.scope.targets;
+
+  await db.execute(
+    `INSERT INTO decisions
+      (decision_id, schema, issued_at, env, targets_json, manifest_json, approved_at, approver, jws)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      manifest.decision_id,
+      manifest.schema,
+      manifest.issued_at,
+      env,
+      JSON.stringify(targets),
+      JSON.stringify(manifest),
+      approved_at,
+      approver,
+      null
+    ]
+  );
+
+  // upsert latest pointer per target
+  for (const t of targets) {
+    // SQLite upsert
+    await db.execute(
+      `INSERT INTO decision_latest (env, target, decision_id, updated_at)
+       VALUES (?, ?, ?, datetime('now'))
+       ON CONFLICT(env, target) DO UPDATE SET
+         decision_id=excluded.decision_id,
+         updated_at=datetime('now')`,
+      [env, t, manifest.decision_id]
+    );
+  }
+
+  return approved_at;
+}
 /**
  * Minimal validation (stub).
  * NOTE: This does NOT prove truthfulness; only shapes.
