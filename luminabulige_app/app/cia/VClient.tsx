@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 
 
 // すべて ui → ciaUi に置換
-ciaUi.color.ng
+//ciaUi.color.ng
 
 // 使用箇所
 ui.color.ng
