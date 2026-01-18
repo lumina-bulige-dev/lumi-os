@@ -3,7 +3,8 @@
 
 import { useEffect, useId, useMemo, useState } from "react";
 // MoneyStabilizer.tsx
-import type { PlaceTag } from "@/types/money";
+type PlaceTag = (typeof PLACE_TAGS)[number];
+
 
 // 1) 値はタプル定義 → 型を自動生成（唯一の真実）
 const PLACE_TAGS = ["home", "work", "move", "other"] as const;
