@@ -11,7 +11,8 @@ import { useSearchParams } from "next/navigation";
 // 使用箇所
 //ui.color.ng
 //ui.color.ngBg
-import type { Result, VerifyResponse } from "@/app/lib/verify-types";
+import type { Result as VerifyResult, VerifyResponse } from "@/app/lib/verify-types";
+
 const p = resultPalette[result];
 
 return {
