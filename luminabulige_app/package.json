@@ -1,29 +1,24 @@
- {
-   "name": "luminabulige-app",
-   "version": "1.0.0",
-   "private": true,
-   "scripts": {
--    "dev": "next dev",
--    "build": "next build",
--    "pages:build": "next build && npx @cloudflare/next-on-pages",
--    "start": "next start"
-+    "dev": "next dev",
-+    "build": "next build",
-+    "pages:build": "next build && npx @cloudflare/next-on-pages",
-+    "pages:dev": "npx @cloudflare/next-on-pages --watch & npx wrangler pages dev .vercel/output/static --compatibility-flag=nodejs_compat",
-+    "start": "next start"
-   },
-   "dependencies": {
-     "next": "14.2.35",
-     "react": "18.3.1",
-     "react-dom": "18.3.1"
-   },
-   "devDependencies": {
-     "typescript": "5.9.3",
-     "@types/node": "20.19.27",
--    "@types/react": "18.3.27"
-+    "@types/react": "18.3.27",
-+    "wrangler": "^3",
-+    "@cloudflare/next-on-pages": "^1"
-   }
- }
+{
+  "name": "luminabulige-app",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "pages:build": "next build && npx @cloudflare/next-on-pages",
+    "pages:dev": "npx @cloudflare/next-on-pages --watch & npx wrangler pages dev .vercel/output/static --compatibility-flag=nodejs_compat",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "14.2.35",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "@types/node": "20.19.27",
+    "@types/react": "18.3.27",
+    "wrangler": "^3",
+    "@cloudflare/next-on-pages": "^1"
+  }
+}
