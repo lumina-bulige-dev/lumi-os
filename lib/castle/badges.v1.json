@@ -1,0 +1,9 @@
+{
+  "type": "ACTION",
+  "name": "badge_granted",
+  "schema": 1,
+  "body": {
+    "badge_id": "castle-samurai-premium-001",
+    "reason": "CHAIN_STREAK_30"
+  }
+}
