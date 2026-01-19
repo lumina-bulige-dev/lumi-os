@@ -254,6 +254,7 @@ async function handleEventAppend(req: Request, env: Env) {
 export default {
   async fetch(req: Request, env: Env) {
     const url = new URL(req.url);
+    if (p === "/event") return handleEventAppend(req, env);
     const p = normPath(url.pathname);
     // --- core routes ---
     if (p === "/health") {
