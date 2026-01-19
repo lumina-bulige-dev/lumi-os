@@ -11,15 +11,24 @@
   },
 
   "dependencies": {
+<<<<<<< Updated upstream
   "next": "15.5.2",
   "react": "18.3.1",
   "react-dom": "18.3.1"
+=======
+    "next": "15.5.2",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+>>>>>>> Stashed changes
   },
   "devDependencies": {
-    "typescript": "5.9.3",
     "@types/node": "20.19.27",
     "@types/react": "18.3.27",
+<<<<<<< Updated upstream
     "wrangler": "^3",
     "@cloudflare/next-on-pages": "^1"
+=======
+    "typescript": "5.9.3"
+>>>>>>> Stashed changes
   }
 }
