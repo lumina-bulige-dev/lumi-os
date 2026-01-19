@@ -1,0 +1,99 @@
+# ① バッヂ / ガチャ 1個あたりの「正体」（最重要）
+
+## 🎯 Canonical Badge Object（これが真）
+
+```json
+{
+  "badge_id": "badge_samurai_steady_v1",
+  "category": "behavior",
+  "rarity": 3,
+  "presence_only": true,
+  "meaning": "継続行動が一定期間観測された",
+  "credit_claim": false
+}
+```
+
+### ここ超重要⚓️
+
+* **意味は書くが、評価は書かない**
+* **信用・安全・優位・審査ワードは禁止**
+* これは **概念**。画像でもNFTでもない
+
+---
+
+# ② Proof（Verifyが見る唯一の真実）
+
+## KV（lumi-proofs）に入るレシート
+
+```json
+{
+  "v": 1,
+  "type": "badge_presence",
+  "badge_id": "badge_samurai_steady_v1",
+  "subject_user_id": "usr_xxx",
+  "issued_at": "2026-01-20T02:11:00Z",
+  "status": "ACTIVE",
+  "presence_only": true,
+  "ledger_log_id": "azr_log_xxx",
+  "sig": "jws_xxx"
+}
+```
+
+### Verifyはこれしかやらない
+
+* 署名検証
+* 改ざん検知
+* 表示（importance: low）
+
+👉 **画像？NFT？一切関係ない**
+
+---
+
+# ③ 画像生成（完全に分離）
+
+## 画像はこう扱う
+
+```json
+{
+  "badge_id": "badge_samurai_steady_v1",
+  "image_variant": "gacha_capsule_blue_v1",
+  "style": "miniature_toy",
+  "generated_at": "2026-01-20T03:00:00Z"
+}
+```
+
+### ルール
+
+* 画像は **差し替え可能**
+* 失敗しても Proof は無傷
+* 将来「デザイン刷新」しても履歴は壊れない
+
+👉 **デザイナーが暴れても法務は死なない**😄
+
+---
+
+# ④ NFT / SBT（あくまで“容器”）
+
+## NFTに入れる中身（最小）
+
+```json
+{
+  "token_type": "SBT",
+  "badge_id": "badge_samurai_steady_v1",
+  "proof_ref": "kv://consent:v1:badge:usr_xxx:badge_samurai_steady_v1",
+  "transferable": false
+}
+```
+
+### 断言するね
+
+* NFTは **価値を主張しない**
+* NFTは **売買前提にしない**
+* NFTは **Proofを指すラベル**
+
+👉 これが
+
+> 「NFT/SBTは所有・発行履歴の改ざん検知に使うだけ。」
+> の**完全実装形**。
+
+---
