@@ -1,4 +1,11 @@
-export interface Env { /* ... */ }
+export interface Env {
+  // secrets
+  ADMIN_KEY?: string;
+  INVITE_SIGNING_KEY?: string;
+
+  // D1 binding（Cloudflare Dashboardで設定した名前に合わせる）
+  DB: D1Database;
+}
 const te = new TextEncoder();
 const td = new TextDecoder();
 
