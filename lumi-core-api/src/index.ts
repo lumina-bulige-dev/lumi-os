@@ -1,8 +1,11 @@
 // src/index.ts
 export interface Env {
-  ADMIN_KEY?: string;          // secret推奨
-  INVITE_SIGNING_KEY?: string; // secret推奨（署名キー）
-  DATA_MODE?: string;          // "mock" など
+  // secrets
+  ADMIN_KEY?: string;
+  INVITE_SIGNING_KEY?: string;
+
+  // D1 binding（Cloudflare Dashboardで設定した名前に合わせる）
+  DB: D1Database;
 }
 function normPath(pathname: string) {
   // 1) /api/v1 を吸収
