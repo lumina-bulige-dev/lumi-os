@@ -256,6 +256,7 @@ export default {
     const url = new URL(req.url);
     if (p === "/event") return handleEventAppend(req, env);
     const p = normPath(url.pathname);
+    
     // --- core routes ---
     if (p === "/health") {
       return json({
