@@ -1,1 +1,22 @@
+{
+  "v": 1,
+  "kind": "SBT",
+  "chain_id": "u:<userIdHash>",
+  "badge_id": "KABUTO_PREMIUM",
+  "badge_ver": 1,
+
+  "issued_at": "2026-01-20T00:00:00.000Z",
+  "issued_by": "lumi-core-api",
+
+  "trigger": {
+    "type": "GATE|STREAK|RECOVERY|SYSTEM",
+    "ref": "event:<eventId>|block:<height>|none"
+  },
+
+  "disclaimer": {
+    "no_value": true,
+    "no_transfer": true,
+    "no_credit": true
+  }
+}
 
