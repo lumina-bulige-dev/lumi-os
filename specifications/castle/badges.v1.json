@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "disclaimer": [
+    "権利を表しません",
+    "金銭的価値を保証しません",
+    "信用や評価を与えるものではありません"
+  ],
+  "badges": [
+    {
+      "id": "castle-samurai-premium-001",
+      "title": "兜武将（プレミアム）",
+      "rarity": 5,
+      "meaning": ["継続", "規律", "耐久"],
+      "event_triggers": ["CHAIN_STREAK_30", "GATE_PASSED"],
+      "verify_visibility": "status_only",
+      "image_prompt": "..."
+    }
+  ]
+}
