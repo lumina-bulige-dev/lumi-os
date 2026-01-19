@@ -162,6 +162,95 @@ async function handleInviteVerify(req: Request, env: Env) {
   if (!v.ok) return json({ ok: false, error: v.reason }, 401);
   return json({ ok: true, result: "OK" }, 200);
 }
+type EventAppendBody = {
+  // 誰のチェーンか（ユーザー単位）
+  user_id: string;
+
+  // イベント種別（例: "claim", "comment", "azr_message" など）
+  type: string;
+
+  // そのイベントの中身（JSONで何でも）
+  payload?: any;
+
+  // 任意：クライアント側で持つ idempotency key（重複防止に使える）
+  nonce?: string;
+
+  // 任意：前のイベントhash（チェーンしたいなら）
+  prev?: string;
+};
+
+async function sha256Hex(s: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", te.encode(s));
+  const bytes = new Uint8Array(buf);
+  let out = "";
+  for (const b of bytes) out += b.toString(16).padStart(2, "0");
+  return out;
+}
+
+function nowMs() {
+  return Date.now();
+}
+
+async function handleEventAppend(req: Request, env: Env) {
+  const url = new URL(req.url);
+
+  // MVPは POST のみ（読み出しは後で）
+  if (req.method !== "POST") return text("method not allowed", 405);
+
+  // いったん admin only にして事故らないようにする（後で invite token に切替OK）
+  if (!hasAdmin(env, req)) return text("unauthorized", 401);
+
+  const body = (await readBody(req)) as EventAppendBody;
+
+  // 最低限チェック
+  if (!body?.user_id || typeof body.user_id !== "string") return json({ ok: false, error: "user_id required" }, 400);
+  if (!body?.type || typeof body.type !== "string") return json({ ok: false, error: "type required" }, 400);
+
+  const t = nowMs();
+
+  // チェーンの “素材” を正規化（順序固定＆文字列化）
+  const canonical = JSON.stringify({
+    v: 1,
+    user_id: body.user_id,
+    type: body.type,
+    prev: body.prev ?? null,
+    nonce: body.nonce ?? null,
+    ts: t,
+    payload: body.payload ?? null,
+  });
+
+  const hash = await sha256Hex(canonical);
+
+  // D1へ append-only 保存（上書きしない）
+  // ※テーブルは次ステップで作る（events）
+  await env.DB.prepare(
+    `INSERT INTO events (user_id, ts, type, prev, nonce, payload_json, hash)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`
+  )
+    .bind(
+      body.user_id,
+      t,
+      body.type,
+      body.prev ?? null,
+      body.nonce ?? null,
+      JSON.stringify(body.payload ?? null),
+      hash
+    )
+    .run();
+
+  return json(
+    {
+      ok: true,
+      user_id: body.user_id,
+      ts: t,
+      hash,
+      prev: body.prev ?? null,
+      next_hint: `${url.origin}/event?user_id=${encodeURIComponent(body.user_id)}`, // 後でGET作る用
+    },
+    200
+  );
+}
+
 export default {
   async fetch(req: Request, env: Env) {
     const url = new URL(req.url);
