@@ -191,7 +191,7 @@ function nowMs() {
   return Date.now();
 }
 
-async function handleEventAppend(req: Request, env: Env) {
+async function handleEventAppend(req: lumi_core, env: Env) {
   const url = new URL(req.url);
 
   // MVPは POST のみ（読み出しは後で）
