@@ -5,7 +5,7 @@ export interface Env {
   INVITE_SIGNING_KEY?: string;
 
   // D1 binding（Cloudflare Dashboardで設定した名前に合わせる）
-  DB: D1Database;
+  lumi_core: D1Database;
 }
 function normPath(pathname: string) {
   // 1) /api/v1 を吸収
