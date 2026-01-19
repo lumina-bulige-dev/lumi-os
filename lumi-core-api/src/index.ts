@@ -181,12 +181,15 @@ async function verifyInviteToken(...) { ... }
 async function handleDebug(...) { ... }
 async function handleInviteIssue(...) { ... }
 async function handleInviteVerify(...) { ... }
-
+async function handleEventAppend(...) { ... }
 // --- entry ---
 export default {
   async fetch(req: Request, env: Env) {
     if (req.method === "OPTIONS") return corsPreflight(req);
+    ...
+    
 
+    // routes...
     const url = new URL(req.url);
     const p = normPath(url.pathname);
 
