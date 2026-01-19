@@ -1,205 +1,132 @@
-export interface Env {
-  // secrets
-  ADMIN_KEY?: string;
-  INVITE_SIGNING_KEY?: string;
-
-  // D1 binding（Cloudflare Dashboardで設定した名前に合わせる）
-  DB: D1Database;
-}
-const te = new TextEncoder();
-const td = new TextDecoder();
-
-function toBase64Url(bytes: Uint8Array): string {
-  let bin = "";
-  for (const b of bytes) bin += String.fromCharCode(b);
-  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+function b64uFromBytes(bytes: Uint8Array): string {
+  const bin = String.fromCharCode(...bytes);
+  const b64 = btoa(bin);
+  return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
 
-function fromBase64Url(s: string): Uint8Array {
-  let b64 = s.replace(/-/g, "+").replace(/_/g, "/");
-  while (b64.length % 4) b64 += "=";
-  const bin = atob(b64);
-  const out = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
-  return out;
+async function sha256B64u(text: string): Promise<string> {
+  const data = new TextEncoder().encode(text);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return b64uFromBytes(new Uint8Array(digest));
 }
 
-function timingSafeEqual(a: Uint8Array, b: Uint8Array): boolean {
-  if (a.length !== b.length) return false;
-  let diff = 0;
-  for (let i = 0; i < a.length; i++) diff |= a[i] ^ b[i];
-  return diff === 0;
+// MVP用：安定化JSON（キーをソートして stringify）
+// ※ RFC8785(JCS)の完全実装は後で重装備に移行でOK
+function stableStringify(x: any): string {
+  if (x === null || typeof x !== "object") return JSON.stringify(x);
+  if (Array.isArray(x)) return `[${x.map(stableStringify).join(",")}]`;
+  const keys = Object.keys(x).sort();
+  return `{${keys.map((k) => JSON.stringify(k) + ":" + stableStringify(x[k])).join(",")}}`;
 }
 
-async function hmacSha256(key: string, msg: string): Promise<Uint8Array> {
-  const cryptoKey = await crypto.subtle.importKey(
-    "raw",
-    te.encode(key),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
-  const sig = await crypto.subtle.sign("HMAC", cryptoKey, te.encode(msg));
-  return new Uint8Array(sig);
+function json(res: any, status = 200) {
+  return new Response(JSON.stringify(res), {
+    status,
+    headers: { "content-type": "application/json" },
+  });
 }
-async function signInviteToken(payload: any, env: Env): Promise<string> {
-  if (!env.INVITE_SIGNING_KEY) throw new Error("missing INVITE_SIGNING_KEY");
-  const raw = JSON.stringify(payload);
-  const payloadB64u = toBase64Url(te.encode(raw));
-  const sigBytes = await hmacSha256(env.INVITE_SIGNING_KEY, payloadB64u);
-  const sigB64u = toBase64Url(sigBytes);
-  return `${payloadB64u}.${sigB64u}`;
-}
-async function verifyInviteToken(token: string, env: Env) {
-  if (!env.INVITE_SIGNING_KEY) return { ok: false, reason: "missing INVITE_SIGNING_KEY" };
-  if (!token || token.length < 10) return { ok: false, reason: "token too short" };
 
-  const parts = token.split(".");
-  if (parts.length !== 2) return { ok: false, reason: "bad token format" };
+export async function handleChainAppend(req: Request, env: any) {
+  if (req.method !== "POST") return json({ ok: false, error: "method not allowed" }, 405);
 
-  const [payloadB64u, sigB64u] = parts;
-
-  let payloadBytes: Uint8Array;
-  let sigBytes: Uint8Array;
+  // 1) 入力（最小）
+  // body: { chain_id, event: {type,name,body}, meta? }
+  let input: any;
   try {
-    payloadBytes = fromBase64Url(payloadB64u);
-    sigBytes = fromBase64Url(sigB64u);
+    input = await req.json();
   } catch {
-    return { ok: false, reason: "bad base64url" };
+    return json({ ok: false, error: "invalid json" }, 400);
   }
 
-  // 署名検証（自前で constant-time compare）
-  const expected = await hmacSha256(env.INVITE_SIGNING_KEY, payloadB64u);
-  if (!timingSafeEqual(expected, sigBytes)) {
-    return { ok: false, reason: "bad signature" };
+  const chainId = String(input?.chain_id || "");
+  const eventType = String(input?.event?.type || "");
+  const eventName = String(input?.event?.name || "");
+  const body = input?.event?.body ?? null;
+  const meta = input?.meta ?? {};
+
+  if (!chainId || !eventType || !eventName) {
+    return json(
+      { ok: false, error: "missing fields", need: ["chain_id", "event.type", "event.name"] },
+      400
+    );
   }
 
-  // payload parse
-  let payload: any;
-  try {
-    payload = JSON.parse(td.decode(payloadBytes));
-  } catch {
-    return { ok: false, reason: "bad payload json" };
+  // 2) 先頭情報を取得（なければ初期化）
+  let headHeight = 0;
+  let headHash = "";
+
+  const head = await env.DB.prepare(
+    `SELECT head_height, head_hash FROM user_chains WHERE chain_id = ?`
+  ).bind(chainId).first();
+
+  if (head) {
+    headHeight = Number(head.head_height || 0);
+    headHash = String(head.head_hash || "");
+  } else {
+    // 初回チェーン
+    await env.DB.prepare(
+      `INSERT INTO user_chains (chain_id, head_height, head_hash) VALUES (?, 0, '')`
+    ).bind(chainId).run();
   }
 
-  // 必須フィールド（最低限）
-  if (payload?.v !== 1) return { ok: false, reason: "unsupported version" };
-  if (typeof payload?.exp !== "number") return { ok: false, reason: "missing exp" };
-  if (typeof payload?.iat !== "number") return { ok: false, reason: "missing iat" };
+  const height = headHeight + 1;
+  const prevHash = headHash || "";
 
-  const now = Date.now();
-  if (payload.exp <= now) return { ok: false, reason: "expired" };
-
-  // 未来すぎるiat（時計ズレ2分許容）
-  if (payload.iat > now + 2 * 60 * 1000) return { ok: false, reason: "iat in future" };
-
-  return { ok: true, payload };
-}
-async function handleInviteIssue(req: Request, env: Env) {
-  const url = new URL(req.url);
-  if (req.method !== "POST") return text("method not allowed", 405);
-  if (!hasAdmin(env, req, url)) return text("unauthorized", 401);
-
-  const body = await readBody(req);
-  const now = Date.now();
-  const payload = {
+  // 3) ブロック生成
+  const block = {
     v: 1,
-    iat: now,
-    sub: (body && (body.email || body.sub || body.user)) ?? "unknown",
-    exp: now + 1000 * 60 * 60 * 24 * 7,
+    chain_id: chainId,
+    height,
+    prev_hash: prevHash,
+    ts: new Date().toISOString(),
+    event: {
+      type: eventType,
+      name: eventName,
+      schema: 1,
+      body,
+    },
+    meta,
   };
 
-  const token = await signInviteToken(payload, env);
+  const blockCanon = stableStringify(block);
+  const blockHash = await sha256B64u(blockCanon);
 
-  return json({
-    ok: true,
-    token,
-    verify_url: `${url.origin}/invite/verify?token=${encodeURIComponent(token)}`,
-    payload,
-  });
+  // 4) Receipt（MVP：署名は後で。まず“確定情報”を返す）
+  const receipt = {
+    v: 1,
+    chain_id: chainId,
+    height,
+    block_hash: blockHash,
+    prev_hash: prevHash,
+    ts: block.ts,
+    issuer: "lumi-core-api",
+    note: "unsigned-receipt (MVP)",
+  };
+
+  // 5) INSERT（append-only）
+  await env.DB.prepare(
+    `INSERT INTO blocks
+      (chain_id, height, block_hash, prev_hash, ts, event_type, event_name, body_json, meta_json, receipt_json)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+  )
+    .bind(
+      chainId,
+      height,
+      blockHash,
+      prevHash,
+      Date.now(),
+      eventType,
+      eventName,
+      JSON.stringify(body ?? null),
+      JSON.stringify(meta ?? {}),
+      JSON.stringify(receipt)
+    )
+    .run();
+
+  // 6) head更新
+  await env.DB.prepare(
+    `UPDATE user_chains SET head_height = ?, head_hash = ? WHERE chain_id = ?`
+  ).bind(height, blockHash, chainId).run();
+
+  return json({ ok: true, block_hash: blockHash, receipt });
 }
-async function handleInviteVerify(req: Request, env: Env) {
-  const url = new URL(req.url);
-
-  if (req.method === "HEAD" || req.method === "GET") {
-    const token = url.searchParams.get("token");
-    if (!token) return json({ ok: false, error: "token required (POST recommended)" }, 400);
-
-    const v = await verifyInviteToken(token, env);
-    if (!v.ok) return json({ ok: false, error: v.reason }, 401);
-    return json({ ok: true, result: "OK", payload: v.payload }, 200);
-  }
-
-  if (req.method !== "POST") return text("method not allowed", 405);
-
-  const body = await readBody(req);
-  const token = (body && (body.token || body.invite || body.t)) || url.searchParams.get("token");
-  if (!token || typeof token !== "string") return json({ ok: false, error: "token required" }, 400);
-
-  const v = await verifyInviteToken(token, env);
-  if (!v.ok) return json({ ok: false, error: v.reason }, 401);
-  return json({ ok: true, result: "OK", payload: v.payload }, 200);
-}
-function corsPreflight(req: Request) {
-  const reqHeaders = req.headers.get("Access-Control-Request-Headers") || "";
-  return new Response(null, {
-    status: 204,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET,POST,HEAD,OPTIONS",
-      "Access-Control-Allow-Headers": reqHeaders || "content-type,authorization",
-      "Access-Control-Max-Age": "86400",
-    },
-  });
-}
-if (req.method === "OPTIONS") return corsPreflight(req);
-function hasAdmin(env: Env, req: Request) {
-  const auth = req.headers.get("Authorization") || "";
-  return Boolean(
-    env.ADMIN_KEY &&
-    auth.startsWith("Bearer ") &&
-    auth.slice("Bearer ".length) === env.ADMIN_KEY
-  );
-}
-
-// --- router helpers ---
-function normPath(...) { ... }
-
-// --- http helpers ---
-function corsPreflight(req: Request) { ... }
-function json(...) { ... }
-function text(...) { ... }
-async function readBody(...) { ... }
-
-// --- auth ---
-function hasAdmin(...) { ... }
-
-// --- crypto helpers (base64url/hmac) ---
-function toBase64Url(...) { ... }
-function fromBase64Url(...) { ... }
-function timingSafeEqual(...) { ... }
-async function hmacSha256(...) { ... }
-
-// --- invite ---
-async function signInviteToken(...) { ... }
-async function verifyInviteToken(...) { ... }
-
-// --- handlers ---
-async function handleDebug(...) { ... }
-async function handleInviteIssue(...) { ... }
-async function handleInviteVerify(...) { ... }
-async function handleEventAppend(...) { ... }
-// --- entry ---
-export default {
-  async fetch(req: Request, env: Env) {
-    if (req.method === "OPTIONS") return corsPreflight(req);
-    ...
-    
-
-    // routes...
-    const url = new URL(req.url);
-    const p = normPath(url.pathname);
-
-    // routes...
-  },
-};
