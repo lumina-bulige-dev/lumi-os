@@ -79,6 +79,28 @@ However:
 If an interpretation conflict arises between this repository and any
 other material, **this repository prevails**
 
+---
+
+## Two-tier structure (Public / AZR)
+
+This repository also hosts the two-tier structure used by LUMINA BULIGE:
+
+**First floor (Public / External)**
+- Purpose: read-only viewing for App / Verify / Share / Docs.
+- No approval or decision actions exist here.
+- Proof receipts are the integrity source and are displayed only.
+
+**Second floor (AZR / Decision & Control)**
+- Human-only Admin UI (AZR console).
+- Decisions API records approval events into the ledger (D1).
+- No automatic approval logic.
+
+### Deployment notes
+- Public UI builds with Cloudflare Pages using `pages:build`.
+- Bind KV `LUMI_PROOFS` for proof receipt reads (verify/share views).
+- Bind D1 `DB` for decisions ledger tables.
+- Node version: 22.
+
 
 Trademark Policy
 "LUMINA", "BULIGE", "LUMINA BULIGE", and related logos and names are trademarks or trade names of lumina-bulige-dev.
@@ -376,5 +398,4 @@ This repository is the official specification backbone of LUMI OS.
 All external development, internal logic, and product execution rely on the definitions here.
 
 ────────────────────────────
-
 
