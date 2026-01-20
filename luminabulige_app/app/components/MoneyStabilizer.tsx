@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 
 type ParentKey = "FIXED" | "LIFE" | "WORK" | "FUN" | "OTHER";
 type LogKind = "INCOME" | "EXPENSE";
-
+import type { PlaceTag } from "@/app/types/money";
 type LogItem = {
   id: string;
   occurredAt: number;
