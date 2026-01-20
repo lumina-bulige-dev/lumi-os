@@ -4,16 +4,19 @@ import type { NextRequest } from "next/server";
 export function middleware(req: NextRequest) {
   const host = req.headers.get("host") || "";
   const url = req.nextUrl;
+  const isAdminHost =
+    host.startsWith("admin.") || host.startsWith("azr.") || host.includes("localhost") || host.includes("127.0.0.1");
 
-  // adminサブドメインなら /admin 配下へ寄せる
-  if (host.startsWith("admin.")) {
-    if (!url.pathname.startsWith("/admin")) {
-      url.pathname = "/admin";
-      return NextResponse.redirect(url);
-    }
+  if (url.pathname.startsWith("/azr") && !isAdminHost) {
+    url.pathname = "/";
+    return NextResponse.redirect(url);
   }
 
-  return NextResponse.next();
+  const res = NextResponse.next();
+  if (url.pathname.startsWith("/azr")) {
+    res.headers.set("x-azr-guard", "human-only");
+  }
+  return res;
 }
 
 export const config = {
