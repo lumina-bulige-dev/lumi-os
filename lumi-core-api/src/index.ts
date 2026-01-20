@@ -5,8 +5,12 @@ export interface Env {
   INVITE_SIGNING_KEY?: string;
 
   // D1 binding（Cloudflare Dashboardで設定した名前に合わせる）
-  lumi_core: D1Database;
+  DB: D1Database;
+
+  // debug
+  DATA_MODE?: string;
 }
+const te = new TextEncoder();
 function normPath(pathname: string) {
   // 1) /api/v1 を吸収
   let p = pathname.replace(/^\/api\/v1(?=\/|$)/, "");
@@ -191,14 +195,14 @@ function nowMs() {
   return Date.now();
 }
 
-async function handleEventAppend(req: lumi_core, env: Env) {
+async function handleEventAppend(req: Request, env: Env) {
   const url = new URL(req.url);
 
   // MVPは POST のみ（読み出しは後で）
   if (req.method !== "POST") return text("method not allowed", 405);
 
   // いったん admin only にして事故らないようにする（後で invite token に切替OK）
-  if (!hasAdmin(env, req)) return text("unauthorized", 401);
+  if (!hasAdmin(env, req, url)) return text("unauthorized", 401);
 
   const body = (await readBody(req)) as EventAppendBody;
 
@@ -254,8 +258,9 @@ async function handleEventAppend(req: lumi_core, env: Env) {
 export default {
   async fetch(req: Request, env: Env) {
     const url = new URL(req.url);
-    if (p === "/event") return handleEventAppend(req, env);
     const p = normPath(url.pathname);
+
+    if (p === "/event") return handleEventAppend(req, env);
     
     // --- core routes ---
     if (p === "/health") {
