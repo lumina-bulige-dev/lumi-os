@@ -3,10 +3,17 @@ export interface Env {
   // secrets
   ADMIN_KEY?: string;
   INVITE_SIGNING_KEY?: string;
+  PROOFS_JWKS?: string;
 
   // D1 binding（Cloudflare Dashboardで設定した名前に合わせる）
   lumi_core: D1Database;
+  PROOFS: KVNamespace;
 }
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
 function normPath(pathname: string) {
   // 1) /api/v1 を吸収
   let p = pathname.replace(/^\/api\/v1(?=\/|$)/, "");
@@ -33,7 +40,7 @@ function json(data: unknown, status = 200) {
     status,
     headers: {
       "content-type": "application/json; charset=utf-8",
-      "Access-Control-Allow-Origin": "*",
+      ...corsHeaders,
     },
   });
 }
@@ -42,7 +49,7 @@ function text(body: string, status = 200) {
     status,
     headers: {
       "content-type": "text/plain; charset=utf-8",
-      "Access-Control-Allow-Origin": "*",
+      ...corsHeaders,
     },
   });
 }
@@ -77,6 +84,61 @@ function verifyInviteToken(token: string, env: Env) {
     return { ok: false, reason: "token too short" };
   }
   return { ok: true };
+}
+const textEncoder = new TextEncoder();
+function base64UrlDecode(input: string) {
+  const padded = input.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(input.length / 4) * 4, "=");
+  const binary = atob(padded);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+function parseJws(token: string) {
+  const parts = token.split(".");
+  if (parts.length !== 3) return null;
+  const [headerB64, payloadB64, signatureB64] = parts;
+  try {
+    const headerJson = new TextDecoder().decode(base64UrlDecode(headerB64));
+    const header = JSON.parse(headerJson) as { alg?: string; kid?: string };
+    const signature = base64UrlDecode(signatureB64);
+    return { header, signingInput: `${headerB64}.${payloadB64}`, signature };
+  } catch {
+    return null;
+  }
+}
+async function loadJwkForKid(kid: string, jwksJson: string | undefined) {
+  if (!jwksJson) return null;
+  try {
+    const data = JSON.parse(jwksJson) as { keys?: Array<Record<string, unknown>> };
+    const found = data?.keys?.find((key) => key.kid === kid);
+    if (!found) return null;
+    if (found.kty !== "OKP" || found.crv !== "Ed25519") return null;
+    if (typeof found.x !== "string") return null;
+    const keyData = { ...found, key_ops: ["verify"] };
+    return crypto.subtle.importKey(
+      "jwk",
+      keyData as JsonWebKey,
+      { name: "Ed25519" },
+      false,
+      ["verify"]
+    );
+  } catch {
+    return null;
+  }
+}
+async function verifyProof(token: string, env: Env) {
+  const parsed = parseJws(token);
+  if (!parsed) return { ok: false };
+  if (parsed.header.alg !== "EdDSA" || typeof parsed.header.kid !== "string") {
+    return { ok: false };
+  }
+  const key = await loadJwkForKid(parsed.header.kid, env.PROOFS_JWKS);
+  if (!key) return { ok: false };
+  const data = textEncoder.encode(parsed.signingInput);
+  const ok = await crypto.subtle.verify({ name: "Ed25519" }, key, parsed.signature, data);
+  return { ok };
 }
 // --- handlers ---
 async function handleDebug(req: Request, env: Env) {
@@ -161,6 +223,83 @@ async function handleInviteVerify(req: Request, env: Env) {
   const v = verifyInviteToken(token, env);
   if (!v.ok) return json({ ok: false, error: v.reason }, 401);
   return json({ ok: true, result: "OK" }, 200);
+}
+type ShareReceipt = {
+  token: string;
+  report_id: string;
+  expires_at?: string;
+  [key: string]: unknown;
+};
+type ReportReceipt = {
+  token: string;
+  report_id: string;
+  [key: string]: unknown;
+};
+type ConsentReceipt = {
+  token: string;
+  [key: string]: unknown;
+};
+function hasString(value: unknown): value is string {
+  return typeof value === "string" && value.length > 0;
+}
+function invalidQuery() {
+  return json({ error: "invalid_query" }, 400);
+}
+function receiptNotFound() {
+  return json({ error: "receipt_not_found", verification: { result: "UNKNOWN", reason: "missing" } }, 404);
+}
+function tokenExpired() {
+  return json({ error: "token_expired", verification: { result: "UNKNOWN", reason: "expired" } }, 410);
+}
+function signatureInvalid() {
+  return json({ error: "signature_invalid", verification: { result: "NG", reason: "signature_invalid" } }, 422);
+}
+async function handleVerifyReport(req: Request, env: Env) {
+  const url = new URL(req.url);
+  const token = url.searchParams.get("token");
+  if (!token) return invalidQuery();
+  const shareKey = `proof:v1:share:${token}`;
+  const shareReceipt = await env.PROOFS.get<ShareReceipt>(shareKey, "json");
+  if (!shareReceipt) return receiptNotFound();
+  if (!hasString(shareReceipt.token) || !hasString(shareReceipt.report_id)) {
+    return signatureInvalid();
+  }
+  if (shareReceipt.expires_at) {
+    const expiresAt = Date.parse(shareReceipt.expires_at);
+    if (Number.isNaN(expiresAt)) return signatureInvalid();
+    if (Date.now() > expiresAt) return tokenExpired();
+  }
+  const shareVerification = await verifyProof(shareReceipt.token, env);
+  if (!shareVerification.ok) return signatureInvalid();
+  const reportKey = `proof:v1:report:${shareReceipt.report_id}`;
+  const reportReceipt = await env.PROOFS.get<ReportReceipt>(reportKey, "json");
+  if (!reportReceipt) return receiptNotFound();
+  if (!hasString(reportReceipt.token) || !hasString(reportReceipt.report_id)) {
+    return signatureInvalid();
+  }
+  const reportVerification = await verifyProof(reportReceipt.token, env);
+  if (!reportVerification.ok) return signatureInvalid();
+  return json(
+    {
+      verification: { result: "OK", reason: "signature_ok" },
+      report: { report_id: reportReceipt.report_id },
+      disclaimer: { proof_only: true },
+    },
+    200
+  );
+}
+async function handleVerifyConsent(req: Request, env: Env) {
+  const url = new URL(req.url);
+  const subjectUserId = url.searchParams.get("subject_user_id");
+  const counterpartyHash = url.searchParams.get("counterparty_hash");
+  if (!subjectUserId || !counterpartyHash) return invalidQuery();
+  const key = `proof:v1:consent:sub:${subjectUserId}:cp:${counterpartyHash}`;
+  const receipt = await env.PROOFS.get<ConsentReceipt>(key, "json");
+  if (!receipt) return receiptNotFound();
+  if (!hasString(receipt.token)) return signatureInvalid();
+  const verification = await verifyProof(receipt.token, env);
+  if (!verification.ok) return signatureInvalid();
+  return json({ presence: "present", verification: { result: "OK" }, disclaimer: { proof_only: true } }, 200);
 }
 type EventAppendBody = {
   // 誰のチェーンか（ユーザー単位）
@@ -254,8 +393,11 @@ async function handleEventAppend(req: lumi_core, env: Env) {
 export default {
   async fetch(req: Request, env: Env) {
     const url = new URL(req.url);
-    if (p === "/event") return handleEventAppend(req, env);
     const p = normPath(url.pathname);
+    if (req.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: corsHeaders });
+    }
+    if (p === "/event") return handleEventAppend(req, env);
     
     // --- core routes ---
     if (p === "/health") {
@@ -273,6 +415,12 @@ export default {
     }
     if (p === "/invite/verify") {
       return handleInviteVerify(req, env);
+    }
+    if (p === "/verify/report" && req.method === "GET") {
+      return handleVerifyReport(req, env);
+    }
+    if (p === "/verify/consent" && req.method === "GET") {
+      return handleVerifyConsent(req, env);
     }
     return text("Not found", 404);
   },
