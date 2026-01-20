@@ -16,7 +16,7 @@ assignees: []
 
 ## やること
 - CIで Pages ビルドログをArtifacts保存
-- 失敗時：最初のエラー行の前後200行を出力
+- 失敗時：エラー行の前後200行を出力
 - READMEにローカル再現手順（`npm ci && npm run pages:build`）記載
 
 ## DoD
