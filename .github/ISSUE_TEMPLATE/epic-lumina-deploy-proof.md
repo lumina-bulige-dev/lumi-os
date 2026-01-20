@@ -17,7 +17,7 @@ assignees: []
 ## 目的
 1. luminabulige_app を Cloudflare Pages で壊さずにビルド/デプロイ通過
 2. lumi-os を基点に Admin(AZR) 二階建てを実装（人間のみ意思決定、自動承認なし）
-3. Proof/Verify で改ざん検知の証跡、**マスコットNFT（非譲渡／insight-only）**で継続動機と「ユーザー歴史」を可視化（金融商品化しない）
+3. Proof/Verify で改ざん検知の証跡、**マスコットNFT（非譲渡／insight-only）**で継続動機と「ユーザー歴史」を可視化（金融商品化しない／譲渡不可）
 
 ## 子Issue
 - #A1
@@ -36,4 +36,4 @@ assignees: []
 - Decisions API：D1追記→latest 更新OK（自動承認ロジック無し）
 - Verify：Proof 連鎖の検証表示OK（閲覧のみ）
 - マスコットNFT：非譲渡・社内限定・Proof紐付けで発行テストOK
-- README（1枚）：二階建て目的/権限/デプロイ手順を明文化
+- README（1枚）：二階建て目的/権限/デプロイ手順/禁止表現を明文化
