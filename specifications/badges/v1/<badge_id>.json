@@ -1,1 +1,112 @@
+[
+  {
+    "badge_id": "badge_money_paid_v1",
+    "title": "支払い済み",
+    "group": "PLAN_HABIT",
+    "rarity": 1,
+    "prompt": "にっこり顔＋チェックマーク。背景はカレンダー。清潔で安心感。ミニフィギュア風。",
+    "rule_hint": "支払い完了を記録した（PAID）イベントが発生",
+    "notes": "称賛・評価ではなく、事実の記録に紐づく"
+  },
+  {
+    "badge_id": "badge_money_budgeting_v1",
+    "title": "予算立て",
+    "group": "PLAN_HABIT",
+    "rarity": 2,
+    "prompt": "真剣な顔＋メモ帳＋電卓。背景は机。集中して計画する雰囲気。ミニフィギュア風。",
+    "rule_hint": "BUDGET_SET / PLAN_CREATED が発生",
+    "notes": "予算の良し悪しは扱わない"
+  },
+  {
+    "badge_id": "badge_money_frugal_mode_v1",
+    "title": "節約モード",
+    "group": "PLAN_HABIT",
+    "rarity": 2,
+    "prompt": "キリッとした表情。軽い買い物カゴ（豆腐・野菜）。背景はスーパーの棚。ミニフィギュア風。",
+    "rule_hint": "NEEDS_ONLY / FRUGAL_TOGGLE が発生",
+    "notes": "倫理ではなく選択の記録"
+  },
+  {
+    "badge_id": "badge_money_saved_v1",
+    "title": "積立 / 貯めた",
+    "group": "PLAN_HABIT",
+    "rarity": 3,
+    "prompt": "嬉しい表情＋小さい貯金箱。小さな達成感の演出。背景は星/キラ。ミニフィギュア風。",
+    "rule_hint": "SAVING_CONTRIBUTED / GOAL_PROGRESS が発生",
+    "notes": "金額は出さない（改ざん検知のみ）"
+  },
 
+  {
+    "badge_id": "badge_money_sale_temptation_v1",
+    "title": "セール誘惑",
+    "group": "IMPULSE",
+    "rarity": 2,
+    "prompt": "揺れる表情。カートに手が伸びる。背景はSALEポップ。ミニフィギュア風。",
+    "rule_hint": "TEMPTATION_DETECTED / SALE_VIEW が発生",
+    "notes": "誘惑=悪ではない"
+  },
+  {
+    "badge_id": "badge_money_impulse_buy_v1",
+    "title": "衝動買い直後",
+    "group": "IMPULSE",
+    "rarity": 2,
+    "prompt": "テンション高い表情。袋いっぱい。背景は買い物帰り。ミニフィギュア風。",
+    "rule_hint": "IMPULSE_BUY_RECORDED が発生",
+    "notes": "自己申告でOK。真実性は保証しない"
+  },
+  {
+    "badge_id": "badge_money_regret_v1",
+    "title": "後悔",
+    "group": "IMPULSE",
+    "rarity": 3,
+    "prompt": "青ざめた顔＋長いレシート。背景に『なんで買った…』の空気感。ミニフィギュア風。",
+    "rule_hint": "REGRET_NOTED / REFLECTION_ADDED が発生",
+    "notes": "ここが“行動改善”の核"
+  },
+
+  {
+    "badge_id": "badge_money_payment_late_v1",
+    "title": "支払い遅延",
+    "group": "URGENT_STRESS",
+    "rarity": 3,
+    "prompt": "焦り顔＋赤い通知＋汗。背景は期限カレンダー。ミニフィギュア風。",
+    "rule_hint": "PAYMENT_LATE_RECORDED が発生",
+    "notes": "罰ではなく警報ログ"
+  },
+  {
+    "badge_id": "badge_money_low_balance_v1",
+    "title": "残高不足",
+    "group": "URGENT_STRESS",
+    "rarity": 3,
+    "prompt": "固まる表情＋エラー表示。背景はATM/アプリのエラー画面風。ミニフィギュア風。",
+    "rule_hint": "LOW_BALANCE / DECLINED が発生",
+    "notes": "数値は伏せる"
+  },
+  {
+    "badge_id": "badge_money_fee_shock_v1",
+    "title": "手数料ショック",
+    "group": "URGENT_STRESS",
+    "rarity": 2,
+    "prompt": "目が点。小さく『fee』。背景は明細。ミニフィギュア風。",
+    "rule_hint": "FEE_SPIKE / FEE_NOTED が発生",
+    "notes": "Wise/銀行手数料などの学習に効く"
+  },
+  {
+    "badge_id": "badge_money_near_breakdown_v1",
+    "title": "家計崩壊しかけ",
+    "group": "URGENT_STRESS",
+    "rarity": 4,
+    "prompt": "頭を抱える＋請求書の束。背景は散らかった机。ミニフィギュア風。",
+    "rule_hint": "CRISIS_FLAGGED が発生",
+    "notes": "ユーザーの主観で良い（改ざん検知のみ）"
+  },
+  {
+    "badge_id": "badge_money_rebuild_start_v1",
+    "title": "立て直し開始",
+    "group": "URGENT_STRESS",
+    "rarity": 5,
+    "prompt": "決意の表情＋再計画。背景はリセット/再出発の光。ミニフィギュア風。",
+    "rule_hint": "RECOVERY_PLAN_STARTED / RESET_DECLARED が発生",
+    "notes": "城の思想に最も合う（回復=価値）"
+  }
+]
