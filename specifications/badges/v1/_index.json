@@ -1,0 +1,9 @@
+{
+  "v": 1,
+  "set": "badges",
+  "set_version": 1,
+  "items": [
+    { "badge_id": "badge_samurai_premium", "badge_version": 1 },
+    { "badge_id": "badge_ninja", "badge_version": 1 }
+  ]
+}
