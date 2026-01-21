@@ -8,7 +8,7 @@
   "category": "behavior",
   "rarity": 3,
   "presence_only": true,
-  "meaning": "継続行動が一定期間観測された",
+  "intent": "ofPresentDay",
   "credit_claim": false
 }
 ```
