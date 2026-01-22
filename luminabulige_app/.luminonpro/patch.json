@@ -1,35 +1,60 @@
 {
-  "patchId": "2026-01-23T00:00:00+09:00#local-001",
-  "base": {
-    "remote": "origin/main",
-    "commit": "AUTO_OR_HEAD"
+  "schemaVersion": "1.0.0",
+  "patchId": "2026-01-23T0000Z-0001",
+  "createdAt": "2026-01-23T00:00:00Z",
+  "author": {
+    "actor": "human",
+    "name": "lumina-bulige-dev",
+    "device": "vscode"
   },
+
   "category": "BuildFix",
-  "title": "Fix build errors in cia VClient",
-  "intent": "Make Next.js build pass without changing Proof/Verify meaning",
   "requiresHuman": false,
 
-  "targets": [
+  "intent": {
+    "reason": "何を改善したい？（1文）",
+    "impact": {
+      "files": ["luminabulige_app/app/cia/VClient.tsx"],
+      "features": ["verify ui"],
+      "users": ["viewer"]
+    },
+    "misreadRisk": "ユーザーが誤解すると何が起きる？",
+    "goodOutcome": "当たると何が良くなる？（価値仮説）"
+  },
+
+  "scope": {
+    "allowedPaths": ["luminabulige_app/"],
+    "touchedPaths": ["luminabulige_app/app/cia/VClient.tsx"],
+    "protectedTouched": false
+  },
+
+  "changes": [
     {
+      "op": "replaceFile",
       "path": "luminabulige_app/app/cia/VClient.tsx",
-      "op": "replace",
-      "reason": "File is broken (syntax/type leaks). Provide coherent component and types."
+      "contentType": "text/tsx; charset=utf-8",
+      "content": "/* full file content here */\n"
     }
   ],
 
-  "constraints": {
-    "allowedPathsOnly": true,
-    "denyProtectedPaths": true,
-    "forbiddenWordsCheck": true,
-    "noContractChange": true
+  "signals": {
+    "kimonQuestionMark": {
+      "active": false,
+      "trigger": null,
+      "note": null
+    }
   },
 
-  "evidence": {
-    "buildErrors": [
-      "Duplicate identifier / stray braces / type declared inside type"
-    ],
-    "commands": [
-      "npm run build"
-    ]
+  "checks": {
+    "lintTypecheck": {
+      "command": "npm run build",
+      "result": "unknown",
+      "logTail": null
+    }
+  },
+
+  "links": {
+    "relatedAllLogAppend": true,
+    "relatedIssue": null
   }
 }
