@@ -1,0 +1,35 @@
+{
+  "patchId": "2026-01-23T00:00:00+09:00#local-001",
+  "base": {
+    "remote": "origin/main",
+    "commit": "AUTO_OR_HEAD"
+  },
+  "category": "BuildFix",
+  "title": "Fix build errors in cia VClient",
+  "intent": "Make Next.js build pass without changing Proof/Verify meaning",
+  "requiresHuman": false,
+
+  "targets": [
+    {
+      "path": "luminabulige_app/app/cia/VClient.tsx",
+      "op": "replace",
+      "reason": "File is broken (syntax/type leaks). Provide coherent component and types."
+    }
+  ],
+
+  "constraints": {
+    "allowedPathsOnly": true,
+    "denyProtectedPaths": true,
+    "forbiddenWordsCheck": true,
+    "noContractChange": true
+  },
+
+  "evidence": {
+    "buildErrors": [
+      "Duplicate identifier / stray braces / type declared inside type"
+    ],
+    "commands": [
+      "npm run build"
+    ]
+  }
+}
