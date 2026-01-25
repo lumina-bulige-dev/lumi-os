@@ -1,0 +1,28 @@
+{
+  "source": "canonical",
+  "publisher": "OpenAI",
+  "document": "OpenAI API",
+  "version": "2024-01-01",
+  "based_on_vendor_sha256": "dc18606a048cf0887c5f7dc9a52f8d9d74c3ba000c1ee6ead4f0a22460c66627",
+  "canonicalization_notes": [
+    "Canonical copy adds provenance metadata for drift detection.",
+    "No guarantee of truthfulness; used for inventory and change tracking only."
+  ],
+  "content": {
+    "description": "Canonicalized schema snapshot.",
+    "endpoints": [
+      {
+        "name": "health",
+        "path": "/health",
+        "method": "GET",
+        "required": true
+      },
+      {
+        "name": "webhooks.wise",
+        "path": "/webhooks/wise",
+        "method": "POST",
+        "required": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "source": "vendor",
+  "publisher": "OpenAI",
+  "document": "OpenAI API",
+  "version": "2024-01-01",
+  "retrieved_at": "2024-01-15",
+  "content": {
+    "description": "Vendor-provided schema snapshot.",
+    "endpoints": [
+      {
+        "name": "health",
+        "path": "/health",
+        "method": "GET"
+      },
+      {
+        "name": "webhooks.wise",
+        "path": "/webhooks/wise",
+        "method": "POST"
+      }
+    ]
+  }
+}
