@@ -1,123 +1,108 @@
 # OSL Policy Spec — README (Canonical)
-
-OSL (OS LUMINABULIGE) は、プロジェクト横断の「できる/できない」を“人間の言語”で固定し、
-運用・監査・比較（他社/他プロダクト）に耐える形で管理するための仕様です。
-
-本ディレクトリは **OSLの正本（Single Source of Truth）** を置きます。
-実装は別レイヤーに存在し得ますが、OSLの宣言・差分・根拠はここが唯一正です。
+**OSL = Operating Safety Layer**  
+LUMINA BULIGE の「憲法ロック」を **機械可読なポリシー** として固定し、  
+下流（info / gate / verify / app / api / admin / evidence）を **混線させない** ための上位仕様。
 
 ---
 
-## 0. この仕様の位置づけ（上位宣言）
+## 0. OSLの役割（何故）
+OSL は「方針の文章」ではなく **運用上の“制約エンジンの入口”**。
 
-- Proof は **改ざん検知**（真実性を主張しない）
-- Verify は **第三者検証のUI**（判断主体ではない）
-- 断定しない／保証しない（合法性・正しさ・結果を約束しない）
-- 判断・承認は **人間の意思決定のみ**（Admin/Control に集約）
-- 将来の規制強化前提で設計する
+- Proof = 改ざん検知（真実性の主張ではない）
+- Verify = 第三者検証UI（判断主体ではない）
+- 断定・保証をしない（合法性・正しさ・結果を約束しない）
+- 判断・承認は人間のみ（Admin/Controlに集約）
+- 将来の規制強化を前提に設計する
 
----
-
-## 1. Canonical Files（正本一覧）
-
-- `spec/osl/osl.policy.v0.1.json`  
-  - 機械可読。統制（controls）、施行（enforcement）、検証（tests）、証拠（evidence）を含む。
-- `spec/osl/osl.policy.v0.1.md`  
-  - 人間可読。法務/監査向けの説明版。
-- `spec/osl/changelog.md`  
-  - 差分の意図（Why）を短く残す（監査向け）。
-- `spec/osl/README.md`（本書）  
-  - 使い方・運用・DoD・変更手順。
+これを “ルールとして固定” することで、
+会話・気分・流行・AIのノリで **仕様がズレる事故** を止める。
 
 ---
 
-## 2. OSLの基本構造（共通フォーマット）
+## 1. ディレクトリの正本（canonical）
+このディレクトリが OSL の正本。
 
-OSL Policy JSON は原則として以下を持つ：
+- `spec/osl/README.md`（この文書：運用説明）
+- `spec/osl/osl.policy.v0.1.json`（ポリシー本体：機械可読）
 
-- `scope`：対象（host/path/zone 等）
-- `controls[]`：統制単位（比較単位）
-  - `intent`：目的（人間が読む）
-  - `deny/allow`：禁止/許可
-  - `enforcement`：施行層（waf/ui/csp/ci/worker/dns など）
-  - `risk`：L/M/H（運用リスク）
-  - `tests[]`：DoD/監査のための検査
-  - `evidence`：設定ID/PR/ログなど“根拠ポインタ”
-- `operations`：変更手順・DoD・ロールバック
+**NOTE**：evidence（根拠）はここに置かない。  
+evidence は `spec/evidence/` 配下。
 
 ---
 
-## 3. 現行プロファイル（info_strict）
+## 2. OSLの基本思想（“安全は遅延じゃない”）
+KPI は「遅延計測」ではなく、以下に寄せる：
 
-`info_strict` は `info.luminabulige.com` に対して以下を要求する：
+1) **在庫化**：ポリシーと根拠が保存され参照できる  
+2) **逸脱検知**：禁止・許可の逸脱が検知できる  
+3) **変更記録**：いつ・なぜ変えたかが残る
 
-### 3.1 INFO_NO_WRITE（Infoは読むだけ）
-- deny: POST/PUT/PATCH/DELETE
-- enforcement: WAF 等
-- 目的：Infoを「説明専用」に固定し、誤誘導・誤操作・責任境界の崩壊を防ぐ
-
-### 3.2 INFO_NO_EXTERNAL_NAV（外部遷移させない）
-- deny: external links/forms/oauth login
-- enforcement: UI + CSP
-- 目的：GAFA➗1000 の運用（外部リンクは“クリック不可の文字表示”等）
+遅延は「観測できたら便利」だが、OSLの主目的ではない。
 
 ---
 
-## 4. DoD（運用受入条件）
+## 3. ポリシー例（あなたの v0.1 の読み解き）
+例：
+- `INFO_NO_WRITE`：info は読むだけ（POST/PUT/PATCH/DELETE を拒否）
+  - enforcement: `waf`（WAFで落とす）
+  - risk: `M`（中：誤作動すると運用が止まる可能性があるため慎重に）
 
-### 4.1 ルート混線検査（毎回同じ3本）
-- https://info.luminabulige.com/
-- https://info.luminabulige.com/literacy.html
-- https://info.luminabulige.com/jp/33-okayama/gate-info/summary.html
+- `INFO_NO_EXTERNAL_NAV`：info から外部サイトへ遷移させない
+  - enforcement: `ui`（リンク制御） + `csp`（ブラウザ側制約）
+  - risk: `M`
+
+この2本が “GAFA➗1000” の骨格。
+
+---
+
+## 4. 適用レイヤ（どこで効かせるか）
+OSL は「単独で完結」しない。必ず複数レイヤで重ねる：
+
+- UI：外部リンク無効、誘導線事故の防止
+- CSP：外部へ出ない（connect/img/script等の制限）
+- WAF：禁止メソッド遮断、既知パス保護
+- Repo運用：canonical と evidence を分離
+- DoD：毎回同じ検査で “混線ゼロ” を保証（※保証ではなく検査）
+
+---
+
+## 5. DoD（Doneの定義：毎回これだけ確認）
+### info（運用DoD：混線検査）
+- `https://info.luminabulige.com/`
+- `https://info.luminabulige.com/literacy.html`
+- `https://info.luminabulige.com/jp/33-okayama/gate-info/summary.html`
 
 判定：
-- 想定外の 301/302 が出ない
-- 404 が出ない（CSS/画像等のアセット含む）
-- info/gate から app/api に飛ばない（最重要）
-
-### 4.2 書き込み拒否検査（例）
-- `POST https://info.luminabulige.com/` が 403/405 で拒否される
+- 301/302 の混線なし
+- 404 なし
+- info/gate から app/api に飛ばない
+- 外部遷移なし（クリックしても遮断される）
 
 ---
 
-## 5. 変更手順（Change Process）
+## 6. 変更ルール（勝手に増やさない）
+OSL を変えるのは「最終手段」。理由は単純で、
+上位が動くと **全部が再検証になる**。
 
-### 5.1 変更経路（必須）
-- 変更は **GitHub PR 経由のみ**
-- main 直pushは禁止（Branch Protection）
-- OSL関係ファイルは CODEOWNERS で承認必須（法務板）
-
-### 5.2 versioning（必須）
-- `osl_policy_version` または `policy_id` の version を上げる
-- `changelog.md` に Why を1行で残す
+変更する場合は必ず：
+- `osl_policy_version` を上げる
+- 変更理由を `changelog.md`（あるいはPR本文）に残す
+- DoD を再実行し、結果を証跡として残す（スクショでも可）
 
 ---
 
-## 6. ロールバック（Rollback）
+## 7. OSL と他仕様の関係（順序）
+上から順に強い（逆流禁止）：
 
-- “最後に正常だった状態”へ戻せることは耐性の一部である
-- Cloudflare Pages/Workers では「直前のデプロイへ戻す」導線を把握しておく
-- 事故トリガ：
-  - redirect 混線
-  - external nav の混入
-  - unexpected write の可能性
-
----
-
-## 7. 比較（Comparability）
-
-OSLは他社比較・ベンダー比較に耐えるよう、以下を共通比較軸とする：
-
-- Write prevention（書き込み防止）
-- External navigation suppression（外部遷移抑止）
-- Auditability（変更追跡可能性）
-- Rollback readiness（復旧可能性）
+1. OSL（憲法ロック：spec/osl）
+2. canonical specs（採用仕様：spec/openai 等）
+3. evidence（原本・根拠：spec/evidence/vendor/*）
+4. 実装（Workers / Pages / App / Admin）
 
 ---
 
-## 8. 用語（Glossary）
-
-- Proof：改ざん検知（真実性ではない）
-- Verify：第三者検証UI（判断主体ではない）
-- Evidence：設定・PR・ログ等の根拠ポインタ（証拠そのものではなく“参照”）
-- DoD：受入条件（固定手順で判定できること）
+## 8. 次にやること（最短）
+- まず `spec/osl/osl.policy.v0.1.json` を **OSLとして固定**
+- 次に `spec/openai/README.md` を作って
+  - canonical（採用仕様）と evidence（原本）の関係を明文化
+- その後に codex（ワンちゃん🐶）を走らせて “差分訓練” を回す
