@@ -1,0 +1,125 @@
+{
+  "openai_policy_version": "0.1",
+  "policy_id": "OPENAI-LB-WORKER-ONLY",
+  "brand": {
+    "name": "OSL OpenAI Control Profile",
+    "owner": "Legal Board",
+    "status": "canonical",
+    "profile": "gafa_1000_worker_only"
+  },
+  "scope": {
+    "applies_to": [
+      "api.luminabulige.com (Workers)",
+      "poc-ai.luminabulige.workers.dev (Workers)"
+    ],
+    "explicitly_excludes": [
+      "info.luminabulige.com (static / read-only)",
+      "app.luminabulige.com (client-side direct calls)"
+    ]
+  },
+  "core_principles": [
+    "Proof is tamper-detection, not truth.",
+    "Verify is a third-party UI, not a decision-maker.",
+    "No guarantees. No legal/financial promises.",
+    "Human is the decision authority (Admin/Control).",
+    "Design for stricter future regulation."
+  ],
+  "allowed_execution": {
+    "location": "server_side_only",
+    "allowed_runtimes": ["cloudflare_workers"],
+    "direct_client_calls": "deny",
+    "secrets_handling": {
+      "store": "platform_secrets_only",
+      "never_commit": true,
+      "never_render_to_clients": true
+    }
+  },
+  "data_handling": {
+    "minimize": true,
+    "pii_policy": {
+      "collect": "avoid",
+      "redaction_required": true,
+      "examples_of_sensitive": [
+        "account numbers",
+        "government IDs",
+        "full addresses",
+        "banking credentials",
+        "card data"
+      ]
+    },
+    "logging": {
+      "log_prompts": "redacted_only",
+      "log_responses": "redacted_only",
+      "retention_days": 30,
+      "purpose": "auditability_and_incident_response"
+    }
+  },
+  "model_usage": {
+    "allowed_families": ["gpt-5"],
+    "selection_rule": "prefer_reasoning_for_policy_sensitive_tasks",
+    "disallowed": ["client_exposed_model_routing"]
+  },
+  "request_controls": {
+    "rate_limits": {
+      "enabled": true,
+      "by": ["ip", "token", "route"]
+    },
+    "content_controls": {
+      "disallow_financial_advice": true,
+      "disallow_legal_advice_as_authority": true,
+      "disallow_claims_of_certification": true
+    },
+    "prompt_injection_defense": {
+      "strip_untrusted_instructions": true,
+      "separate_system_policy": true,
+      "never_execute_external_urls": true
+    }
+  },
+  "ui_and_navigation_constraints": {
+    "gafa_1000": {
+      "info_domain": {
+        "no_oauth": true,
+        "no_external_links_clickable": true,
+        "no_login_flows": true
+      }
+    }
+  },
+  "endpoints": {
+    "canonical_api_host": "api.luminabulige.com",
+    "routes": [
+      {
+        "path": "/health",
+        "method": "GET",
+        "purpose": "health_check",
+        "openapi_required": true
+      },
+      {
+        "path": "/webhooks/wise",
+        "method": "POST",
+        "purpose": "webhook_receiver_signature_required",
+        "openapi_required": true
+      }
+    ]
+  },
+  "change_process": {
+    "source_of_truth": "spec/openai/OpenAI.json",
+    "changes_via": "github_pull_request_only",
+    "direct_push": "deny",
+    "review_required": true,
+    "changelog_required": true
+  },
+  "dod": {
+    "must_pass": [
+      "No OpenAI calls from info.luminabulige.com (static).",
+      "No client-side exposure of OpenAI secrets.",
+      "Routes calling OpenAI exist only on Workers.",
+      "OpenAPI spec contains /health and /webhooks/wise.",
+      "Info domain remains read-only and no external nav."
+    ],
+    "evidence_pointers": {
+      "openapi_spec": "spec/openapi/openapi.yaml",
+      "osl_policy": "spec/osl/osl.policy.v0.1.json",
+      "pages_connection": "docs/INFO_PAGES_CONNECTION_GUIDE_v1.0.md"
+    }
+  }
+}
