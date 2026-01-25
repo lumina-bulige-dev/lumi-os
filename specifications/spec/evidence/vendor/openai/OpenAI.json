@@ -1,0 +1,64 @@
+{
+  "spec_version": "0.1.0",
+  "kind": "vendor_policy_canonical",
+  "vendor": "openai",
+  "canonical_path": "spec/openai/OpenAI.json",
+  "evidence": {
+    "original_json": "spec/evidence/vendor/openai/openai.original.json",
+    "supporting_docs": [
+      "spec/evidence/vendor/openai/Open AI ok.pdf"
+    ],
+    "notes": "Evidenceは改ざん防止のため上書きしない。差分はchangelogで追跡。"
+  },
+  "luminabulige_principles": {
+    "proof": "tamper-detection, not truth",
+    "verify": "third-party verification UI, not the judge",
+    "no_guarantee": true,
+    "human_decision_only": true,
+    "future_regulation_assumed": true
+  },
+  "operational_constraints": {
+    "gafa_div_1000": {
+      "info_zone_no_external_nav": true,
+      "info_zone_no_oauth_login": true,
+      "openai_usage_workers_only": true,
+      "no_direct_user_login_to_openai": true
+    },
+    "data_handling": {
+      "minimize": true,
+      "pii_redaction_before_send": true,
+      "secrets_never_sent": true,
+      "financial_account_numbers_never_sent": true
+    },
+    "routing_rules": {
+      "info_and_gate_must_not_redirect_to_app_or_api": true,
+      "public_to_azr_read_only": true,
+      "admin_to_azr_write_only": true
+    }
+  },
+  "controls": {
+    "kill_switch_required": true,
+    "audit_log_required": true,
+    "change_control": {
+      "pr_required": true,
+      "changelog_required": true,
+      "version_bump_only": true
+    }
+  },
+  "dod_tests": [
+    {
+      "id": "INFO_ROUTE_NO_REDIRECT",
+      "targets": [
+        "https://info.luminabulige.com/",
+        "https://info.luminabulige.com/literacy.html",
+        "https://info.luminabulige.com/jp/33-okayama/gate-info/summary.html"
+      ],
+      "pass_criteria": [
+        "no 301/302 to app/api",
+        "no 404 assets",
+        "pages render as read-only"
+      ]
+    }
+  ],
+  "disclaimer": "This canonical policy is an operational control document. It does not constitute legal advice and does not guarantee compliance, legality, accuracy, or outcomes."
+}
