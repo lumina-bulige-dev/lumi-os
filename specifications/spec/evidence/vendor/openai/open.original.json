@@ -1,64 +1,52 @@
 {
-  "spec_version": "0.1.0",
-  "kind": "vendor_policy_canonical",
+  "canonical": true,
   "vendor": "openai",
-  "canonical_path": "spec/openai/OpenAI.json",
-  "evidence": {
-    "original_json": "spec/evidence/vendor/openai/openai.original.json",
-    "supporting_docs": [
-      "spec/evidence/vendor/openai/Open AI ok.pdf"
-    ],
-    "notes": "Evidenceは改ざん防止のため上書きしない。差分はchangelogで追跡。"
+  "doc_type": "vendor_policy_profile",
+  "profile_version": "0.1.0",
+  "osl_policy_version": "0.1",
+  "positioning": {
+    "role": "external_vendor",
+    "notes": [
+      "This file is a canonical operational profile, not a legal guarantee.",
+      "Proof is tamper-detection, not truth."
+    ]
   },
-  "luminabulige_principles": {
-    "proof": "tamper-detection, not truth",
-    "verify": "third-party verification UI, not the judge",
-    "no_guarantee": true,
-    "human_decision_only": true,
-    "future_regulation_assumed": true
-  },
-  "operational_constraints": {
-    "gafa_div_1000": {
-      "info_zone_no_external_nav": true,
-      "info_zone_no_oauth_login": true,
-      "openai_usage_workers_only": true,
-      "no_direct_user_login_to_openai": true
-    },
-    "data_handling": {
-      "minimize": true,
-      "pii_redaction_before_send": true,
-      "secrets_never_sent": true,
-      "financial_account_numbers_never_sent": true
-    },
-    "routing_rules": {
-      "info_and_gate_must_not_redirect_to_app_or_api": true,
-      "public_to_azr_read_only": true,
-      "admin_to_azr_write_only": true
-    }
+  "scope": {
+    "allowed_usage": ["behind_worker_only"],
+    "forbidden_usage": ["public_info_zone_login", "direct_oauth_in_info_zone"]
   },
   "controls": {
-    "kill_switch_required": true,
-    "audit_log_required": true,
-    "change_control": {
-      "pr_required": true,
-      "changelog_required": true,
-      "version_bump_only": true
-    }
+    "must": [
+      "no_external_nav_in_info",
+      "no_login_in_info",
+      "kill_switch_user_owned",
+      "human_decision_only_for_approval"
+    ],
+    "must_not": [
+      "represent_as_legal_advice",
+      "claim_truth_or_legality_guarantee",
+      "encourage_investment_like_language_in_nepic"
+    ]
   },
-  "dod_tests": [
-    {
-      "id": "INFO_ROUTE_NO_REDIRECT",
-      "targets": [
-        "https://info.luminabulige.com/",
-        "https://info.luminabulige.com/literacy.html",
-        "https://info.luminabulige.com/jp/33-okayama/gate-info/summary.html"
-      ],
-      "pass_criteria": [
-        "no 301/302 to app/api",
-        "no 404 assets",
-        "pages render as read-only"
-      ]
-    }
+  "kpi_policy": {
+    "primary": ["inventory", "drift_detection", "change_log"],
+    "secondary": ["availability"],
+    "not_primary": ["latency_metrics_only"]
+  },
+  "dod": {
+    "always_check": [
+      "info_no_redirect_to_app_or_api",
+      "no_external_click_nav_from_info",
+      "no_301_302_misroute",
+      "diff_is_generated_on_change"
+    ]
+  },
+  "evidence_pointers": [
+    "spec/evidence/vendor/openai/openai.original.json",
+    "spec/evidence/vendor/openai/Open AI ok.pdf"
   ],
-  "disclaimer": "This canonical policy is an operational control document. It does not constitute legal advice and does not guarantee compliance, legality, accuracy, or outcomes."
+  "hash_placeholders": {
+    "evidence_sha256": null,
+    "canonical_sha256": null
+  }
 }
