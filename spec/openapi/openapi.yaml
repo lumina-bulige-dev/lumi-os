@@ -1,0 +1,70 @@
+openapi: 3.0.3
+info:
+  title: Luminabulige Core API
+  version: 1.0.0
+  description: |
+    OpenAPI schema for Cloudflare API Shield ingestion.
+    Inventory and drift detection only; no guarantees.
+servers:
+  - url: https://api.luminabulige.com
+paths:
+  /health:
+    get:
+      summary: Health check
+      operationId: getHealth
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+  /webhooks/wise:
+    post:
+      summary: Wise webhook handler
+      operationId: postWiseWebhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WiseWebhook'
+      responses:
+        '200':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WiseWebhookResponse'
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+      required:
+        - status
+    WiseWebhook:
+      type: object
+      properties:
+        event_id:
+          type: string
+        event_type:
+          type: string
+        payload:
+          type: object
+          additionalProperties: true
+      required:
+        - event_id
+        - event_type
+        - payload
+    WiseWebhookResponse:
+      type: object
+      properties:
+        received:
+          type: boolean
+          example: true
+      required:
+        - received
