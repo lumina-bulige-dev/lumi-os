@@ -1,1 +1,19 @@
-
+{
+  "spec_version": "0.1.0",
+  "kind": "mascot_state_bindings",
+  "namespace": "money",
+  "states": [
+    { "key": "paid_relief", "state": { "emotion": "relieved", "action": "pay", "trigger": "paid" }, "status": "green" },
+    { "key": "late_anxious", "state": { "emotion": "anxious", "action": "delay", "trigger": "late" }, "status": "red" },
+    { "key": "low_balance_frozen", "state": { "emotion": "frozen", "action": "decline", "trigger": "low_balance" }, "status": "red" },
+    { "key": "sale_tempted", "state": { "emotion": "tempted", "action": "browse_sale", "trigger": "sale" }, "status": "yellow" },
+    { "key": "impulse_regret", "state": { "emotion": "regretful", "action": "reflect", "trigger": "regret" }, "status": "yellow" },
+    { "key": "quiet_satisfied", "state": { "emotion": "satisfied", "action": "log", "trigger": "log_only" }, "status": "green" },
+    { "key": "plan_focused", "state": { "emotion": "focused", "action": "plan", "trigger": "budget" }, "status": "green" },
+    { "key": "log_neutral", "state": { "emotion": "neutral", "action": "log", "trigger": "log_only" }, "status": "gray" },
+    { "key": "late_night_sleepy", "state": { "emotion": "sleepy", "action": "decide", "trigger": "late_night" }, "status": "gray" },
+    { "key": "frugal_determined", "state": { "emotion": "determined", "action": "save", "trigger": "needs_only" }, "status": "green" },
+    { "key": "risk_alert", "state": { "emotion": "alert", "action": "warn", "trigger": "risk_signal" }, "status": "yellow" },
+    { "key": "share_preparing", "state": { "emotion": "preparing", "action": "share_prepare", "trigger": "share_flow" }, "status": "green" }
+  ]
+}
