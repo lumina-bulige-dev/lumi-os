@@ -1,0 +1,21 @@
+{
+  "spec_version": "0.1.0",
+  "kind": "mascot_catalog_entry",
+  "record_id": "uuid",
+  "trace_id": "uuid",
+  "parent_id": null,
+  "key": "paid_relief",
+  "state": { "emotion": "relieved", "action": "pay", "trigger": "paid" },
+  "status": "green",
+  "ui_slot": ["app.money", "verify.header", "info.integrity"],
+  "policy_flags": ["read_only", "no_advice", "no_custody", "insight_only", "non_transferable"],
+  "scope": "insight-only",
+  "non_transferable": true,
+  "proof_link": "proof:...",
+  "art_ref": "assets/mascot/<persona>/<emotion>-<action>-<trigger>_YYYY-MM-DD_vX.png",
+  "issued_at": "ISO-UTC",
+  "observed_at": "ISO-UTC",
+  "ingested_at": "ISO-UTC",
+  "ledger_seq": "monotonic",
+  "payload_hash": "hash"
+}
