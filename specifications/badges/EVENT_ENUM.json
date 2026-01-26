@@ -1,1 +1,49 @@
-
+{
+  "spec_version": "0.1.0",
+  "kind": "mascot_state_enum",
+  "namespace": "money",
+  "emotion": [
+    "relieved",
+    "anxious",
+    "frozen",
+    "tempted",
+    "regretful",
+    "satisfied",
+    "focused",
+    "neutral",
+    "sleepy",
+    "determined",
+    "alert",
+    "preparing"
+  ],
+  "action": [
+    "pay",
+    "delay",
+    "decline",
+    "browse_sale",
+    "buy_impulse",
+    "reflect",
+    "plan",
+    "log",
+    "decide",
+    "save",
+    "warn",
+    "share_prepare"
+  ],
+  "trigger": [
+    "paid",
+    "late",
+    "low_balance",
+    "sale",
+    "impulse",
+    "regret",
+    "budget",
+    "log_only",
+    "late_night",
+    "needs_only",
+    "risk_signal",
+    "share_flow"
+  ],
+  "status": ["green", "yellow", "red", "gray"],
+  "policy_flags": ["read_only", "no_advice", "no_custody", "insight_only", "non_transferable"]
+}
