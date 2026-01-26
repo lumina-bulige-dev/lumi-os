@@ -19,3 +19,10 @@
     { "badge_id": "badge_money_rebuild_start_v1", "events": ["RECOVERY_PLAN_STARTED", "RESET_DECLARED"] }
   ]
 }
+{
+  "spec_version": "0.1.0",
+  "kind": "badge_rule_hint_norm",
+  "separator_semantics": "OR",
+  "note": "rule_hint内の「A / B」は、AまたはBのイベント発生で発火可能を示す。",
+  "source": "user_provided_badge_definitions"
+}
