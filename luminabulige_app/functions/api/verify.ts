@@ -2,6 +2,7 @@
 export const onRequestPost = async ({ request }: { request: Request }) => {
   return handleVerify(request);
 };
+{ name: "Ed25519" } as any
 
 function json(body: unknown, init: ResponseInit = {}): Response {
   return new Response(JSON.stringify(body), {
@@ -119,13 +120,14 @@ async function handleVerify(request: Request): Promise<Response> {
     }
 
     // 6) WebCrypto で importKey → verify
-    const key = await crypto.subtle.importKey(
-      "raw",
-      rawKey, // 32 bytes
-      { name: "Ed25519" },
-      false,
-      ["verify"]
-    );
+  const key = await crypto.subtle.importKey(
+  "raw",
+  rawKey.buffer.slice(rawKey.byteOffset, rawKey.byteOffset + rawKey.byteLength),
+  { name: "Ed25519" },
+  false,
+  ["verify"],
+);
+
 
     // payloadは仕様に応じてエンコード
     // - そのまま文字列署名なら UTF-8 bytes

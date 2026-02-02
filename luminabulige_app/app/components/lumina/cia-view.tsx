@@ -1,7 +1,8 @@
 "use client"
 
 import { Shield, Lock, CheckCircle, Clock, FileText, ExternalLink, AlertTriangle, Hash } from "lucide-react"
-import type { CIAProfile, ActionLog } from "@/app/page"
+import type { CIAProfile, ActionLog } from "@/app/types/lumina"
+
 
 type CIAViewProps = {
   ciaProfile: CIAProfile

@@ -2,16 +2,17 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { ciaUi } from "./ciaUi ";
+//import { ciaUi } from "./ciaUi ";
 
 
 // すべて ui → ciaUi に置換
-ciaUi.color.ng
-
+//ciaUi.color.ng
+/*
 // 使用箇所
-ui.color.ng
-ui.color.ngBg
-import type { Result, VerifyResponse } from "@/app/lib/verify-types";
+//ui.color.ng
+//ui.color.ngBg
+import type { Result as VerifyResult, VerifyResponse } from "@/app/lib/verify-types";
+
 const p = resultPalette[result];
 
 return {
@@ -20,7 +21,7 @@ return {
   border: `1px solid ${p.br}`,
 };
 
-
+*/
 type ProofSummary = {
   proof_id?: string;
   created_at_ts?: number | string;
