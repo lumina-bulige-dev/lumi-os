@@ -1,0 +1,12 @@
+{
+  "id": "LB_mascot_2026-01-xx_v1",
+  "state": { "emotion": "calm|anxious|proud|…", "action": "pay|log|plan|…", "trigger": "sale|low_balance|late|…" },
+  "status": "green|yellow|red|gray",
+  "ui_slot": ["app.money","app.proof","verify.header"], 
+  "policy_flags": ["read_only","no_advice","no_custody"],
+  "scope": "insight-only",
+  "non_transferable": true,
+  "proof_link": "proof:…", 
+  "art_ref": "assets/mascot/<persona>/<file>.png",
+  "issued_at": "ISO-UTC"
+}

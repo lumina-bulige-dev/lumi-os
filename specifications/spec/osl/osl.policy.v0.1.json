@@ -1,0 +1,117 @@
+{
+  "osl_policy_version": "0.1",
+  "policy_id": "OSL-INFO-READONLY",
+  "brand": {
+    "name": "OSL (OS LUMINABULIGE)",
+    "profile": "info_strict",
+    "owner": "Legal Board",
+    "status": "canonical"
+  },
+  "scope": {
+    "host": "info.luminabulige.com",
+    "paths": ["/*"],
+    "notes": [
+      "Proof=改ざん検知であり真実性の主張ではない",
+      "Verify=第三者検証UIであり判断主体ではない"
+    ]
+  },
+  "risk_scale": {
+    "L": "Low",
+    "M": "Medium",
+    "H": "High"
+  },
+  "controls": [
+    {
+      "id": "INFO_NO_WRITE",
+      "intent": "Infoは読むだけ",
+      "category": ["Routing", "DataIntegrity"],
+      "deny": {
+        "methods": ["POST", "PUT", "PATCH", "DELETE"]
+      },
+      "enforcement": ["waf"],
+      "risk": "M",
+      "tests": [
+        {
+          "id": "T-INFO-NO-WRITE-1",
+          "method": "POST",
+          "url": "https://info.luminabulige.com/",
+          "expect": { "status_in": [403, 405] }
+        }
+      ],
+      "evidence": {
+        "source_of_truth": "spec/osl/osl.policy.v0.1.json",
+        "pr": null,
+        "cloudflare_rule_id": null
+      }
+    },
+    {
+      "id": "INFO_NO_EXTERNAL_NAV",
+      "intent": "外部サイトへ遷移させない",
+      "category": ["UX", "Governance", "GAFA-1000"],
+      "deny": {
+        "external_links": true,
+        "external_forms": true,
+        "oauth_login": true
+      },
+      "enforcement": ["ui", "csp"],
+      "risk": "M",
+      "csp": {
+        "default-src": ["'self'"],
+        "connect-src": ["'self'"],
+        "img-src": ["'self'", "data:"],
+        "script-src": ["'self'"],
+        "style-src": ["'self'"],
+        "frame-ancestors": ["'none'"],
+        "base-uri": ["'none'"],
+        "form-action": ["'self'"]
+      },
+      "tests": [
+        {
+          "id": "T-INFO-NO-EXT-1",
+          "type": "html_scan",
+          "rule": "no-clickable-external-links",
+          "expect": { "violations": 0 }
+        }
+      ],
+      "evidence": {
+        "source_of_truth": "spec/osl/osl.policy.v0.1.json",
+        "pr": null,
+        "csp_header": "Content-Security-Policy"
+      }
+    }
+  ],
+  "comparability": {
+    "dimensions": [
+      "Write prevention",
+      "External navigation suppression",
+      "Auditability",
+      "Rollback readiness"
+    ],
+    "mappings": {
+      "owasp_asvs": [],
+      "iso27001": [],
+      "soc2": []
+    }
+  },
+  "operations": {
+    "change_process": {
+      "source": "GitHub PR only",
+      "direct_push": "deny",
+      "review_required": true
+    },
+    "dod": [
+      "https://info.luminabulige.com/",
+      "https://info.luminabulige.com/literacy.html",
+      "https://info.luminabulige.com/jp/33-okayama/gate-info/summary.html"
+    ],
+    "dod_expectations": [
+      "301/302混線なし",
+      "404なし（assets含む）",
+      "app/apiへ飛ばない"
+    ],
+    "rollback": {
+      "method": "Cloudflare Pages rollback to previous deployment",
+      "trigger": ["redirect-mixing", "external-nav", "unexpected-write"]
+    }
+  }
+}

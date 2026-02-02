@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "1.0.0",
+  "name": "LumiNonPro Merge Policy",
+  "singleSourceOfTruth": {
+    "remote": "origin",
+    "branch": "main"
+  },
+
+  "requireWorkflow": {
+    "mustSyncBeforePush": true,
+    "syncCommand": "git pull --rebase origin main",
+    "denyPushIfBehind": true,
+    "denyPushIfDirty": true,
+    "denyPushIfUnresolvedConflicts": true
+  },
+
+  "patchMerge": {
+    "patchDir": ".luminonpro/patches",
+    "allLog": ".luminonpro/patches/alllog/alllog.jsonl",
+    "applyOrder": "timestamp_asc",
+    "idempotencyKey": "patchId",
+    "onMissingPatchFile": "STOP_AND_REQUIRE_HUMAN"
+  },
+
+  "categories": {
+    "allowed": ["BuildFix", "RefactorSafe", "UIOnly", "ContractChange"],
+    "autoPass": ["BuildFix", "RefactorSafe", "UIOnly"],
+    "requiresHuman": ["ContractChange"]
+  },
+
+  "conflictPolicy": {
+    "default": "STOP_AND_REQUIRE_HUMAN",
+    "autoResolve": {
+      "enabled": true,
+      "strategies": [
+        {
+          "when": { "categoryIn": ["BuildFix", "RefactorSafe", "UIOnly"] },
+          "strategy": "REBASE_PREFER_REMOTE_THEN_APPLY_PATCH",
+          "notes": "mainを唯一正として先に合わせ、その上にPatchを当てる"
+        }
+      ]
+    },
+    "hardStopIfTouched": {
+      "paths": [
+        "luminabulige_app/.luminonpro/frame.json",
+        "luminabulige_app/.luminonpro/merge.json",
+        "luminabulige_app/app/(protected)/",
+        "luminabulige_app/app/proof/",
+        "luminabulige_app/app/verify/",
+        "luminabulige_app/functions/api/",
+        "luminabulige_app/apilumi/",
+        "luminabulige_app/app/types/"
+      ],
+      "reason": "基盤・契約・検証導線の誤改変を防止（法務/誤解リスク優先）"
+    }
+  },
+
+  "pathRules": {
+    "allowedPaths": [
+      "luminabulige_app/app/",
+      "luminabulige_app/functions/",
+      "luminabulige_app/apilumi/",
+      "luminabulige_app/public/",
+      "luminabulige_app/app/types/"
+    ],
+    "protectedPaths": [
+      "luminabulige_app/.luminonpro/",
+      "luminabulige_app/app/proof/",
+      "luminabulige_app/app/verify/",
+      "luminabulige_app/functions/api/",
+      "luminabulige_app/app/types/"
+    ],
+    "denyIfOutsideAllowedPaths": true
+  },
+
+  "forbiddenSignals": {
+    "forbiddenWords": [
+      "cat >",
+      "<<'EOF'",
+      "BEGIN_SIGNING",
+      "event not found",
+      "rm -rf",
+      "curl | sh",
+      "BEGIN:VEVENT",
+      "END:VEVENT"
+    ],
+    "action": "STOP_AND_REQUIRE_HUMAN",
+    "reason": "コマンド誤貼り/危険操作/自動生成ログ混入を遮断"
+  },
+
+  "humanGate": {
+    "questionSet": [
+      "理由：何を改善したい？（1文）",
+      "影響：どこに波及する？（ファイル/機能/ユーザー）",
+      "誤解可能性：ユーザーが誤読すると何が起きる？",
+      "善良可能性：この変更が当たると何が良くなる？（価値仮説）"
+    ],
+    "emitMarker": "鬼門疑問符",
+    "requiresHumanFlagName": "requiresHuman"
+  }
+}

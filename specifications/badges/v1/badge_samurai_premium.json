@@ -1,0 +1,29 @@
+{
+  "v": 1,
+  "kind": "SBT",
+
+  "chain_id": "u:<userIdHash>",
+
+  "badge_id": "badge_kabuto_premium_v1",
+  "badge_ver": 1,
+  "badge_hash": "b64u(sha256(JCS(badge_payload)))",
+
+  "issued_at": "2026-01-20T00:00:00.000Z",
+
+  "issuer": "lumi-core-api",
+  "kid": "ed25519-2026-01",
+
+  "trigger": {
+    "type": "GATE",
+    "ref": "event:<eventId>"
+  },
+
+  "disclaimer": {
+    "no_value": true,
+    "no_transfer": true,
+    "no_credit": true,
+    "intent": "ofPresentDay"
+  },
+
+  "sig": "b64u(ed25519_sign(priv, JCS(this_payload_without_sig)))"
+}

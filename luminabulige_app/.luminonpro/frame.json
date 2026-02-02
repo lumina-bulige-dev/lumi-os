@@ -1,0 +1,151 @@
+{
+  "labo": "LumiNonPro Labo",
+  "frame_version": "0.1",
+  "generated_at": "2026-01-23T00:00:00+09:00",
+  "truth": {
+    "proof_is_tamper_detection": true,
+    "verify_is_ui_not_judgement": true,
+    "no_legal_ethical_misleading": true
+  },
+
+  "single_source_of_truth": {
+    "remote": "origin",
+    "branch": "main",
+    "rule": "merge_to_main_requires_up_to_date_base",
+    "enforcement": "must_pull_rebase_before_push"
+  },
+
+  "categories": {
+    "BuildFix": {
+      "auto_merge": true,
+      "requires_human": false,
+      "allowed_paths": [
+        "luminabulige_app/**"
+      ],
+      "blocked_paths": [
+        "luminabulige_app/app/proof/**",
+        "luminabulige_app/app/verify/**",
+        "luminabulige_app/app/disclaimer/**",
+        "luminabulige_app/app/**/route.ts",
+        "luminabulige_app/app/**/route.tsx"
+      ],
+      "required_checks": [
+        "npm run build"
+      ],
+      "limits": {
+        "max_files_changed": 25,
+        "max_total_line_delta": 800
+      }
+    },
+
+    "RefactorSafe": {
+      "auto_merge": true,
+      "requires_human": false,
+      "allowed_paths": [
+        "luminabulige_app/**"
+      ],
+      "blocked_paths": [
+        "luminabulige_app/app/proof/**",
+        "luminabulige_app/app/verify/**",
+        "luminabulige_app/app/disclaimer/**",
+        "luminabulige_app/app/**/route.ts",
+        "luminabulige_app/app/**/route.tsx"
+      ],
+      "required_checks": [
+        "npm run build"
+      ],
+      "limits": {
+        "max_files_changed": 40,
+        "max_total_line_delta": 1200
+      }
+    },
+
+    "UIOnly": {
+      "auto_merge": true,
+      "requires_human": false,
+      "allowed_paths": [
+        "luminabulige_app/app/**/*.tsx",
+        "luminabulige_app/app/**/*.ts",
+        "luminabulige_app/app/**/*.css",
+        "luminabulige_app/public/**"
+      ],
+      "blocked_paths": [
+        "luminabulige_app/app/proof/**",
+        "luminabulige_app/app/verify/**",
+        "luminabulige_app/app/disclaimer/**"
+      ],
+      "forbidden_words": [
+        "guarantee",
+        "guaranteed",
+        "100% safe",
+        "truth",
+        "証明された真実",
+        "絶対",
+        "必ず儲かる",
+        "投資助言",
+        "銀行",
+        "預金",
+        "利回り保証",
+        "financial advice",
+        "investment advice",
+        "custody",
+        "No risk"
+      ],
+      "required_checks": [
+        "npm run build"
+      ],
+      "limits": {
+        "max_files_changed": 20,
+        "max_total_line_delta": 600
+      }
+    },
+
+    "ContractChange": {
+      "auto_merge": false,
+      "requires_human": true,
+      "protected_paths": [
+        "luminabulige_app/app/proof/**",
+        "luminabulige_app/app/verify/**",
+        "luminabulige_app/app/disclaimer/**",
+        "luminabulige_app/app/**/route.ts",
+        "luminabulige_app/app/**/route.tsx",
+        "luminabulige_app/app/robots.txt",
+        "luminabulige_app/app/sitemap.xml",
+        "luminabulige_app/public/**"
+      ],
+      "required_checks": [
+        "npm run build"
+      ],
+      "hard_stop": true
+    }
+  },
+
+  "fence": {
+    "protected_touch_is_instant_stop": true,
+    "deviation_score": {
+      "range": [0, 100],
+      "thresholds": {
+        "auto_ok": 25,
+        "needs_review": 50,
+        "hard_stop": 70
+      },
+      "weights": {
+        "touched_protected_paths": 60,
+        "touched_route_handlers": 40,
+        "forbidden_words_hit": 35,
+        "files_changed_over_limit": 20,
+        "line_delta_over_limit": 15
+      }
+    }
+  },
+
+  "reporting": {
+    "emit": [
+      "patch_summary",
+      "deviation_score",
+      "blocked_reasons",
+      "suggested_category"
+    ],
+    "one_build_one_frame": true
+  }
+}

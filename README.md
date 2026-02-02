@@ -3,6 +3,52 @@
 This repository (`lumi-os`) is the **canonical specification repository**
 for the LUMINA BULIGE ecosystem.
 
+📝 README 追記案（特許申請済み表記を含む）
+
+📘 プロジェクト概要（改訂版）
+### 3C Sub-Brand & Neo/NewGeneration Architecture  
+This project incorporates the **3C (Creative / Connected / Core)** sub-brand as its foundational design philosophy.  
+All next-generation specifications under the **Neo / NewGeneration** architecture are built upon these principles.
+
+The core structural logic, boundary‑management mechanisms, and safety‑preserving invariants include  
+**patent‑pending (特許申請済み) technologies**, ensuring reproducibility, transparency, and long‑term resilience.
+
+A dual‑layer **quantum‑resilient architecture** is adopted:
+- **Base Layer (施工予定の量子対策)**: foundational quantum‑resistant structure integrated into the core.  
+- **Operational Layer (上位レイヤー量子対策)**: dynamic quantum‑resilience applied during runtime, independent from the base layer.
+
+These are not promotional claims but **structural requirements** essential to the integrity of the LUMINA BULIGE ecosystem.
+
+本プロジェクトは、3C（Creative / Connected / Core） をサブブランドとして掲げ、
+次世代仕様 Neo / New Generation をコンセプトに設計されたモジュール群で構成されています。
+
+本システムの中核となるアーキテクチャおよび制御方式は、
+特許申請済み（Patent Pending） の独自技術に基づいています。
+これにより、3C が示す価値（創造性・連結性・中核性）を、より高い安全性と再現性をもって実現します。
+
+🚀 Neo / New Generation とは
+
+Neo / New Generation は、従来の構造的制約を超え、
+「透明性・安全性・拡張性を同時に成立させる次世代フレーム」 を意味します。
+
+特許申請済みのコア技術により、以下を可能にします。
+
+• 動的な境界管理：ユーザーの定義したルールと権限を厳密に保持
+• 段階的拡張：最小構成から複雑構造まで一貫した動作
+• 安全性の保証：構造的リスクを事前に排除するアーキテクチャ
+
+🧩 既存の型を維持したままの挿入ポイント
+
+README の構造を変えずに入れるなら、以下の位置が自然。
+
+1. 冒頭のプロジェクト説明の直後
+2. コンセプト説明の前後
+3. 技術仕様セクションの冒頭に「Patent Pending Technology」項目を追加
+
+---
+
+
+
 All core rules, constraints, algorithms, and invariants that define
 the behavior, safety boundaries, and interpretation of LUMINA BULIGE
 are **authoritatively defined here**.
@@ -78,6 +124,28 @@ However:
 
 If an interpretation conflict arises between this repository and any
 other material, **this repository prevails**
+
+---
+
+## Two-tier structure (Public / AZR)
+
+This repository also hosts the two-tier structure used by LUMINA BULIGE:
+
+**First floor (Public / External)**
+- Purpose: read-only viewing for App / Verify / Share / Docs.
+- No approval or decision actions exist here.
+- Proof receipts are the integrity source and are displayed only.
+
+**Second floor (AZR / Decision & Control)**
+- Human-only Admin UI (AZR console).
+- Decisions API records approval events into the ledger (D1).
+- No automatic approval logic.
+
+### Deployment notes
+- Public UI builds with Cloudflare Pages using `pages:build`.
+- Bind KV `LUMI_PROOFS` for proof receipt reads (verify/share views).
+- Bind D1 `DB` for decisions ledger tables.
+- Node version: 22.
 
 
 Trademark Policy
@@ -376,5 +444,4 @@ This repository is the official specification backbone of LUMI OS.
 All external development, internal logic, and product execution rely on the definitions here.
 
 ────────────────────────────
-
 

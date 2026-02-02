@@ -1,0 +1,84 @@
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        "200":
+          description: OK
+
+  /webhooks/wise:
+    post:
+      summary: Wise webhook receiver (signature required)
+      parameters:
+        - in: header
+          name: wise-signature
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Accepted
+        "400":
+          description: Bad request / invalid signature
+
+  /wise/profiles:
+    get:
+      summary: Wise profiles inventory (server-side fetch)
+      description: |
+        LUMINAがWise API（/v1/profiles）をサーバー側で呼び出し、profileId等を在庫化するための取得口。
+        - Proof=改ざん検知であり真実性を主張しない
+        - Verify=判断UIではなく、取得結果の提示
+      parameters:
+        - in: header
+          name: X-LB-Token
+          required: true
+          description: LUMINA internal access token (server-side / admin-only)
+          schema:
+            type: string
+        - in: query
+          name: env
+          required: false
+          description: wise | wise-sandbox（運用で切替。未指定なら既定）
+          schema:
+            type: string
+            enum: [wise, wise-sandbox]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [source, profiles]
+                properties:
+                  source:
+                    type: string
+                    description: Upstream source identifier
+                    example: wise:/v1/profiles
+                  profiles:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/WiseProfile"
+        "401":
+          description: Unauthorized (missing/invalid token)
+        "502":
+          description: Upstream Wise error / fetch failed
+
+components:
+  schemas:
+    WiseProfile:
+      type: object
+      required: [id, type]
+      properties:
+        id:
+          type: integer
+          description: Wise profileId
+          example: 12345678
+        type:
+          type: string
+          description: Profile type
+          example: PERSONAL
+        details:
+          type: object
+          description: Optional upstream details (minimize & redact as needed)
+          additionalProperties: true

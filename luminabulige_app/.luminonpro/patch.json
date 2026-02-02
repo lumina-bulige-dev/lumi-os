@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "1.0.0",
+  "patchId": "2026-01-23T0000Z-0001",
+  "createdAt": "2026-01-23T00:00:00Z",
+  "author": {
+    "actor": "human",
+    "name": "lumina-bulige-dev",
+    "device": "vscode"
+  },
+
+  "category": "BuildFix",
+  "requiresHuman": false,
+
+  "intent": {
+    "reason": "何を改善したい？（1文）",
+    "impact": {
+      "files": ["luminabulige_app/app/cia/VClient.tsx"],
+      "features": ["verify ui"],
+      "users": ["viewer"]
+    },
+    "misreadRisk": "ユーザーが誤解すると何が起きる？",
+    "goodOutcome": "当たると何が良くなる？（価値仮説）"
+  },
+
+  "scope": {
+    "allowedPaths": ["luminabulige_app/"],
+    "touchedPaths": ["luminabulige_app/app/cia/VClient.tsx"],
+    "protectedTouched": false
+  },
+
+  "changes": [
+    {
+      "op": "replaceFile",
+      "path": "luminabulige_app/app/cia/VClient.tsx",
+      "contentType": "text/tsx; charset=utf-8",
+      "content": "/* full file content here */\n"
+    }
+  ],
+
+  "signals": {
+    "kimonQuestionMark": {
+      "active": false,
+      "trigger": null,
+      "note": null
+    }
+  },
+
+  "checks": {
+    "lintTypecheck": {
+      "command": "npm run build",
+      "result": "unknown",
+      "logTail": null
+    }
+  },
+
+  "links": {
+    "relatedAllLogAppend": true,
+    "relatedIssue": null
+  }
+}

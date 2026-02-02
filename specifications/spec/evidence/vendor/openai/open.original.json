@@ -1,0 +1,52 @@
+{
+  "canonical": true,
+  "vendor": "openai",
+  "doc_type": "vendor_policy_profile",
+  "profile_version": "0.1.0",
+  "osl_policy_version": "0.1",
+  "positioning": {
+    "role": "external_vendor",
+    "notes": [
+      "This file is a canonical operational profile, not a legal guarantee.",
+      "Proof is tamper-detection, not truth."
+    ]
+  },
+  "scope": {
+    "allowed_usage": ["behind_worker_only"],
+    "forbidden_usage": ["public_info_zone_login", "direct_oauth_in_info_zone"]
+  },
+  "controls": {
+    "must": [
+      "no_external_nav_in_info",
+      "no_login_in_info",
+      "kill_switch_user_owned",
+      "human_decision_only_for_approval"
+    ],
+    "must_not": [
+      "represent_as_legal_advice",
+      "claim_truth_or_legality_guarantee",
+      "encourage_investment_like_language_in_nepic"
+    ]
+  },
+  "kpi_policy": {
+    "primary": ["inventory", "drift_detection", "change_log"],
+    "secondary": ["availability"],
+    "not_primary": ["latency_metrics_only"]
+  },
+  "dod": {
+    "always_check": [
+      "info_no_redirect_to_app_or_api",
+      "no_external_click_nav_from_info",
+      "no_301_302_misroute",
+      "diff_is_generated_on_change"
+    ]
+  },
+  "evidence_pointers": [
+    "spec/evidence/vendor/openai/openai.original.json",
+    "spec/evidence/vendor/openai/Open AI ok.pdf"
+  ],
+  "hash_placeholders": {
+    "evidence_sha256": null,
+    "canonical_sha256": null
+  }
+}

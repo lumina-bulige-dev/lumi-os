@@ -1,0 +1,28 @@
+{
+  "spec_version": "0.1.0",
+  "kind": "badge_bindings",
+  "namespace": "money",
+  "bindings": [
+    { "badge_id": "badge_money_paid_v1", "events": ["PAID"] },
+    { "badge_id": "badge_money_budgeting_v1", "events": ["BUDGET_SET", "PLAN_CREATED"] },
+    { "badge_id": "badge_money_frugal_mode_v1", "events": ["NEEDS_ONLY", "FRUGAL_TOGGLE"] },
+    { "badge_id": "badge_money_saved_v1", "events": ["SAVING_CONTRIBUTED", "GOAL_PROGRESS"] },
+
+    { "badge_id": "badge_money_sale_temptation_v1", "events": ["TEMPTATION_DETECTED", "SALE_VIEW"] },
+    { "badge_id": "badge_money_impulse_buy_v1", "events": ["IMPULSE_BUY_RECORDED"] },
+    { "badge_id": "badge_money_regret_v1", "events": ["REGRET_NOTED", "REFLECTION_ADDED"] },
+
+    { "badge_id": "badge_money_payment_late_v1", "events": ["PAYMENT_LATE_RECORDED"] },
+    { "badge_id": "badge_money_low_balance_v1", "events": ["LOW_BALANCE", "DECLINED"] },
+    { "badge_id": "badge_money_fee_shock_v1", "events": ["FEE_SPIKE", "FEE_NOTED"] },
+    { "badge_id": "badge_money_near_breakdown_v1", "events": ["CRISIS_FLAGGED"] },
+    { "badge_id": "badge_money_rebuild_start_v1", "events": ["RECOVERY_PLAN_STARTED", "RESET_DECLARED"] }
+  ]
+}
+{
+  "spec_version": "0.1.0",
+  "kind": "badge_rule_hint_norm",
+  "separator_semantics": "OR",
+  "note": "rule_hint内の「A / B」は、AまたはBのイベント発生で発火可能を示す。",
+  "source": "user_provided_badge_definitions"
+}

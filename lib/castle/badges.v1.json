@@ -1,0 +1,11 @@
+{
+  "event_type": "badge",
+  "event_name": "streak_30_recorded",
+  "schema": 1,
+  "body": {
+    "badge_id": "badge_castle_samurai_premium_v1",
+    "badge_version": 1,
+    "badge_manifest_hash": "<hash>",
+    "trigger": "streak_30"
+  }
+}
