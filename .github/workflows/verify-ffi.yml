@@ -1,6 +1,6 @@
 name: Verify FFI Build & Error Codes (Hardened)
 
-on:on: workflow_dispatch:
+on:on: workflow/dispatch:
 
   pull_request:
     types: [opened, synchronize, reopened]
