@@ -13,7 +13,7 @@ The template engine follows a **three-phase AST-based architecture**:
 1. **Tokenizer** (`app/lib/template/tokenizer.ts`)
    - Single-pass lexical analysis
    - Converts template strings to token stream
-   - Handles text, variables (`{{...}}`), and logic tags (`{%...%}`)
+   - Handles text, variables ({% raw %}`{{...}}`{% endraw %}), and logic tags ({% raw %}`{%...%}`{% endraw %})
    - Supports string literals, numbers, identifiers, and operators
 
 2. **Parser** (`app/lib/template/parser.ts`)
@@ -33,30 +33,36 @@ The template engine follows a **three-phase AST-based architecture**:
 #### Logic Constructs
 
 **Conditionals:**
+{% raw %}
 ```
 {% if condition %}...{% endif %}
 {% if x %}...{% else %}...{% endif %}
 {% if x %}...{% elseif y %}...{% else %}...{% endif %}
 ```
+{% endraw %}
 
 **Loops:**
+{% raw %}
 ```
 {% for item in items %}
   {{item}} (index: {{item_index}})
 {% endfor %}
 ```
+{% endraw %}
 
 **Variable Assignment:**
+{% raw %}
 ```
 {% set name = value %}
 {% set slug = title|lower %}
 ```
+{% endraw %}
 
 #### Operators
 
 - **Comparison:** `==`, `!=`, `>`, `<`, `>=`, `<=`, `contains`
 - **Logical:** `and`, `or`, `not`
-- **Nullish Coalescing:** `??` (e.g., `{{title ?? "Untitled"}}`)
+- **Nullish Coalescing:** `??` (e.g., {% raw %}`{{title ?? "Untitled"}}`{% endraw %})
 - **Grouping:** Parentheses for expression grouping
 
 #### Filters
@@ -102,6 +108,7 @@ Built-in filters for data transformation:
 ## Usage Examples
 
 ### Basic Variable Interpolation
+{% raw %}
 ```typescript
 import { compileTemplate } from './app/lib/template';
 
@@ -111,8 +118,10 @@ const result = await compileTemplate(
 );
 // Output: "Hello, LUMI User!"
 ```
+{% endraw %}
 
 ### Conditional Logic
+{% raw %}
 ```typescript
 const result = await compileTemplate(
   '{% if balance > 100000 %}Rich{% else %}Saving{% endif %}',
@@ -120,8 +129,10 @@ const result = await compileTemplate(
 );
 // Output: "Rich"
 ```
+{% endraw %}
 
 ### Looping
+{% raw %}
 ```typescript
 const result = await compileTemplate(
   '{% for item in items %}{{item}} {% endfor %}',
@@ -129,6 +140,7 @@ const result = await compileTemplate(
 );
 // Output: "a b c "
 ```
+{% endraw %}
 
 ### LUMI OS Integration
 ```typescript
