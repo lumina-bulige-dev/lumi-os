@@ -1,0 +1,103 @@
+name: Verify FFI Build & Error Codes (Hardened)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+      - release/**
+
+jobs:
+  verify-ffi:
+    name: Hardened FFI Build & Error Sync
+    runs-on: macos-latest
+    timeout-minutes: 60
+
+    steps:
+      # --- 基本セットアップ ---
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+
+      - name: Prepare timestamp
+        run: |
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          echo "TIMESTAMP=${TIMESTAMP}" >> $GITHUB_ENV
+
+      # --- C：FFI ビルド境界の強化 ---
+      - name: Build FFI for x86_64 (simulator)
+        run: |
+          mkdir -p build_logs
+          CARGO_BUILD_TARGET=x86_64-apple-ios swift/build_ffi.sh --release > build_logs/build_x86_64_${TIMESTAMP}.log 2>&1
+          if [ $? -ne 0 ]; then
+            echo "Error: Build for x86_64 failed." | tee -a build_logs/build_x86_64_${TIMESTAMP}.log
+            exit 1
+          fi
+
+      - name: Build FFI for aarch64-sim (Apple Silicon simulator)
+        run: |
+          CARGO_BUILD_TARGET=aarch64-apple-ios-sim swift/build_ffi.sh --release > build_logs/build_aarch64_sim_${TIMESTAMP}.log 2>&1
+          if [ $? -ne 0 ]; then
+            echo "Error: Build for aarch64-sim failed." | tee -a build_logs/build_aarch64_sim_${TIMESTAMP}.log
+            exit 1
+          fi
+
+      - name: Build FFI for aarch64 (device)
+        run: |
+          CARGO_BUILD_TARGET=aarch64-apple-ios swift/build_ffi.sh --release > build_logs/build_aarch64_device_${TIMESTAMP}.log 2>&1
+          if [ $? -ne 0 ]; then
+            echo "Error: Build for aarch64 failed." | tee -a build_logs/build_aarch64_device_${TIMESTAMP}.log
+            exit 1
+          fi
+
+      # --- D：CI の境界アーキテクチャ（ログ存在チェック） ---
+      - name: Check build_logs directory
+        run: |
+          if [ -d "build_logs" ]; then
+            echo "build_logs directory exists:"
+            ls -al build_logs/
+          else
+            echo "Error: build_logs directory does not exist!" 1>&2
+            exit 1
+          fi
+
+      # --- verify_error_codes.sh の境界強化 ---
+      - name: Run verify_error_codes.sh
+        run: |
+          mkdir -p verify_logs
+          if [ ! -d "verify_logs" ]; then
+            echo "Error: verify_logs directory could not be created!" 1>&2
+            exit 1
+          fi
+
+          EXIT_CODE=0
+          ./verify_error_codes.sh > verify_logs/verify_${TIMESTAMP}.txt 2>&1 || EXIT_CODE=$?
+
+          echo "EXIT_CODE=${EXIT_CODE}" >> verify_logs/verify_${TIMESTAMP}.txt
+
+          if [ "${EXIT_CODE}" -ne 0 ]; then
+            echo "verify_error_codes.sh failed with exit ${EXIT_CODE}" | tee -a verify_logs/verify_${TIMESTAMP}.txt
+            exit ${EXIT_CODE}
+          fi
+
+      # --- 監査ログ（境界の外側） ---
+      - name: Upload build logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: ffi-build-logs-${{ env.TIMESTAMP }}
+          path: build_logs/
+
+      - name: Upload verify logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: verify-logs-${{ env.TIMESTAMP }}
+          path: verify_logs/
