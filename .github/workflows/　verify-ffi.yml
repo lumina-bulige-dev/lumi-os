@@ -18,12 +18,12 @@ jobs:
       # --- 基本セットアップ ---
       - name: Checkout
         uses: actions/checkout@v4
-        with:
+        with: actions/checkout@<COMMITSHA>
           fetch-depth: 0
 
       - name: Set up Rust
         uses: actions-rs/toolchain@v1
-        with:
+        with: actions/setup-node@<COMMITSHA>
           toolchain: stable
           profile: minimal
           override: true
