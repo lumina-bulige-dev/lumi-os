@@ -1,4 +1,5 @@
-{
+// Example badge data structure
+export const exampleBadge = {
   "v": 1,
   "kind": "SBT",
   "chain_id": "u:<userIdHash>",
@@ -18,5 +19,12 @@
     "no_transfer": true,
     "no_credit": true
   }
-}
+};
 
+export default {
+  async fetch(): Promise<Response> {
+    return new Response(JSON.stringify(exampleBadge), {
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+};
