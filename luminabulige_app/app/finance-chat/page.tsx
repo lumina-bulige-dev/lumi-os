@@ -3,13 +3,11 @@
 
 export default function FinanceChatPage() {
   return (
-    <div style={{ height: '100vh' }}>
-      <iframe
-        src="https://v0-finance-app-wheat-theta.vercel.app/"
-        style={{ width: '100%', height: '100%', border: 'none' }}
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        loading="lazy"
-      />
+    <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ textAlign: 'center', padding: '2rem' }}>
+        <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Finance Chat</h1>
+        <p>This feature is currently unavailable.</p>
+      </div>
     </div>
   );
 }

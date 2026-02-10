@@ -18,6 +18,5 @@ next-env.d.ts
 
 # backups / artifacts
 *.bak
-.vercel/
 .wrangler/
 luminabulige-app@*

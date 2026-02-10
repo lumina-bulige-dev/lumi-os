@@ -192,7 +192,7 @@ export default function ControlPanelPage() {
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <div className="text-sm font-medium">Environment</div>
-          <Select value={env} onValueChange={(v) => setEnv(v as Env)}>
+          <Select value={env} onValueChange={(v: string) => setEnv(v as Env)}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select env" />
             </SelectTrigger>
@@ -208,7 +208,7 @@ export default function ControlPanelPage() {
           <ToggleGroup
             type="multiple"
             value={targets}
-            onValueChange={(vals) => setTargets(vals as Target[])}
+            onValueChange={(vals: string[]) => setTargets(vals as Target[])}
             className="justify-start flex-wrap"
           >
             <ToggleGroupItem value="app" aria-label="app">
@@ -318,7 +318,7 @@ export default function ControlPanelPage() {
 
             <div className="space-y-2">
               <div className="text-sm font-medium">rollback.strategy</div>
-              <Select value={rollbackStrategy} onValueChange={(v) => setRollbackStrategy(v as any)}>
+              <Select value={rollbackStrategy} onValueChange={(v: string) => setRollbackStrategy(v as any)}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select rollback" />
                 </SelectTrigger>
@@ -370,6 +370,7 @@ export default function ControlPanelPage() {
                 onClick={() => navigator.clipboard.writeText(JSON.stringify(manifestPreview, null, 2))}
               >
                 Copy JSON
+              </Button>
               <Button
   variant="default"
   disabled={!canApprove}
