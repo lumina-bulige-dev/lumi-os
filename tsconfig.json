@@ -39,6 +39,9 @@
     "**/*.tsx"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "lumi-core-api",
+    "luminabulige_app",
+    "workspaces"
   ]
 }

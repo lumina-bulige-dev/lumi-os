@@ -3,7 +3,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 //import { ciaUi } from "./ciaUi ";
-type VerifyResultT = "OK" | "NG" | "REVOKED" | "UNKNOWN";
 
 // すべて ui → ciaUi に置換
 //ciaUi.color.ng
@@ -34,14 +33,6 @@ type ProofSummary = {
   status?: string;
 };
 
-  counts?: { SAFE?: number; WARNING?: number; DANGER?: number; total?: number };
-  ruleset_version?: string;
-  payload_hash_b64u?: string;
-  kid?: string;
-  alg?: string;
-  sig_ts?: number | string;
-  status?: string;
-
 type VerifyResponse = {
   ok: boolean;
   result: VerifyResultT | string;
@@ -54,16 +45,19 @@ type VerifyResponse = {
   message?: string;
   need?: string[];
   got?: any;
+};
+
+type VerifyResultT = "OK" | "NG" | "REVOKED" | "UNKNOWN";
 
 const CRITERIA: Record<VerifyResultT, string> = {
   OK: "署名が一致しました",
   NG: "署名が一致しませんでした",
   REVOKED: "発行元が無効化しています",
   UNKNOWN: "鍵情報が取得できませんでした",
+};
 
 const API_ORIGIN =
   process.env.NEXT_PUBLIC_API_ORIGIN ?? "https://api.luminabulige.com";
-type VerifyResultT = "OK" | "NG" | "REVOKED" | "UNKNOWN";
 
 
 
