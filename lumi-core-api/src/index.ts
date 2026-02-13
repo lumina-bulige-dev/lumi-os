@@ -108,6 +108,17 @@ function parseJws(token: string) {
     return null;
   }
 }
+function parseJwsPayload(token: string) {
+  const parts = token.split(".");
+  if (parts.length !== 3) return null;
+  const payloadB64 = parts[1];
+  try {
+    const payloadJson = new TextDecoder().decode(base64UrlDecode(payloadB64));
+    return JSON.parse(payloadJson) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
 async function loadJwkForKid(kid: string, jwksJson: string | undefined) {
   if (!jwksJson) return null;
   try {
@@ -226,17 +237,16 @@ async function handleInviteVerify(req: Request, env: Env) {
 }
 type ShareReceipt = {
   token: string;
-  report_id: string;
-  expires_at?: string;
   [key: string]: unknown;
 };
 type ReportReceipt = {
   token: string;
-  report_id: string;
   [key: string]: unknown;
 };
 type ConsentReceipt = {
   token: string;
+  presence_only?: boolean;
+  importance?: string;
   [key: string]: unknown;
 };
 function hasString(value: unknown): value is string {
@@ -261,28 +271,34 @@ async function handleVerifyReport(req: Request, env: Env) {
   const shareKey = `proof:v1:share:${token}`;
   const shareReceipt = await env.PROOFS.get<ShareReceipt>(shareKey, "json");
   if (!shareReceipt) return receiptNotFound();
-  if (!hasString(shareReceipt.token) || !hasString(shareReceipt.report_id)) {
-    return signatureInvalid();
-  }
-  if (shareReceipt.expires_at) {
-    const expiresAt = Date.parse(shareReceipt.expires_at);
+  if (!hasString(shareReceipt.token)) return signatureInvalid();
+  const shareVerification = await verifyProof(shareReceipt.token, env);
+  if (!shareVerification.ok) return signatureInvalid();
+  const sharePayload = parseJwsPayload(shareReceipt.token);
+  if (!sharePayload || !hasString(sharePayload.report_id)) return signatureInvalid();
+  if (hasString(sharePayload.expires_at)) {
+    const expiresAt = Date.parse(sharePayload.expires_at);
     if (Number.isNaN(expiresAt)) return signatureInvalid();
     if (Date.now() > expiresAt) return tokenExpired();
   }
-  const shareVerification = await verifyProof(shareReceipt.token, env);
-  if (!shareVerification.ok) return signatureInvalid();
-  const reportKey = `proof:v1:report:${shareReceipt.report_id}`;
+  const reportKey = `proof:v1:report:${sharePayload.report_id}`;
   const reportReceipt = await env.PROOFS.get<ReportReceipt>(reportKey, "json");
   if (!reportReceipt) return receiptNotFound();
-  if (!hasString(reportReceipt.token) || !hasString(reportReceipt.report_id)) {
-    return signatureInvalid();
-  }
+  if (!hasString(reportReceipt.token)) return signatureInvalid();
   const reportVerification = await verifyProof(reportReceipt.token, env);
   if (!reportVerification.ok) return signatureInvalid();
+  const reportPayload = parseJwsPayload(reportReceipt.token);
+  if (!reportPayload) return signatureInvalid();
   return json(
     {
-      verification: { result: "OK", reason: "signature_ok" },
-      report: { report_id: reportReceipt.report_id },
+      verification: { result: "OK" },
+      report: {
+        report_id: sharePayload.report_id,
+        doc_fingerprint: reportPayload.doc_fingerprint ?? null,
+        issued_at: reportPayload.issued_at ?? null,
+        issuer: reportPayload.issuer ?? null,
+        ledger_log_id: reportPayload.ledger_log_id ?? null,
+      },
       disclaimer: { proof_only: true },
     },
     200
@@ -299,7 +315,25 @@ async function handleVerifyConsent(req: Request, env: Env) {
   if (!hasString(receipt.token)) return signatureInvalid();
   const verification = await verifyProof(receipt.token, env);
   if (!verification.ok) return signatureInvalid();
-  return json({ presence: "present", verification: { result: "OK" }, disclaimer: { proof_only: true } }, 200);
+  const payload = parseJwsPayload(receipt.token);
+  if (!payload) return signatureInvalid();
+  return json(
+    {
+      presence: "present",
+      verification: { result: "OK" },
+      consent: {
+        presence_only: true,
+        importance: "low",
+        status: payload.status ?? null,
+        accepted_at: payload.accepted_at ?? null,
+        revoked_at: payload.revoked_at ?? null,
+        masked_phone: payload.masked_phone ?? null,
+        ledger_log_id: payload.ledger_log_id ?? null,
+      },
+      disclaimer: { proof_only: true },
+    },
+    200
+  );
 }
 type EventAppendBody = {
   // 誰のチェーンか（ユーザー単位）
