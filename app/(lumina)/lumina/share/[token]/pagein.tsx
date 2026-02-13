@@ -7,7 +7,8 @@ async function getReceipt(token: string) {
   if (!kv) {
     return undefined;
   }
-  return kv.get(token);
+  const result = await kv.get(token);
+  return result ? String(result) : undefined;
 }
 
 export default async function LuminaSharePage({ params }: { params: { token: string } }) {

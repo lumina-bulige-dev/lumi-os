@@ -4,6 +4,10 @@
 type D1Database = any;
 // KV
 interface KVNamespace {
+  get(key: string, type?: "text"): Promise<string | null>;
+  get(key: string, type: "json"): Promise<unknown>;
+  get(key: string, type: "arrayBuffer"): Promise<ArrayBuffer | null>;
+  get(key: string, type: "stream"): Promise<ReadableStream | null>;
   get(key: string, options?: unknown): Promise<unknown>;
   put(key: string, value: string, options?: unknown): Promise<void>;
   delete(key: string, options?: unknown): Promise<void>;
@@ -18,4 +22,13 @@ interface D1PreparedStatement {
 
 interface D1Database {
   prepare(query: string): D1PreparedStatement;
+}
+
+// Cloudflare Environment
+interface CloudflareEnv {
+  LUMI_PROOFS?: KVNamespace;
+  PROOFS?: KVNamespace;
+  PROOFS_JWKS?: string;
+  LUMI_DB?: D1Database;
+  DB?: D1Database;
 }

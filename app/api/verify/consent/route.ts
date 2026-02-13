@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { getRequestContext } from "@cloudflare/next-on-pages";
 import { proofKvKeys } from "@/app/lib/proofs/keys";
-import { isProofReceipt, verifyReceipt } from "@/app/lib/proofs/verify";
+import { isProofReceipt, verifyReceipt, type VerificationFailureReason } from "@/app/lib/proofs/verify";
 
 type ConsentReceipt = {
+  v: number;
   type: "consent_presence";
   presence_only: true;
   importance: "low";
@@ -34,7 +35,7 @@ function receiptNotFound() {
   );
 }
 
-function invalidSignature(reason: "signature_invalid" | "payload_hash_mismatch") {
+function invalidSignature(reason: VerificationFailureReason) {
   return NextResponse.json(
     {
       error: reason,

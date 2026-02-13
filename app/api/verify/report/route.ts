@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { getRequestContext } from "@cloudflare/next-on-pages";
 import { proofKvKeys } from "@/app/lib/proofs/keys";
-import { isProofReceipt, verifyReceipt } from "@/app/lib/proofs/verify";
+import { isProofReceipt, verifyReceipt, type VerificationFailureReason } from "@/app/lib/proofs/verify";
 
 type ShareReceipt = {
+  v: number;
   type: "share";
   token: string;
   report_id: string;
@@ -17,6 +18,7 @@ type ShareReceipt = {
 };
 
 type ReportReceipt = {
+  v: number;
   type: "report";
   report_id: string;
   doc_fingerprint: string;
@@ -52,7 +54,7 @@ function tokenExpired() {
   );
 }
 
-function invalidSignature(reason: "signature_invalid" | "payload_hash_mismatch") {
+function invalidSignature(reason: VerificationFailureReason) {
   return NextResponse.json(
     {
       error: reason,

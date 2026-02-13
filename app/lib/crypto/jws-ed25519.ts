@@ -1,5 +1,5 @@
 import canonicalize from "canonicalize";
-import { sha256 } from "@noble/hashes/sha256";
+import { sha256 } from "@noble/hashes/sha2.js";
 import * as ed from "@noble/ed25519";
 
 function b64url(bytes: Uint8Array) {

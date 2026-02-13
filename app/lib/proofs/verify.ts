@@ -8,7 +8,7 @@ type ProofReceipt = Record<string, unknown> & {
   sig: string;
 };
 
-type VerificationFailureReason = "missing" | "expired" | "signature_invalid" | "payload_hash_mismatch";
+export type VerificationFailureReason = "missing" | "expired" | "signature_invalid" | "payload_hash_mismatch";
 
 type VerificationResult = {
   ok: boolean;
