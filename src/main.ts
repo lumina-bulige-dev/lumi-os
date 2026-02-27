@@ -1,5 +1,15 @@
-import * as LumiCore from './core';
+import { __LumiCore } from "./internal/__lumi-core";
 
-// 必要に応じて内部で使用、または window に出す
-// window.__LumiCore = LumiCore;
+// 観測者の状態（仮）
+const observer = {
+  position: "Okayama",
+  intent: "Preserve Sovereignty",
+  psychologicalState: "Focused",
+  narrativeContext: "LumiOS Genesis",
+};
 
+// デモ暗号化
+const packet = __LumiCore.QUQTEXFOLCON.encryptWithQuantumKey("Hello, Lumi‑OS!", observer);
+
+// 出力確認
+console.log("🔐 Encrypted Packet:", packet);
