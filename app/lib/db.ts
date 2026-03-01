@@ -7,7 +7,6 @@ export type Db = {
 
 export async function getDb(): Promise<Db> {
   const driver = process.env.LUMI_DB_DRIVER ?? "d1"; // 既定をd1推奨（ローカルはstubにしてもOK）
-console.log("[DB_DRIVER]", driver); // ← ここが正解
   switch (driver) {
     case "d1":
       return createD1Db();

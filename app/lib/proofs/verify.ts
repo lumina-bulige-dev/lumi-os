@@ -50,9 +50,12 @@ function canonicalJson(value: unknown) {
 async function sha256Hex(value: string) {
   const data = textEncoder.encode(value);
   const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  return Array.from(new Uint8Array(hashBuffer))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+  const bytes = new Uint8Array(hashBuffer);
+  const parts: string[] = [];
+  for (let i = 0; i < bytes.length; i++) {
+    parts.push(bytes[i].toString(16).padStart(2, "0"));
+  }
+  return parts.join("");
 }
 
 function stripSigFields(receipt: ProofReceipt) {
