@@ -41,17 +41,19 @@ async function persistDecisionToDb(manifest: any, approver: string) {
     ]
   );
 
-  // 2) latest pointer upsert per target
-  for (const t of targets) {
-    await db.execute(
-      `INSERT INTO decision_latest (env, target, decision_id, updated_at)
-       VALUES (?, ?, ?, datetime('now'))
-       ON CONFLICT(env, target) DO UPDATE SET
-         decision_id=excluded.decision_id,
-         updated_at=datetime('now')`,
-      [env, t, manifest.decision_id]
-    );
-  }
+  // 2) latest pointer upsert per target (run concurrently)
+  await Promise.all(
+    targets.map((t: string) =>
+      db.execute(
+        `INSERT INTO decision_latest (env, target, decision_id, updated_at)
+         VALUES (?, ?, ?, datetime('now'))
+         ON CONFLICT(env, target) DO UPDATE SET
+           decision_id=excluded.decision_id,
+           updated_at=datetime('now')`,
+        [env, t, manifest.decision_id]
+      )
+    )
+  );
 
   return approved_at;
 }

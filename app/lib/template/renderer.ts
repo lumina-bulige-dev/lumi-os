@@ -33,17 +33,17 @@ export interface RenderResult {
 
 export async function render(ast: ASTNode[], context: RenderContext): Promise<RenderResult> {
 	const errors: string[] = [];
-	let output = '';
+	const parts: string[] = [];
 
 	for (const node of ast) {
 		try {
-			output += await renderNode(node, context);
+			parts.push(await renderNode(node, context));
 		} catch (error) {
 			errors.push(`Error rendering node at line ${node.line}: ${error instanceof Error ? error.message : String(error)}`);
 		}
 	}
 
-	return { output, errors };
+	return { output: parts.join(''), errors };
 }
 
 // ============================================================================
@@ -81,32 +81,32 @@ async function renderIf(node: any, context: RenderContext): Promise<string> {
 	const condition = await evaluateExpression(node.condition, context);
 
 	if (isTruthy(condition)) {
-		let output = '';
+		const parts: string[] = [];
 		for (const childNode of node.consequent) {
-			output += await renderNode(childNode, context);
+			parts.push(await renderNode(childNode, context));
 		}
-		return output;
+		return parts.join('');
 	}
 
 	// Check elseif branches
 	for (const elseif of node.elseifs) {
 		const elseifCondition = await evaluateExpression(elseif.condition, context);
 		if (isTruthy(elseifCondition)) {
-			let output = '';
+			const parts: string[] = [];
 			for (const childNode of elseif.body) {
-				output += await renderNode(childNode, context);
+				parts.push(await renderNode(childNode, context));
 			}
-			return output;
+			return parts.join('');
 		}
 	}
 
 	// Check else branch
 	if (node.alternate) {
-		let output = '';
+		const parts: string[] = [];
 		for (const childNode of node.alternate) {
-			output += await renderNode(childNode, context);
+			parts.push(await renderNode(childNode, context));
 		}
-		return output;
+		return parts.join('');
 	}
 
 	return '';
@@ -119,7 +119,6 @@ async function renderFor(node: any, context: RenderContext): Promise<string> {
 		return '';
 	}
 
-	let output = '';
 	let items: any[] = [];
 
 	// Convert iterable to array
@@ -132,6 +131,7 @@ async function renderFor(node: any, context: RenderContext): Promise<string> {
 	}
 
 	// Create loop context
+	const parts: string[] = [];
 	for (let i = 0; i < items.length; i++) {
 		const loopContext: RenderContext = {
 			variables: context.variables,
@@ -144,11 +144,11 @@ async function renderFor(node: any, context: RenderContext): Promise<string> {
 		};
 
 		for (const childNode of node.body) {
-			output += await renderNode(childNode, loopContext);
+			parts.push(await renderNode(childNode, loopContext));
 		}
 	}
 
-	return output;
+	return parts.join('');
 }
 
 async function renderSet(node: any, context: RenderContext): Promise<string> {
